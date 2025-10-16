@@ -1,0 +1,54 @@
+QLKAHYTOON/
+│
+├── App_Data/                     // Chứa file CSDL nếu dùng localDB
+│
+├── App_Start/
+│   ├── RouteConfig.cs            // Cấu hình URL routing
+│   ├── FilterConfig.cs
+│   └── ...
+│
+├── Content/                      // Chứa file CSS, font, hình ảnh tĩnh
+│   ├── bootstrap.min.css
+│   └── Site.css
+│
+├── Controllers/                  // Chứa các file Controller
+│   ├── HomeController.cs         // Điều khiển trang chủ, giới thiệu...
+│   ├── TruyenController.cs       // Điều khiển trang chi tiết, đọc truyện, tìm kiếm
+│   ├── AccountController.cs      // Điều khiển đăng nhập, đăng ký, đăng xuất
+│   ├── UserController.cs         // Điều khiển trang cá nhân, lịch sử, truyện yêu thích
+│   └── AdminController.cs        // (Hoặc trong một Area riêng) Điều khiển trang quản trị
+│
+├── Models/                       // Chứa các lớp Model
+│   ├── MyComicDB.dbml            // File LINQ to SQL hoặc EDMX của Entity Framework
+│   ├── MyComicDB.designer.cs
+│   ├── ViewModels/               // (NÊN CÓ) Chứa các model dành riêng cho View
+│   │   ├── HomeViewModel.cs      // Model chứa nhiều danh sách truyện cho trang chủ
+│   │   ├── TruyenDetailViewModel.cs// Model chứa thông tin truyện và danh sách chương
+│   │   └── RegisterViewModel.cs  // Model cho form đăng ký với các validation
+│   └── ...
+│
+├── Scripts/                      // Chứa các file Javascript
+│   ├── jquery-3.x.x.min.js
+│   └── bootstrap.min.js
+│
+├── Views/                        // Chứa các file View (.cshtml)
+│   ├── Home/                     // Các view cho HomeController
+│   │   └── Index.cshtml
+│   ├── Truyen/                   // Các view cho TruyenController
+│   │   ├── ChiTiet.cshtml
+│   │   └── DocTruyen.cshtml
+│   ├── Account/                  // Các view cho AccountController
+│   │   ├── Login.cshtml
+│   │   └── Register.cshtml
+│   ├── User/
+│   │   ├── Profile.cshtml
+│   │   └── LichSuDoc.cshtml
+│   ├── Admin/                    // Các view cho AdminController
+│   │   └── ...
+│   └── Shared/                   // Các view hoặc partial view dùng chung
+│       ├── _Layout.cshtml          // Layout chính của trang
+│       ├── _Header.cshtml          // Partial view cho header
+│       └── _Footer.cshtml          // Partial view cho footer
+│
+├── Global.asax
+└── Web.config                    // File cấu hình, bao gồm chuỗi kết nối CSDL
