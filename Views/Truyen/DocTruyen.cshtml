@@ -1,0 +1,54 @@
+﻿@model QLKAHYTOON.Models.chuong
+@{
+    ViewBag.Title = $"Đọc truyện {Model.thongtintruyen.TenTruyen} - Chương {Model.SoChuong}";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Đảm bảo dùng layout chung
+    var danhSachAnh = ViewBag.DanhSachAnh as List<string>;
+}
+
+<style>
+    .reading-container img {
+        max-width: 100%;
+        display: block;
+        margin: 0 auto 5px auto; /* Canh giữa ảnh và tạo khoảng cách */
+    }
+
+    .navigation-buttons {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="text-center">
+    <h1>@Model.thongtintruyen.TenTruyen</h1>
+    <h3>Chương @Model.SoChuong - @Model.TenChuong</h3>
+    <p><em>(Nếu ảnh bị lỗi, vui lòng nhấn F5 để tải lại)</em></p>
+</div>
+
+<div class="text-center navigation-buttons">
+    <a href="#" class="btn btn-primary">Chương Trước</a>
+    <a href="@Url.Action("ChiTiet", "Truyen", new { id = Model.MaTruyen.Trim() })" class="btn btn-default">Danh sách chương</a>
+    <a href="#" class="btn btn-primary">Chương Sau</a>
+</div>
+
+<hr />
+
+<div class="reading-container">
+    @if (danhSachAnh != null && danhSachAnh.Any())
+    {
+        foreach (var anh in danhSachAnh)
+        {
+            <img class="lazyload" data-src="@Url.Content(anh)" alt="Trang truyện" />        }
+    }
+    else
+    {
+        <p class="text-center">Nội dung chương đang được cập nhật...</p>
+    }
+</div>
+
+<hr />
+
+<div class="text-center navigation-buttons">
+    <a href="#" class="btn btn-primary">Chương Trước</a>
+    <a href="@Url.Action("ChiTiet", "Truyen", new { id = Model.MaTruyen.Trim() })" class="btn btn-default">Danh sách chương</a>
+    <a href="#" class="btn btn-primary">Chương Sau</a>
+</div>

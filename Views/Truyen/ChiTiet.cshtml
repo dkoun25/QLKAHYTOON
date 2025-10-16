@@ -1,0 +1,66 @@
+﻿@model QLKAHYTOON.Models.thongtintruyen
+@{
+    ViewBag.Title = Model.TenTruyen;
+    var danhSachChuong = ViewBag.DanhSachChuong as List<QLKAHYTOON.Models.chuong>;
+}
+
+<style>
+    .comic-detail-card {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+        margin-top: 20px;
+    }
+
+    .chapter-list {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #eee;
+        padding: 10px;
+    }
+</style>
+
+<h2>@Model.TenTruyen</h2>
+
+<div class="row">
+    <div class="col-md-4">
+        <img src="@Model.AnhTruyen" class="img-responsive thumbnail" alt="@Model.TenTruyen" />
+    </div>
+    <div class="col-md-8">
+        <h3>Thông tin chi tiết</h3>
+        <ul class="list-group">
+            <li class="list-group-item"><strong>Tác giả:</strong> @Model.TacGia</li>
+            <li class="list-group-item"><strong>Thể loại:</strong> @Model.TenTheLoai</li>
+            <li class="list-group-item"><strong>Trạng thái:</strong> @Model.TrangThai</li>
+            <li class="list-group-item"><strong>Ngày đăng:</strong> @Model.NgayDang.Value.ToString("dd/MM/yyyy")</li>
+        </ul>
+        <a href="#" class="btn btn-success">Theo dõi</a>
+        @if (danhSachChuong != null && danhSachChuong.Any())
+        {
+            <a href="@Url.Action("DocTruyen", "Truyen", new { id = danhSachChuong.First().MaChuong.Trim() })" class="btn btn-primary">Đọc từ đầu</a>
+        }
+    </div>
+</div>
+
+<div class="row comic-detail-card">
+    <div class="col-md-12">
+        <h3><span class="glyphicon glyphicon-list"></span> Danh sách chương</h3>
+        <hr />
+        <div class="list-group chapter-list">
+            @if (danhSachChuong != null)
+            {
+                foreach (var chuong in danhSachChuong)
+                {
+                    <a href="@Url.Action("DocTruyen", "Truyen", new { id = chuong.MaChuong.Trim() })" class="list-group-item">
+                        Chương @chuong.SoChuong - @chuong.TenChuong
+                        <span class="pull-right">@chuong.NgayDang.Value.ToString("dd/MM/yyyy")</span>
+                    </a>
+                }
+            }
+            else
+            {
+                <p>Truyện chưa có chương nào.</p>
+            }
+        </div>
+    </div>
+</div>

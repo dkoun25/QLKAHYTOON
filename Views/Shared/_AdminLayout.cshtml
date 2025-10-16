@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Trang Quản Trị</title>
+    @Styles.Render("~/Content/css")
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link href="~/Content/AdminLayout.css" rel="stylesheet" />
+</head>
+<body>
+    <div id="wrapper">
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav">
+                <li class="sidebar-brand">
+                    <a href="@Url.Action("Index", "Admin")">
+                        Trang Quản Trị
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("Index", "Home")" target="_blank"><i class="fas fa-home"></i> Xem trang chính</a>
+                </li>
+                <li>
+                    <a href="@Url.Action("Index", "Admin")"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                </li>
+                <li>
+                    <a href="@Url.Action("QuanLyTruyen", "Admin")"><i class="fas fa-book"></i> Quản Lý Truyện</a>
+                </li>
+                <li>
+                    <a href="@Url.Action("QuanLyNguoiDung", "Admin")"><i class="fas fa-users"></i> Quản Lý Người Dùng</a>
+                </li>
+                <li>
+                    <a href="@Url.Action("QuanLyBaoCao", "Admin")"><i class="fas fa-flag"></i> Quản Lý Báo Cáo</a>
+                </li>
+                <li>
+                    <a href="@Url.Action("QuanLyAdmin", "Admin")"><i class="fas fa-user-shield"></i> Quản Lý Admin</a>
+                </li>
+                <hr />
+                <li>
+                    <a href="@Url.Action("CaiDat", "Admin")"><i class="fas fa-cog"></i> Cài đặt tài khoản</a>
+                </li>
+                <li>
+                    <a href="@Url.Action("Logout", "Account")"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+                </li>
+            </ul>
+        </div>
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        @RenderBody()
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

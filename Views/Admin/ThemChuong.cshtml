@@ -1,0 +1,56 @@
+﻿@{
+    ViewBag.Title = "Thêm Chương Mới";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml"; // THÊM DÒNG NÀY
+    var truyen = ViewBag.ThongTinTruyen as QLKAHYTOON.Models.thongtintruyen;
+}
+
+<h2>Thêm chương mới cho truyện: @truyen.TenTruyen</h2>
+<hr />
+
+@if (TempData["UploadSuccess"] != null)
+{
+    <div class="alert alert-success">@TempData["UploadSuccess"]</div>
+}
+@if (TempData["UploadError"] != null)
+{
+    <div class="alert alert-danger">@TempData["UploadError"]</div>
+}
+
+@using (Html.BeginForm("ThemChuong", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    // Dùng input ẩn để gửi MaTruyen về Controller
+    @Html.Hidden("maTruyen", truyen.MaTruyen)
+
+    <div class="form-horizontal">
+        <div class="form-group">
+            <label class="control-label col-md-2">Số chương</label>
+            <div class="col-md-10">
+                <input type="number" name="soChuong" class="form-control" required />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">Tên chương (nếu có)</label>
+            <div class="col-md-10">
+                <input type="text" name="tenChuong" class="form-control" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">Chọn ảnh của chương</label>
+            <div class="col-md-10">
+                <input type="file" name="files" id="fileUploader" class="form-control" multiple required />
+                <p class="help-block">Bạn có thể chọn nhiều ảnh cùng lúc. Các ảnh sẽ được tự động sắp xếp theo thứ tự bạn chọn.</p>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Thêm Chương" class="btn btn-primary" />
+                <a href="#" class="btn btn-default">Quay lại danh sách truyện</a>
+            </div>
+        </div>
+    </div>
+}
