@@ -7,6 +7,7 @@ using QLKAHYTOON.Models;
 
 namespace QLKAHYTOON.Controllers
 {
+
     public class HomeController : Controller
     {
         // Sử dụng DataContext đúng với tên bạn đã tạo
@@ -38,6 +39,14 @@ namespace QLKAHYTOON.Controllers
             ViewBag.TruyenNoiBat = truyenNoiBat;
 
             return View();
+        }
+        public ActionResult TheLoai()
+        {
+            // Lấy tất cả thể loại từ cơ sở dữ liệu
+            var danhSachTheLoai = db.theloais.ToList();
+
+            // Truyền danh sách thể loại này ra một View mới
+            return View(danhSachTheLoai);
         }
     }
 }
