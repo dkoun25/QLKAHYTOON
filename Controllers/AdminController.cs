@@ -1,4 +1,5 @@
 ﻿using QLKAHYTOON.Models;
+using QLKAHYTOON.Models.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,53 +9,82 @@ using System.Web.Mvc;
 
 namespace QLKAHYTOON.Controllers
 {
-    // Giả sử bạn có cơ chế check quyền Admin, nếu chưa có thì tạm thời bỏ qua
-    // [AuthorizeUser(Roles = "admin")] 
     public class AdminController : Controller
     {
         private QLKAHYTOONDataContext db = new QLKAHYTOONDataContext(System.Configuration.ConfigurationManager.ConnectionStrings["KAHYToonConnectionString"].ConnectionString);
 
+        // --- PHẦN ĐĂNG NHẬP ADMIN MỚI ---
+
+        // GET: Admin/Login
+        public ActionResult Login()
+        {
+            return View(); // Chúng ta sẽ tạo 1 View Login riêng cho Admin
+        }
+
+        // POST: Admin/Login
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Login(LoginViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Tìm kiếm trong bảng ADMIN
+                var adminUser = db.admins.SingleOrDefault(a => a.TenDangNhap == model.TenDangNhap && a.MatKhau == model.MatKhau);
+
+                if (adminUser != null)
+                {
+                    // Lưu session riêng cho Admin
+                    Session["Admin"] = adminUser;
+                    return RedirectToAction("Index", "Admin"); // Chuyển đến Dashboard
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Tài khoản Admin không đúng.");
+                }
+            }
+            return View(model);
+        }
+
+        // --- DASHBOARD VÀ CÁC CHỨC NĂNG KHÁC ---
+
         // GET: Admin (Dashboard)
         public ActionResult Index()
         {
+            // Kiểm tra xem Admin đã đăng nhập chưa
+            if (Session["Admin"] == null)
+            {
+                return RedirectToAction("Login", "Admin");
+            }
+            // (Code logic cho dashboard... ví dụ: đếm số truyện, số người dùng)
             return View();
         }
 
         // --- CÁC ACTION MỚI CHO SIDEBAR ---
-
         public ActionResult QuanLyTruyen()
         {
-            // Logic để hiển thị danh sách truyện sẽ được thêm vào đây
-            ViewBag.Message = "Đây là trang quản lý truyện.";
-            return View(); // Bạn sẽ cần tạo View cho Action này
+            if (Session["Admin"] == null) return RedirectToAction("Login", "Admin");
+
+            var danhSachTruyen = db.thongtintruyens.ToList();
+            return View(danhSachTruyen);
         }
 
         public ActionResult QuanLyNguoiDung()
         {
-            ViewBag.Message = "Đây là trang quản lý người dùng.";
-            return View();
+            if (Session["Admin"] == null) return RedirectToAction("Login", "Admin");
+
+            var danhSachNguoiDung = db.nguoidungs.ToList();
+            return View(danhSachNguoiDung);
         }
 
-        public ActionResult QuanLyBaoCao()
-        {
-            ViewBag.Message = "Đây là trang quản lý báo cáo.";
-            return View();
-        }
+        // (Thêm các Action khác cho QuanLyBaoCao, QuanLyAdmin, CaiDat...)
 
-        public ActionResult QuanLyAdmin()
-        {
-            ViewBag.Message = "Đây là trang quản lý các admin khác.";
-            return View();
-        }
+        // --- CHỨC NĂNG THÊM CHƯƠNG ---
 
-        public ActionResult CaiDat()
-        {
-            ViewBag.Message = "Đây là trang cài đặt tài khoản của bạn.";
-            return View();
-        }
         // GET: Admin/ThemChuong?maTruyen=MT_1
         public ActionResult ThemChuong(string maTruyen)
         {
+            if (Session["Admin"] == null) return RedirectToAction("Login", "Admin");
+
             if (string.IsNullOrEmpty(maTruyen))
             {
                 return new HttpStatusCodeResult(System.Net.HttpStatusCode.BadRequest);
@@ -65,7 +95,6 @@ namespace QLKAHYTOON.Controllers
                 return HttpNotFound();
             }
 
-            // Đưa thông tin truyện ra View để biết đang thêm chương cho truyện nào
             ViewBag.ThongTinTruyen = truyen;
             return View();
         }
@@ -75,70 +104,63 @@ namespace QLKAHYTOON.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult ThemChuong(string maTruyen, int soChuong, string tenChuong, IEnumerable<HttpPostedFileBase> files)
         {
+            if (Session["Admin"] == null) return RedirectToAction("Login", "Admin");
+
             if (files == null || !files.Any() || files.First() == null)
             {
-                // Xử lý lỗi nếu không có file nào được chọn
                 TempData["UploadError"] = "Vui lòng chọn ít nhất một file ảnh.";
                 return RedirectToAction("ThemChuong", new { maTruyen = maTruyen });
             }
 
-            // 1. Tạo đường dẫn thư mục để lưu ảnh
-            // Ví dụ: ~/Uploads/Chapters/pham-nhan-tu-tien/1/
             var truyen = db.thongtintruyens.Single(t => t.MaTruyen == maTruyen);
-            string truyenSlug = SlugHelper.GenerateSlug(truyen.TenTruyen); // Hàm tạo slug (tên-truyen-khong-dau)
+            string truyenSlug = SlugHelper.GenerateSlug(truyen.TenTruyen);
             string chapterPath = Server.MapPath("~/Uploads/Chapters/" + truyenSlug + "/" + soChuong);
 
-            // Tạo thư mục nếu nó chưa tồn tại
             Directory.CreateDirectory(chapterPath);
 
             var imagePaths = new List<string>();
             int imageCounter = 1;
 
-            // 2. Lặp qua từng file, lưu và tạo đường dẫn tương đối
             foreach (var file in files)
             {
                 if (file != null && file.ContentLength > 0)
                 {
-                    // Đặt lại tên file để tránh trùng lặp và dễ sắp xếp, vd: 01.jpg, 02.jpg
                     string extension = Path.GetExtension(file.FileName);
-                    string fileName = imageCounter.ToString("D2") + extension; // D2 -> 01, 02, ...
+                    string fileName = imageCounter.ToString("D2") + extension;
                     string savedFilePath = Path.Combine(chapterPath, fileName);
 
                     file.SaveAs(savedFilePath);
 
-                    // 3. Tạo đường dẫn tương đối để lưu vào CSDL
                     string relativePath = "/Uploads/Chapters/" + truyenSlug + "/" + soChuong + "/" + fileName;
                     imagePaths.Add(relativePath);
                     imageCounter++;
                 }
             }
 
-            // 4. Chuẩn bị dữ liệu và lưu chương mới vào CSDL
             var newChapter = new chuong
             {
                 MaChuong = "C" + Guid.NewGuid().ToString().Substring(0, 5).ToUpper(),
                 MaTruyen = maTruyen,
                 SoChuong = soChuong,
                 TenChuong = tenChuong,
-                AnhChuong = string.Join(";", imagePaths), // Nối các đường dẫn lại
+                AnhChuong = string.Join(";", imagePaths),
                 NgayDang = DateTime.Now
             };
 
             db.chuongs.InsertOnSubmit(newChapter);
             db.SubmitChanges();
 
-            TempData["UploadSuccess"] = $"Đã thêm thành công chương {soChuong} cho truyện {truyen.TenTruyen}!";
+            TempData["UploadSuccess"] = $"Đã thêm thành công chương {soChuong}!";
             return RedirectToAction("ThemChuong", new { maTruyen = maTruyen });
         }
     }
 
-    // LỚP HỖ TRỢ: Tạo một file mới tên SlugHelper.cs hoặc đặt ở cuối file controller
+    // Lớp SlugHelper giữ nguyên
     public static class SlugHelper
     {
         public static string GenerateSlug(string phrase)
         {
             string str = phrase.ToLower();
-            // Xóa các ký tự đặc biệt, thay khoảng trắng bằng gạch ngang
             str = System.Text.RegularExpressions.Regex.Replace(str, @"[^a-z0-9\s-]", "");
             str = System.Text.RegularExpressions.Regex.Replace(str, @"\s+", " ").Trim();
             str = str.Substring(0, str.Length <= 45 ? str.Length : 45).Trim();
