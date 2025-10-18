@@ -1,100 +1,192 @@
-﻿@{
+﻿@model QLKAHYTOON.Models.ViewModels.HomeViewModel
+@{
     ViewBag.Title = "Trang Chủ";
-    Layout = "~/Views/Shared/_Layout.cshtml"; // Đảm bảo dùng Layout chung
-
-    // Lấy danh sách truyện từ ViewBag
-    var truyenMoi = ViewBag.TruyenMoi as List<QLKAHYTOON.Models.thongtintruyen>;
-    var truyenXemNhieu = ViewBag.TruyenXemNhieu as List<QLKAHYTOON.Models.thongtintruyen>;
-    var truyenNoiBat = ViewBag.TruyenNoiBat as List<QLKAHYTOON.Models.thongtintruyen>;
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<style>
-    /* CSS cơ bản cho thẻ truyện, bạn có thể chỉnh sửa sau */
-    .comic-gallery .card {
-        margin-bottom: 20px;
-        border: 1px solid #ddd;
-        padding: 5px;
-        border-radius: 4px;
-    }
+@* BỎ COMMENT KHỐI NÀY *@
+@section Styles {
+    <link href="@Url.Content("~/Content/homepage.css")" rel="stylesheet" type="text/css" />
+}
 
-    .comic-gallery .card-img-top {
-        height: 250px;
-        object-fit: cover;
-        width: 100%;
-    }
+<div class="container">
 
-    .card-title {
-        height: 40px;
-        overflow: hidden;
-        font-size: 1em;
-        text-align: center;
-    }
-</style>
+    <section class="hot-slider-section mt-4">
+        <div id="hotSlider" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+            <div class="carousel-inner">
+                @for (int i = 0; i < Model.TruyenHotSlider.Count; i++)
+                {
+                    var truyen = Model.TruyenHotSlider[i];
+                    <div class="carousel-item @(i == 0 ? "active" : "")">
 
-<h2>Truyện Mới Cập Nhật</h2>
-<div class="row comic-gallery">
-    @if (truyenMoi != null && truyenMoi.Any())
-    {
-        foreach (var truyen in truyenMoi)
-        {
-            <div class="col-md-2 col-sm-4 col-xs-6">
-                <div class="card">
-                    <a href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })">
-                        <img src="@truyen.AnhTruyen" class="card-img-top" alt="@truyen.TenTruyen">
-                    </a>
-                    <div class="card-body">
-                        <h5 class="card-title">
-                            <a href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })">@truyen.TenTruyen</a>
-                        </h5>
+                        <div class="slider-background" style="background-image: url('@truyen.AnhTruyen')"></div>
+
+                        <div class="container h-100">
+                            <div class="row h-100 align-items-center slider-content">
+
+                                <div class="col-md-7 slider-content-left">
+                                    <h2>@truyen.TenTruyen</h2>
+
+                                    <p>@truyen.TacGia</p>
+                                    <p><i>(Mô tả ngắn của truyện... Bạn nên thêm cột 'MoTa' vào CSDL)</i></p>
+
+                                    <div class="slider-tags">
+                                        <p><a>@truyen.TenTheLoai</a></p>
+                                    </div>
+                                    <div>
+                                        <a href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })" class="btn btn-read-now">Đọc Ngay</a>
+                                        <a href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })" class="btn btn-view-info">View Info</a>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-5 slider-content-right">
+                                    <a href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })">
+                                        <img src="@truyen.AnhTruyen" class="slider-image-sharp" alt="@truyen.TenTruyen">
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#hotSlider" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#hotSlider" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            </button>
+        </div>
+    </section>
+
+    <section class="recommend-slider mt-4">
+        <h3 class="section-title">TRUYỆN ĐỀ CỬ</h3>
+        <div class="row row-cols-2 row-cols-md-5 g-3">
+            @foreach (var truyen in Model.TruyenDeCu.Take(5))
+            {
+                <div class="col">
+                    <div class="recommend-card">
+                        <a href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })">
+                            <img src="@truyen.AnhTruyen" alt="@truyen.TenTruyen">
+                        </a>
+                        <a href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })" class="comic-title">@truyen.TenTruyen</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="genre-section mt-4">
+        <h3 class="section-title">THỂ LOẠI</h3>
+        <div>
+            <a href="#" class="genre-button">Action</a>
+            <a href="#" class="genre-button">Manhwa</a>
+            <a href="#" class="genre-button">Huyền Huyễn</a>
+            <a href="#" class="genre-button">Tiên Hiệp</a>
+            <a href="#" class="genre-button">Ngôn Tình</a>
+            <a href="#" class="genre-button">Xuyên Không</a>
+        </div>
+    </section>
+
+    <div class="row main-content-area">
+
+        <div class="col-lg-8 update-list">
+            <h3 class="section-title">MỚI CẬP NHẬT</h3>
+            <div class="row row-cols-2 row-cols-md-3 g-3">
+                @* (Trong ảnh là 6 cột, nhưng 3 cột sẽ đẹp hơn trên layout 8-col) *@
+                @foreach (var truyen in Model.TruyenMoiCapNhat)
+                {
+                    <div class="col">
+                        <div class="truyen-card">
+                            <a href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })">
+                                <img src="@truyen.AnhTruyen" alt="@truyen.TenTruyen">
+                            </a>
+                            <div class="card-body">
+                                <a href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })">
+                                    <h5 class="card-title">@truyen.TenTruyen</h5>
+                                </a>
+                                <p class="card-text">Chapter 10</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <nav class="mt-4 d-flex justify-content-center">
+                <ul class="pagination">
+                    <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="col-lg-4 ranking-sidebar">
+            <div class="ranking-card">
+                <h3 class="section-title">XẾP HẠNG</h3>
+
+                <ul class="nav nav-tabs" id="rankingTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="top-day-tab" data-bs-toggle="tab" data-bs-target="#top-day" type="button" role="tab">Ngày</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="top-week-tab" data-bs-toggle="tab" data-bs-target="#top-week" type="button" role="tab">Tuần</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="top-month-tab" data-bs-toggle="tab" data-bs-target="#top-month" type="button" role="tab">Tháng</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="rankingTabContent">
+                    <div class="tab-pane fade show active" id="top-day" role="tabpanel">
+                        <ul class="ranking-list">
+                            @for (int i = 0; i < Model.TopNgay.Count; i++)
+                            {
+                                <li>
+                                    <span class="rank-number">@(i+1)</span>
+                                    <div class="comic-info">
+                                        <a href="@Url.Action("ChiTiet", "Truyen", new { id = Model.TopNgay[i].MaTruyen.Trim() })">@Model.TopNgay[i].TenTruyen</a>
+                                        <span>Chapter 10</span>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                    <div class="tab-pane fade" id="top-week" role="tabpanel">
+                        <ul class="ranking-list">
+                            @for (int i = 0; i < Model.TopTuan.Count; i++)
+                            {
+                                <li>
+                                    <span class="rank-number">@(i+1)</span>
+                                    <div class="comic-info">
+                                        <a href="@Url.Action("ChiTiet", "Truyen", new { id = Model.TopTuan[i].MaTruyen.Trim() })">@Model.TopTuan[i].TenTruyen</a>
+                                        <span>Chapter 20</span>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                    <div class="tab-pane fade" id="top-month" role="tabpanel">
+                        <ul class="ranking-list">
+                            @for (int i = 0; i < Model.TopThang.Count; i++)
+                            {
+                                <li>
+                                    <span class="rank-number">@(i+1)</span>
+                                    <div class="comic-info">
+                                        <a href="@Url.Action("ChiTiet", "Truyen", new { id = Model.TopThang[i].MaTruyen.Trim() })">@Model.TopThang[i].TenTruyen</a>
+                                        <span>Chapter 30</span>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
                     </div>
                 </div>
             </div>
-        }
-    }
+        </div>
+    </div>
 </div>
-<hr />
 
-<h2>Truyện Xem Nhiều</h2>
-<div class="row comic-gallery">
-    @if (truyenXemNhieu != null && truyenXemNhieu.Any())
-    {
-        foreach (var truyen in truyenXemNhieu)
-        {
-            <div class="col-md-2 col-sm-4 col-xs-6">
-                <div class="card">
-                    <a href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })">
-                        <img src="@truyen.AnhTruyen" class="card-img-top" alt="@truyen.TenTruyen">
-                    </a>
-                    <div class="card-body">
-                        <h5 class="card-title">
-                            <a href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })">@truyen.TenTruyen</a>
-                        </h5>
-                    </div>
-                </div>
-            </div>
-        }
-    }
-</div>
-<hr />
-
-<h2>Truyện Nổi Bật</h2>
-<div class="row comic-gallery">
-    @if (truyenNoiBat != null && truyenNoiBat.Any())
-    {
-        foreach (var truyen in truyenNoiBat)
-        {
-            <div class="col-md-2 col-sm-4 col-xs-6">
-                <div class="card">
-                    <a href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })">
-                        <img src="@truyen.AnhTruyen" class="card-img-top" alt="@truyen.TenTruyen">
-                    </a>
-                    <div class="card-body">
-                        <h5 class="card-title">
-                            <a href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })">@truyen.TenTruyen</a>
-                        </h5>
-                    </div>
-                </div>
-            </div>
-        }
-    }
-</div>
+@* Ghi chú: Cần Bootstrap 5 JS để Slider và Tabs hoạt động *@
