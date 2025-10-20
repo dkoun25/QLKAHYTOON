@@ -1,0 +1,301 @@
+﻿/* Giao diện Tối (như trong ảnh) */
+body {
+    background-color: #1a1a1a !important;
+    color: #e0e0e0 !important;
+}
+
+.section-title {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    border-bottom: 3px solid #e50914; /* Màu nhấn đỏ */
+    padding-bottom: 5px;
+    display: inline-block;
+}
+
+/* --- Slider HOT (Carousel) --- */
+.hot-slider-section .carousel-item {
+    position: relative;
+    height: 400px; /* Chiều cao cố định cho slider */
+    overflow: hidden; /* Ẩn các phần thừa */
+    border-radius: 8px;
+}
+
+/* Lớp nền mờ và tối đi */
+.slider-background {
+    position: absolute;
+    top: -10px; /* Kéo dãn ra để che viền mờ */
+    left: -10px;
+    width: calc(100% + 20px);
+    height: calc(100% + 20px);
+    background-size: cover;
+    background-position: center center;
+    filter: blur(8px) brightness(0.4); /* Đây là mấu chốt: làm mờ và làm tối */
+    z-index: 1;
+}
+
+/* Lớp nội dung (chữ + ảnh) nằm BÊN TRÊN lớp nền */
+.slider-content {
+    position: relative;
+    z-index: 2; /* Đảm bảo nội dung nổi lên trên */
+    height: 100%;
+}
+
+/* CSS cho phần chữ bên trái */
+.slider-content-left {
+    color: #fff;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+    .slider-content-left h2 {
+        font-weight: bold;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .slider-content-left p {
+        font-size: 0.9rem;
+        color: #e0e0e0;
+        max-height: 80px;
+        overflow: hidden;
+    }
+
+    .slider-content-left .slider-tags {
+        margin: 10px 0;
+    }
+
+        .slider-content-left .slider-tags .badge {
+            background-color: rgba(255,255,255,0.2);
+            color: #fff;
+            margin-right: 5px;
+            padding: 5px 10px;
+        }
+
+    .slider-content-left .btn-read-now {
+        background-color: #e50914; /* Màu đỏ */
+        border: none;
+        color: #fff;
+        font-weight: bold;
+        margin-right: 10px;
+    }
+
+    .slider-content-left .btn-view-info {
+        background-color: rgba(100,100,100,0.7);
+        border: none;
+        color: #fff;
+    }
+
+/* CSS cho phần ảnh bìa bên phải (như bạn yêu cầu) */
+.slider-content-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slider-image-sharp {
+    display: inline-block;
+    transform: rotate(15deg);
+    border: 20px solid #fff;
+    box-shadow: 0 30px 30px rgba(0, 0, 0, .2);
+    /* Thêm: đảm bảo ảnh không bị tràn */
+    max-height: 350px;
+    width: auto;
+    max-width: 90%;
+}
+
+/* --- Slider Đề Cử (5 cột) --- */
+.recommend-slider {
+    margin-bottom: 30px;
+}
+
+.recommend-card {
+    background-color: transparent;
+    border: none;
+    color: #fff;
+    text-align: center;
+}
+
+    .recommend-card img {
+        height: 250px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    .recommend-card .comic-title {
+        font-size: 1rem;
+        font-weight: 500;
+        text-decoration: none;
+        color: #e0e0e0;
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+        .recommend-card .comic-title:hover {
+            color: #e50914;
+        }
+
+/* --- Khu vực Thể Loại --- */
+.genre-section {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.genre-button {
+    background-color: #333;
+    border: 1px solid #444;
+    color: #e0e0e0;
+    padding: 8px 15px;
+    margin: 5px;
+    border-radius: 20px;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.2s;
+}
+
+    .genre-button:hover {
+        background-color: #e50914;
+        border-color: #e50914;
+        color: #fff;
+    }
+
+/* --- Khu vực Nội dung chính (Trái / Phải) --- */
+.main-content-area {
+    margin-top: 30px;
+}
+
+/* Thẻ truyện chung */
+.truyen-card {
+    background-color: #222;
+    border: 1px solid #333;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 15px;
+    transition: transform 0.2s;
+}
+
+    .truyen-card:hover {
+        transform: translateY(-5px);
+        border-color: #e50914;
+    }
+
+    .truyen-card img {
+        height: 220px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .truyen-card .card-body {
+        padding: 10px;
+    }
+
+    .truyen-card .card-title {
+        font-size: 0.9rem;
+        font-weight: bold;
+        color: #fff;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 5px;
+    }
+
+    .truyen-card .card-text {
+        font-size: 0.8rem;
+        color: #aaa;
+    }
+
+/* --- Sidebar Xếp Hạng (Bên phải) --- */
+.ranking-sidebar {
+    background-color: #222;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 15px;
+}
+    /* Tùy chỉnh Tabs */
+    .ranking-sidebar .nav-tabs {
+        border-bottom: 1px solid #444;
+    }
+
+        .ranking-sidebar .nav-tabs .nav-link {
+            background-color: transparent;
+            border: none;
+            color: #aaa;
+            font-weight: bold;
+        }
+
+            .ranking-sidebar .nav-tabs .nav-link.active {
+                background-color: transparent;
+                color: #e50914;
+                border-bottom: 2px solid #e50914;
+            }
+
+/* Danh sách top */
+.ranking-list {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 15px;
+}
+
+    .ranking-list li {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .ranking-list .rank-number {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #e50914;
+        margin-right: 10px;
+        width: 30px;
+    }
+
+    .ranking-list .comic-info a {
+        color: #e0e0e0;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .ranking-list .comic-info span {
+        font-size: 0.8rem;
+        color: #aaa;
+        display: block;
+    }
+/*
+-----------------------------------
+CSS VỊ TRÍ MŨI TÊN SLIDER
+-----------------------------------
+*/
+.hot-slider-section .carousel-control-prev,
+.hot-slider-section .carousel-control-next {
+    position: absolute;
+    top: unset;
+    bottom: 20px;
+    width: 45px;
+    height: 45px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    opacity: 0.8;
+    z-index: 3; /* <-- THÊM DÒNG NÀY ĐỂ NÚT NỔI LÊN TRÊN */
+}
+
+.hot-slider-section .carousel-control-next {
+    right: 20px; /* Nút Next bên phải */
+    left: unset; /* Tắt căn lề trái */
+}
+
+.hot-slider-section .carousel-control-prev {
+    right: 80px; /* Nút Prev nằm bên TRÁI nút Next */
+    left: unset; /* Tắt căn lề trái */
+}
+
+    .hot-slider-section .carousel-control-prev:hover,
+    .hot-slider-section .carousel-control-next:hover {
+        opacity: 1;
+        background-color: rgba(0, 0, 0, 0.4);
+    }
