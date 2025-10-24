@@ -1,4 +1,4 @@
-﻿create database KAHYToon
+create database KAHYToon
 use KAHYToon
 
 -- Xóa Khóa Ngoại Bảng lichsudoc
@@ -515,3 +515,40 @@ CREATE NONCLUSTERED INDEX IX_MaChuong_LSD ON lichsudoc (MaChuong);
 -- Indexes cho bảng thongtintruyen
 CREATE NONCLUSTERED INDEX IX_MaTheLoai_TTT ON thongtintruyen (MaTheLoai);
 GO
+--Lấy top 5 truyện bằng random dùng NEWID() --
+create proc sp_GetTruyenHotSilder
+as begin
+select top 5 t.MaTruyen, t.TenTruyen, t.AnhTruyen, t.TacGia, tl.TenTheLoai, t.Slug as MoTa from thongtintruyen t left join theloai tl on t.MaTheLoai=tl.MaTheLoai order by NEWID(); end
+go 
+--Lấy top 10 truyện dựa vào số sao đánh giá của truyện, dùng rankedTruyen để sắp xếp--
+create proc sp_GetTruyenDeCu 
+as begin 
+with rankedTruyen as (select MaTruyen,AVG(CAST(ISNULL(SoSao,0) as float)) as avgrating from danhgia group by MaTruyen)
+select top 10 t.MaTruyen, t.TenTruyen, t.AnhTruyen, t.TacGia,  tl.TenTheLoai, t.Slug as MoTa from thongtintruyen t join rankedTruyen r on t.MaTruyen=r.MaTruyen left join theloai tl on t.MaTheLoai = tl.MaTheLoai order by r.avgrating desc;
+end 
+
+go
+-- Lấy truyện mới nhất dựa vào ngày đăng-- 
+create proc sp_GetTruyenMoiNhat
+@SoLuong int = 18 as begin
+select top (@SoLuong) t.MaTruyen, t.TenTruyen, t.AnhTruyen, t.TacGia,  tl.TenTheLoai, t.Slug as MoTa from thongtintruyen t left join theloai tl on t.MaTheLoai = tl.MaTheLoai order by t.NgayDang desc; end
+
+create proc sp_GetTopTruyenByView
+@ThoiGian nvarchar(10)
+as begin 
+declare @StartDate datetime;
+if @ThoiGian ='Ngay' set @StartDate = GETDATE() - 1; -- 1 ngày qua --
+else if @ThoiGian = 'Tuan'
+set @StartDate = GETDATE() - 7;
+else if @ThoiGian = 'Thang'
+set @StartDate = GETDATE() - 30;
+else 
+set @StartDate = '1900-01-01';
+;with viewcount as(
+select MaTruyen, COUNT(MaLichSuDoc) as LuotXem from lichsudoc where ThoiGianDoc >=@StartDate group by MaTruyen
+)
+select top 10 t.MaTruyen, t.TenTruyen, t.AnhTruyen, t.TacGia,  tl.TenTheLoai, t.Slug as MoTa from thongtintruyen t join viewcount v on t.MaTruyen=v.MaTruyen left join theloai tl on t.MaTheLoai = tl.MaTheLoai order by v.LuotXem desc;
+end
+go
+
+
