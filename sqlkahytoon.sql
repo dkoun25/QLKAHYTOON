@@ -432,6 +432,7 @@ INSERT INTO truyenyeuthich (MaNguoiDung, MaTruyen, NgayThem) VALUES
 
 
 ---------------------------KHOA NGOAI-----------------------------
+
 -- Bảng: thongtintruyen
 ALTER TABLE thongtintruyen ADD CONSTRAINT FK_TTTruyen_TheLoai
     FOREIGN KEY (MaTheLoai) REFERENCES theloai (MaTheLoai);
@@ -515,3 +516,50 @@ CREATE NONCLUSTERED INDEX IX_MaChuong_LSD ON lichsudoc (MaChuong);
 -- Indexes cho bảng thongtintruyen
 CREATE NONCLUSTERED INDEX IX_MaTheLoai_TTT ON thongtintruyen (MaTheLoai);
 GO
+
+go
+-- Thủ tục lấy truyện hot làm poster
+CREATE PROC sp_GetTruyenHotSlider
+AS
+BEGIN
+    SELECT TOP 5 t.MaTruyen, t.TenTruyen, t.AnhTruyen, t.TacGia, tl.TenTheLoai, t.Slug AS MoTa FROM thongtintruyen t LEFT JOIN theloai tl ON t.MaTheLoai = tl.MaTheLoai ORDER BY NEWID(); 
+END
+GO
+-- Thủ tục lấy truyện đề cử dựa vào số sao đánh giá của người dùng
+CREATE PROC sp_GetTruyenDeCu
+AS 
+BEGIN
+;WITH RankedTruyen AS(
+SELECT MaTruyen, AVG(CAST(ISNULL(SoSao, 0) as float))as AvgRating from danhgia group by MaTruyen
+)
+SELECT TOP 10 t.MaTruyen, t.TenTruyen, t.AnhTruyen, t.TacGia, tl.TenTheLoai, t.Slug as MoTa  from thongtintruyen t join RankedTruyen r on t.MaTruyen=r.MaTruyen left join theloai tl on t.MaTheLoai=tl.MaTheLoai
+order by r.AvgRating desc;
+end
+go
+-- thủ tục lấy truyện mới nhất dựa vào ngày đăng
+CREATE PROC sp_GetTruyenMoiNhat
+@SoLuong int = 18
+as
+begin
+select TOP (@SoLuong) t.MaTruyen, t.TenTruyen, t.AnhTruyen, t.TacGia, tl.TenTheLoai, t.Slug as MoTa  from thongtintruyen t left join theloai tl on t.MaTheLoai=tl.MaTheLoai
+order by t.NgayDang desc;
+end
+go
+-- thủ tục lấy truyện top ngày, tuần, tháng dựa vào lượt xem 
+CREATE PROC sp_GetTopTruyenByView
+@ThoiGian nvarchar(10)
+as
+begin 
+declare @StartDate datetime;
+if @ThoiGian ='Ngay' SET @StartDate = GETDATE() - 1;
+else if @ThoiGian = 'Tuan' SET @StartDate = GETDATE() - 7;
+else if @ThoiGian = 'Thang' SET @StartDate = GETDATE() - 30;
+else set @StartDate = '1900-01-01';
+;with ViewCounts as(
+select MaTruyen, COUNT(MaLichSuDoc) as LuotXem from lichsudoc where ThoiGianDoc >=@StartDate group by MaTruyen)
+select top 10 t.MaTruyen, t.TenTruyen, t.AnhTruyen, t.TacGia, tl.TenTheLoai, t.Slug as MoTa  from thongtintruyen t join ViewCounts v on t.MaTruyen=v.MaTruyen  left join theloai tl on t.MaTheLoai=tl.MaTheLoai
+order by v.LuotXem desc;
+end
+go
+
+
