@@ -165,6 +165,34 @@ namespace QLKAHYTOON.Models
 				return this.GetTable<truyenyeuthich>();
 			}
 		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_GetTopTruyenByView")]
+		public ISingleResult<sp_GetTopTruyenByViewResult> sp_GetTopTruyenByView([global::System.Data.Linq.Mapping.ParameterAttribute(Name="ThoiGian", DbType="NVarChar(10)")] string thoiGian)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), thoiGian);
+			return ((ISingleResult<sp_GetTopTruyenByViewResult>)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_GetTruyenDeCu")]
+		public ISingleResult<sp_GetTruyenDeCuResult> sp_GetTruyenDeCu()
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())));
+			return ((ISingleResult<sp_GetTruyenDeCuResult>)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_GetTruyenHotSlider")]
+		public ISingleResult<sp_GetTruyenHotSliderResult> sp_GetTruyenHotSlider()
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())));
+			return ((ISingleResult<sp_GetTruyenHotSliderResult>)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_GetTruyenMoiNhat")]
+		public ISingleResult<sp_GetTruyenMoiNhatResult> sp_GetTruyenMoiNhat([global::System.Data.Linq.Mapping.ParameterAttribute(Name="SoLuong", DbType="Int")] System.Nullable<int> soLuong)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), soLuong);
+			return ((ISingleResult<sp_GetTruyenMoiNhatResult>)(result.ReturnValue));
+		}
 	}
 	
 	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.admin")]
@@ -3159,6 +3187,470 @@ namespace QLKAHYTOON.Models
 			if ((this.PropertyChanged != null))
 			{
 				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	public partial class sp_GetTopTruyenByViewResult
+	{
+		
+		private string _MaTruyen;
+		
+		private string _TenTruyen;
+		
+		private string _AnhTruyen;
+		
+		private string _TacGia;
+		
+		private string _TenTheLoai;
+		
+		private string _MoTa;
+		
+		public sp_GetTopTruyenByViewResult()
+		{
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MaTruyen", DbType="NVarChar(50) NOT NULL", CanBeNull=false)]
+		public string MaTruyen
+		{
+			get
+			{
+				return this._MaTruyen;
+			}
+			set
+			{
+				if ((this._MaTruyen != value))
+				{
+					this._MaTruyen = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TenTruyen", DbType="NVarChar(255)")]
+		public string TenTruyen
+		{
+			get
+			{
+				return this._TenTruyen;
+			}
+			set
+			{
+				if ((this._TenTruyen != value))
+				{
+					this._TenTruyen = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_AnhTruyen", DbType="NVarChar(500)")]
+		public string AnhTruyen
+		{
+			get
+			{
+				return this._AnhTruyen;
+			}
+			set
+			{
+				if ((this._AnhTruyen != value))
+				{
+					this._AnhTruyen = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TacGia", DbType="NVarChar(255)")]
+		public string TacGia
+		{
+			get
+			{
+				return this._TacGia;
+			}
+			set
+			{
+				if ((this._TacGia != value))
+				{
+					this._TacGia = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TenTheLoai", DbType="NVarChar(200)")]
+		public string TenTheLoai
+		{
+			get
+			{
+				return this._TenTheLoai;
+			}
+			set
+			{
+				if ((this._TenTheLoai != value))
+				{
+					this._TenTheLoai = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MoTa", DbType="NVarChar(255) NOT NULL", CanBeNull=false)]
+		public string MoTa
+		{
+			get
+			{
+				return this._MoTa;
+			}
+			set
+			{
+				if ((this._MoTa != value))
+				{
+					this._MoTa = value;
+				}
+			}
+		}
+	}
+	
+	public partial class sp_GetTruyenDeCuResult
+	{
+		
+		private string _MaTruyen;
+		
+		private string _TenTruyen;
+		
+		private string _AnhTruyen;
+		
+		private string _TacGia;
+		
+		private string _TenTheLoai;
+		
+		private string _MoTa;
+		
+		public sp_GetTruyenDeCuResult()
+		{
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MaTruyen", DbType="NVarChar(50) NOT NULL", CanBeNull=false)]
+		public string MaTruyen
+		{
+			get
+			{
+				return this._MaTruyen;
+			}
+			set
+			{
+				if ((this._MaTruyen != value))
+				{
+					this._MaTruyen = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TenTruyen", DbType="NVarChar(255)")]
+		public string TenTruyen
+		{
+			get
+			{
+				return this._TenTruyen;
+			}
+			set
+			{
+				if ((this._TenTruyen != value))
+				{
+					this._TenTruyen = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_AnhTruyen", DbType="NVarChar(500)")]
+		public string AnhTruyen
+		{
+			get
+			{
+				return this._AnhTruyen;
+			}
+			set
+			{
+				if ((this._AnhTruyen != value))
+				{
+					this._AnhTruyen = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TacGia", DbType="NVarChar(255)")]
+		public string TacGia
+		{
+			get
+			{
+				return this._TacGia;
+			}
+			set
+			{
+				if ((this._TacGia != value))
+				{
+					this._TacGia = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TenTheLoai", DbType="NVarChar(200)")]
+		public string TenTheLoai
+		{
+			get
+			{
+				return this._TenTheLoai;
+			}
+			set
+			{
+				if ((this._TenTheLoai != value))
+				{
+					this._TenTheLoai = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MoTa", DbType="NVarChar(255) NOT NULL", CanBeNull=false)]
+		public string MoTa
+		{
+			get
+			{
+				return this._MoTa;
+			}
+			set
+			{
+				if ((this._MoTa != value))
+				{
+					this._MoTa = value;
+				}
+			}
+		}
+	}
+	
+	public partial class sp_GetTruyenHotSliderResult
+	{
+		
+		private string _MaTruyen;
+		
+		private string _TenTruyen;
+		
+		private string _AnhTruyen;
+		
+		private string _TacGia;
+		
+		private string _TenTheLoai;
+		
+		private string _MoTa;
+		
+		public sp_GetTruyenHotSliderResult()
+		{
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MaTruyen", DbType="NVarChar(50) NOT NULL", CanBeNull=false)]
+		public string MaTruyen
+		{
+			get
+			{
+				return this._MaTruyen;
+			}
+			set
+			{
+				if ((this._MaTruyen != value))
+				{
+					this._MaTruyen = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TenTruyen", DbType="NVarChar(255)")]
+		public string TenTruyen
+		{
+			get
+			{
+				return this._TenTruyen;
+			}
+			set
+			{
+				if ((this._TenTruyen != value))
+				{
+					this._TenTruyen = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_AnhTruyen", DbType="NVarChar(500)")]
+		public string AnhTruyen
+		{
+			get
+			{
+				return this._AnhTruyen;
+			}
+			set
+			{
+				if ((this._AnhTruyen != value))
+				{
+					this._AnhTruyen = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TacGia", DbType="NVarChar(255)")]
+		public string TacGia
+		{
+			get
+			{
+				return this._TacGia;
+			}
+			set
+			{
+				if ((this._TacGia != value))
+				{
+					this._TacGia = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TenTheLoai", DbType="NVarChar(200)")]
+		public string TenTheLoai
+		{
+			get
+			{
+				return this._TenTheLoai;
+			}
+			set
+			{
+				if ((this._TenTheLoai != value))
+				{
+					this._TenTheLoai = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MoTa", DbType="NVarChar(255) NOT NULL", CanBeNull=false)]
+		public string MoTa
+		{
+			get
+			{
+				return this._MoTa;
+			}
+			set
+			{
+				if ((this._MoTa != value))
+				{
+					this._MoTa = value;
+				}
+			}
+		}
+	}
+	
+	public partial class sp_GetTruyenMoiNhatResult
+	{
+		
+		private string _MaTruyen;
+		
+		private string _TenTruyen;
+		
+		private string _AnhTruyen;
+		
+		private string _TacGia;
+		
+		private string _TenTheLoai;
+		
+		private string _MoTa;
+		
+		public sp_GetTruyenMoiNhatResult()
+		{
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MaTruyen", DbType="NVarChar(50) NOT NULL", CanBeNull=false)]
+		public string MaTruyen
+		{
+			get
+			{
+				return this._MaTruyen;
+			}
+			set
+			{
+				if ((this._MaTruyen != value))
+				{
+					this._MaTruyen = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TenTruyen", DbType="NVarChar(255)")]
+		public string TenTruyen
+		{
+			get
+			{
+				return this._TenTruyen;
+			}
+			set
+			{
+				if ((this._TenTruyen != value))
+				{
+					this._TenTruyen = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_AnhTruyen", DbType="NVarChar(500)")]
+		public string AnhTruyen
+		{
+			get
+			{
+				return this._AnhTruyen;
+			}
+			set
+			{
+				if ((this._AnhTruyen != value))
+				{
+					this._AnhTruyen = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TacGia", DbType="NVarChar(255)")]
+		public string TacGia
+		{
+			get
+			{
+				return this._TacGia;
+			}
+			set
+			{
+				if ((this._TacGia != value))
+				{
+					this._TacGia = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TenTheLoai", DbType="NVarChar(200)")]
+		public string TenTheLoai
+		{
+			get
+			{
+				return this._TenTheLoai;
+			}
+			set
+			{
+				if ((this._TenTheLoai != value))
+				{
+					this._TenTheLoai = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MoTa", DbType="NVarChar(255) NOT NULL", CanBeNull=false)]
+		public string MoTa
+		{
+			get
+			{
+				return this._MoTa;
+			}
+			set
+			{
+				if ((this._MoTa != value))
+				{
+					this._MoTa = value;
+				}
 			}
 		}
 	}
