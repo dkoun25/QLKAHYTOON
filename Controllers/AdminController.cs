@@ -2,7 +2,7 @@
 using QLKAHYTOON.Models.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.IO; // Cần cho việc xử lý file/thư mục
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -11,14 +11,15 @@ namespace QLKAHYTOON.Controllers
 {
     public class AdminController : Controller
     {
-        private QLKAHYTOONDataContext db = new QLKAHYTOONDataContext(System.Configuration.ConfigurationManager.ConnectionStrings["KAHYToonConnectionString"].ConnectionString);
-
-        // --- PHẦN ĐĂNG NHẬP ADMIN MỚI ---
+        // KHỞI TẠO DATACONTEXT     
+        private QLKAHYTOONDataContext db = new QLKAHYTOONDataContext(
+            System.Configuration.ConfigurationManager.ConnectionStrings["KAHYToonConnectionString"].ConnectionString
+        );
 
         // GET: Admin/Login
         public ActionResult Login()
         {
-            return View(); // Chúng ta sẽ tạo 1 View Login riêng cho Admin
+            return View();
         }
 
         // POST: Admin/Login
@@ -45,45 +46,62 @@ namespace QLKAHYTOON.Controllers
             return View(model);
         }
 
+        // GET: Admin/Logout
+        public ActionResult Logout()
+        {
+            Session["Admin"] = null; // Chỉ xóa session của Admin
+            return RedirectToAction("Login", "Admin");
+        }
+
+
         // --- DASHBOARD VÀ CÁC CHỨC NĂNG KHÁC ---
+
+        // Hàm kiểm tra session (để dùng nội bộ)
+        private bool IsAdminLoggedIn()
+        {
+            return Session["Admin"] != null;
+        }
 
         // GET: Admin (Dashboard)
         public ActionResult Index()
         {
-            // Kiểm tra xem Admin đã đăng nhập chưa
-            if (Session["Admin"] == null)
+            if (!IsAdminLoggedIn())
             {
                 return RedirectToAction("Login", "Admin");
             }
-            // (Code logic cho dashboard... ví dụ: đếm số truyện, số người dùng)
+
+            // Lấy dữ liệu thống kê
+            ViewBag.SoLuongTruyen = db.thongtintruyens.Count();
+            ViewBag.SoLuongNguoiDung = db.nguoidungs.Count();
+            ViewBag.SoLuongBaoCao = db.baocaos.Count(b => b.TrangThai == "Chưa xử lý");
+
             return View();
         }
 
-        // --- CÁC ACTION MỚI CHO SIDEBAR ---
+        // GET: Admin/QuanLyTruyen
         public ActionResult QuanLyTruyen()
         {
-            if (Session["Admin"] == null) return RedirectToAction("Login", "Admin");
+            if (!IsAdminLoggedIn()) return RedirectToAction("Login", "Admin");
 
-            var danhSachTruyen = db.thongtintruyens.ToList();
+            var danhSachTruyen = db.thongtintruyens.OrderByDescending(t => t.NgayDang).ToList();
             return View(danhSachTruyen);
         }
 
+        // GET: Admin/QuanLyNguoiDung
         public ActionResult QuanLyNguoiDung()
         {
-            if (Session["Admin"] == null) return RedirectToAction("Login", "Admin");
+            if (!IsAdminLoggedIn()) return RedirectToAction("Login", "Admin");
 
             var danhSachNguoiDung = db.nguoidungs.ToList();
             return View(danhSachNguoiDung);
         }
-
-        // (Thêm các Action khác cho QuanLyBaoCao, QuanLyAdmin, CaiDat...)
 
         // --- CHỨC NĂNG THÊM CHƯƠNG ---
 
         // GET: Admin/ThemChuong?maTruyen=MT_1
         public ActionResult ThemChuong(string maTruyen)
         {
-            if (Session["Admin"] == null) return RedirectToAction("Login", "Admin");
+            if (!IsAdminLoggedIn()) return RedirectToAction("Login", "Admin");
 
             if (string.IsNullOrEmpty(maTruyen))
             {
@@ -95,6 +113,7 @@ namespace QLKAHYTOON.Controllers
                 return HttpNotFound();
             }
 
+            // Truyền thông tin truyện sang View
             ViewBag.ThongTinTruyen = truyen;
             return View();
         }
@@ -104,7 +123,7 @@ namespace QLKAHYTOON.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult ThemChuong(string maTruyen, int soChuong, string tenChuong, IEnumerable<HttpPostedFileBase> files)
         {
-            if (Session["Admin"] == null) return RedirectToAction("Login", "Admin");
+            if (!IsAdminLoggedIn()) return RedirectToAction("Login", "Admin");
 
             if (files == null || !files.Any() || files.First() == null)
             {
@@ -113,8 +132,10 @@ namespace QLKAHYTOON.Controllers
             }
 
             var truyen = db.thongtintruyens.Single(t => t.MaTruyen == maTruyen);
+
+            // Dùng SlugHelper phiên bản GỐC (không bỏ dấu)
             string truyenSlug = SlugHelper.GenerateSlug(truyen.TenTruyen);
-            string chapterPath = Server.MapPath("~/Uploads/Chapters/" + truyenSlug + "/" + soChuong);
+            string chapterPath = Server.MapPath("~/Anh/" + truyenSlug + "/" + soChuong);
 
             Directory.CreateDirectory(chapterPath);
 
@@ -131,7 +152,7 @@ namespace QLKAHYTOON.Controllers
 
                     file.SaveAs(savedFilePath);
 
-                    string relativePath = "/Uploads/Chapters/" + truyenSlug + "/" + soChuong + "/" + fileName;
+                    string relativePath = "/Anh/" + truyenSlug + "/" + soChuong + "/" + fileName;
                     imagePaths.Add(relativePath);
                     imageCounter++;
                 }
@@ -155,13 +176,15 @@ namespace QLKAHYTOON.Controllers
         }
     }
 
-    // Lớp SlugHelper giữ nguyên
+    // Lớp SlugHelper GỐC (Không bỏ dấu Tiếng Việt)
     public static class SlugHelper
     {
         public static string GenerateSlug(string phrase)
         {
             string str = phrase.ToLower();
+            // Lọc ký tự đặc biệt
             str = System.Text.RegularExpressions.Regex.Replace(str, @"[^a-z0-9\s-]", "");
+            // Thay khoảng trắng bằng gạch nối
             str = System.Text.RegularExpressions.Regex.Replace(str, @"\s+", " ").Trim();
             str = str.Substring(0, str.Length <= 45 ? str.Length : 45).Trim();
             str = System.Text.RegularExpressions.Regex.Replace(str, @"\s", "-");
