@@ -210,8 +210,10 @@
     <Content Include="Views\Home\TheLoai.cshtml" />
     <Content Include="Views\Admin\Login.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Admin\QuanLyTruyen.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Anh\" />
     <Folder Include="App_Data\" />
     <Folder Include="Views\User\" />
   </ItemGroup>
