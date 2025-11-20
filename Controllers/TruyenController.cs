@@ -8,7 +8,7 @@ namespace QLKAHYTOON.Controllers
 {
     public class TruyenController : Controller
     {
-        private QLKAHYTOONDataContext db = new QLKAHYTOONDataContext();
+        private QLKAHYTOONDataContext db = new QLKAHYTOONDataContext(System.Configuration.ConfigurationManager.ConnectionStrings["KAHYToonConnectionString"].ConnectionString);
 
         // GET: Truyen/ChiTiet/MT_1
         public ActionResult ChiTiet(string id)
@@ -18,25 +18,30 @@ namespace QLKAHYTOON.Controllers
                 return new HttpStatusCodeResult(System.Net.HttpStatusCode.BadRequest);
             }
 
-            // 1. Lấy thông tin truyện và JOIN với thể loại để lấy tên
-            var truyen = (from t in db.thongtintruyens
-                          join tl in db.theloais on t.MaTheLoai equals tl.MaTheLoai
-                          where t.MaTruyen == id
-                          select new
-                          {
-                              TruyenInfo = t,
-                              TenTheLoai = tl.TenTheLoai
-                          }).SingleOrDefault();
+            // 1. Lấy thông tin truyện (Không JOIN nữa, lấy trực tiếp)
+            var truyen = db.thongtintruyens.SingleOrDefault(t => t.MaTruyen == id);
 
             if (truyen == null)
             {
                 return HttpNotFound();
             }
 
-            // 2. Lấy danh sách chương (truyền qua ViewBag)
+            // --- XỬ LÝ NHIỀU THỂ LOẠI ---
+            var listTheLoai = new List<theloai>();
+            if (!string.IsNullOrEmpty(truyen.MaTheLoai))
+            {
+                // Tách chuỗi "TL01, TL02" thành mảng ID
+                var maTheLoaiArray = truyen.MaTheLoai.Split(',').Select(m => m.Trim()).ToList();
+
+                // Tìm các thể loại có mã nằm trong danh sách trên
+                listTheLoai = db.theloais.Where(tl => maTheLoaiArray.Contains(tl.MaTheLoai)).ToList();
+            }
+            // Truyền danh sách đối tượng thể loại sang View
+            ViewBag.DanhSachTheLoai = listTheLoai;
+
+
             ViewBag.DanhSachChuong = db.chuongs.Where(c => c.MaTruyen == id).OrderBy(c => c.SoChuong).ToList();
 
-            // 3. Lấy danh sách bình luận (JOIN với nguoidung để lấy Tên và Avatar)
             var danhSachBinhLuan = (from bl in db.binhluans
                                     join nd in db.nguoidungs on bl.MaNguoiDung equals nd.MaNguoiDung
                                     where bl.MaTruyen == id
@@ -45,17 +50,13 @@ namespace QLKAHYTOON.Controllers
                                     {
                                         bl.NoiDung,
                                         bl.NgayDang,
-                                        nd.HoTen, // Lấy họ tên từ bảng nguoidung
-                                        nd.Avatar // Lấy luôn avatar (nếu có)
+                                        nd.HoTen,
+                                        nd.Avatar
                                     }).ToList();
 
             ViewBag.BinhLuan = danhSachBinhLuan;
 
-            // 4. Truyền Tên Thể Loại ra View
-            ViewBag.TenTheLoai = truyen.TenTheLoai;
-
-            // 5. Trả về đối tượng thongtintruyen làm Model chính
-            return View(truyen.TruyenInfo);
+            return View(truyen);
         }
 
         // GET: Truyen/DocTruyen/C001
@@ -83,24 +84,27 @@ namespace QLKAHYTOON.Controllers
                 ViewBag.DanhSachAnh = new List<string>(); // Trả về danh sách rỗng
             }
 
-            // Ghi lại lịch sử đọc nếu người dùng đã đăng nhập
+            string maNguoiDung = "KHACH"; // Mặc định là khách
+
             if (Session["User"] != null)
             {
                 var user = Session["User"] as nguoidung;
-
-                var lichSu = new lichsudoc
-                {
-                    MaLichSuDoc = "LH" + Guid.NewGuid().ToString().Substring(0, 8).ToUpper(),
-                    MaNguoiDung = user.MaNguoiDung,
-                    MaTruyen = chuong.MaTruyen,
-                    MaChuong = id,
-                    ThoiGianDoc = DateTime.Now // Cột quan trọng cho Top Ranking
-                };
-                db.lichsudocs.InsertOnSubmit(lichSu);
-                db.SubmitChanges();
+                maNguoiDung = user.MaNguoiDung;
             }
 
-            // Trả về đối tượng chuong (Model) để View sử dụng
+            // Ghi nhận lượt xem (cho cả Khách và User)
+            var lichSu = new lichsudoc
+            {
+                MaLichSuDoc = "LS" + Guid.NewGuid().ToString().Substring(0, 8).ToUpper(),
+                MaNguoiDung = maNguoiDung, // Dùng mã lấy được ở trên
+                MaTruyen = chuong.MaTruyen,
+                MaChuong = id,
+                ThoiGianDoc = DateTime.Now
+            };
+
+            db.lichsudocs.InsertOnSubmit(lichSu);
+            db.SubmitChanges();
+
             return View(chuong);
         }
 

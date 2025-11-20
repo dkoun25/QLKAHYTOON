@@ -1,33 +1,198 @@
-﻿@model IEnumerable<QLKAHYTOON.Models.theloai>
+﻿@model IEnumerable<QLKAHYTOON.Models.thongtintruyen>
 @{
-    ViewBag.Title = "Tất Cả Thể Loại";
+    ViewBag.Title = "Thể loại: " + ViewBag.TenTheLoai;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Lấy danh sách các thể loại để hiển thị nút
+    var allTheLoai = ViewBag.AllTheLoai as List<QLKAHYTOON.Models.theloai>;
+    string activeId = ViewBag.ActiveId as string;
 }
 
-<style>
-    .genre-list .list-group-item {
-        background-color: #1e1e1e;
-        border-color: #333;
-        color: #e0e0e0;
-        margin-bottom: 10px;
-        border-radius: 5px;
-        transition: background-color 0.2s;
-    }
-
-        .genre-list .list-group-item:hover {
-            background-color: #333;
-            color: #17a2b8;
+@section Styles {
+    <link href="@Url.Content("~/Content/theloai.css")" rel="stylesheet" type="text/css" />
+    <style>
+        /* CSS bổ sung cho thanh cuộn thể loại */
+        .genre-scroll-container {
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 15px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+            -webkit-overflow-scrolling: touch; /* Cho mượt trên mobile */
         }
-</style>
 
-<h2>@ViewBag.Title</h2>
-<hr />
+        .genre-btn {
+            display: inline-block;
+            padding: 6px 15px;
+            margin-right: 8px;
+            border-radius: 20px;
+            background-color: #2a2a2a;
+            color: #ccc;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+            border: 1px solid #444;
+        }
 
-<div class="list-group genre-list">
-    @foreach (var item in Model)
-    {
-        // Tạm thời link chưa trỏ đi đâu, sau này sẽ nâng cấp để lọc truyện theo thể loại
-        <a href="#" class="list-group-item">
-            <h4>@item.TenTheLoai</h4>
+            .genre-btn:hover {
+                background-color: #e50914; /* Màu đỏ chủ đạo */
+                color: white;
+                border-color: #e50914;
+                text-decoration: none;
+            }
+
+            .genre-btn.active {
+                background-color: #e50914;
+                color: white;
+                border-color: #e50914;
+                font-weight: bold;
+            }
+
+        /* Ẩn thanh cuộn nhưng vẫn cuộn được */
+        .genre-scroll-container::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .genre-scroll-container::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 3px;
+        }
+    </style>
+}
+
+<div class="container">
+
+    <div class="genre-scroll-container">
+        <a href="@Url.Action("TheLoai", "Home", new { id = "" })"
+           class="genre-btn @(string.IsNullOrEmpty(activeId) ? "active" : "")">
+            All
         </a>
+        @if (allTheLoai != null)
+        {
+            foreach (var tl in allTheLoai)
+            {
+                string btnClass = (tl.MaTheLoai == activeId) ? "active" : "";
+                <a href="@Url.Action("TheLoai", "Home", new { id = tl.MaTheLoai.Trim() })" class="genre-btn @btnClass">
+                    @tl.TenTheLoai
+                </a>
+            }
+        }
+    </div>
+    <nav class="breadcrumb" aria-label="breadcrumb">
+        <a href="@Url.Action("Index", "Home")">Home</a>
+        <span class="breadcrumb-sep">&gt;</span>
+        <a href="#">Thể Loại</a>
+        <span class="breadcrumb-sep">&gt;</span>
+        <span>@ViewBag.TenTheLoai</span>
+    </nav>
+
+    <div class="header-main">
+        <h1 class="category-title">@ViewBag.TenTheLoai</h1>
+        <div class="sort-container">
+            <label for="sortSelect">Sort:</label>
+            <select id="sortSelect" aria-label="Sort Manhwa">
+                <option>Mặc định</option>
+                <option>Mới nhất</option>
+                <option>Phổ biến</option>
+            </select>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning" style="background-color: #333; color: #fff; border: 1px solid #444; padding: 20px; border-radius: 5px;">
+            Hiện tại chưa có truyện nào thuộc thể loại này. Admin sẽ cập nhật sớm!
+        </div>
     }
+    else
+    {
+        <div class="manhwa-list">
+            @foreach (var truyen in Model)
+            {
+                <article class="card" aria-label="@truyen.TenTruyen">
+                    <a class="thumb" href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })" title="@truyen.TenTruyen">
+                        <span class="en-badge">VIE</span>
+                        <img src="@truyen.AnhTruyen" alt="@truyen.TenTruyen" loading="lazy" />
+                    </a>
+                    <div class="info">
+                        <a class="title" href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })" title="@truyen.TenTruyen">@truyen.TenTruyen</a>
+                        @{
+                            // 1. Kiểm tra null
+                            if (!string.IsNullOrEmpty(truyen.MaTheLoai))
+                            {
+                                // 2. Tách chuỗi "TL01, TL02" thành mảng ["TL01", "TL02"]
+                                var cacMaTheLoai = truyen.MaTheLoai.Split(',');
+                         
+                                foreach (var ma in cacMaTheLoai)
+                                {
+                                    var maClean = ma.Trim(); // Xóa khoảng trắng thừa
+
+                                    // 3. Tra cứu tên thể loại từ danh sách "Từ điển"
+                                    var theLoaiObj = allTheLoai.FirstOrDefault(x => x.MaTheLoai == maClean);
+
+                                    if (theLoaiObj != null)
+                                    {
+                                        <a class="genres"
+                                           href="@Url.Action("TheLoai", "Home", new { id = theLoaiObj.MaTheLoai.Trim() })"
+                                           style="margin-right: 5px;">
+                                            @theLoaiObj.TenTheLoai
+                                        </a>                                    
+                                    }
+                                }
+                            }
+                        }                       <p class="genres">@truyen.TacGia</p>
+                        <div class="chapters">
+                            @{
+                                // Logic: Lấy danh sách chương CỦA TRUYỆN NÀY (truyen.chuongs)
+                                // Sắp xếp giảm dần theo số chương hoặc ngày đăng -> lấy 3 cái đầu
+                                var recentChapters = truyen.chuongs
+                                                           .OrderByDescending(c => c.SoChuong) // Hoặc c.NgayDang
+                                                           .Take(3)
+                                                           .ToList();
+                            }
+
+                            @if (recentChapters.Any())
+                            {
+                                foreach (var chuong in recentChapters)
+                                {
+                                    <a href="@Url.Action("DocTruyen", "Truyen", new { id = chuong.MaChuong.Trim() })">
+                                        <i class="icon-doc"></i> Chap @chuong.SoChuong
+                                        <span style="float: right; font-size: 11px; color: #888;">
+                                            @(chuong.NgayDang.HasValue ? chuong.NgayDang.Value.ToString("dd/MM") : "")
+                                        </span>
+                                    </a>
+                                }
+                            }
+                            else
+                            {
+                                <span style="color: #666; font-size: 12px;">Chưa có chương nào</span>
+                            }
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+
+    <nav class="pagination" aria-label="Pagination">
+        <button class="active" aria-current="page">1</button>
+        <button>2</button>
+        <button>3</button>
+        <button>›</button>
+        <button>»</button>
+    </nav>
 </div>
+
+<footer class="footer">
+    <div class="footer-logo">
+        <span class="m-box">K</span>AHY Toon
+    </div>
+    <div class="footer-links">
+        <a href="#">Terms of service</a>
+        <a href="#">Contact</a>
+    </div>
+    <p class="footer-note">
+        KAHY Toon được tạo ra với mục đích cung cấp trải nghiệm đọc truyện tranh trực tuyến tốt nhất cho người dùng. Bởi Sinh Viên CNTT Đại Học Phan Thiết.
+    </p>
+    <p class="footer-copy">© KAHY Toon</p>
+</footer>

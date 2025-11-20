@@ -15,5 +15,6 @@ namespace QLKAHYTOON.Models.ViewModels
         public List<TruyenCardViewModel> TopNgay { get; set; }
         public List<TruyenCardViewModel> TopTuan { get; set; }
         public List<TruyenCardViewModel> TopThang { get; set; }
+        public List<theloai> ListTheLoai{ get; set; }
     }
 }

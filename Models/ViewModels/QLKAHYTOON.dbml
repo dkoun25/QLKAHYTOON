@@ -1,5 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8"?><Database Name="KAHYToon" EntityNamespace="QLKAHYTOON.Models" ContextNamespace="QLKAHYTOON.Models" Class="QLKAHYTOONDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
-  <Connection Mode="WebSettings" ConnectionString="Data Source=.\TEW_SQLEXPRESS;Initial Catalog=KAHYToon;Integrated Security=True" SettingsObjectName="System.Configuration.ConfigurationManager.ConnectionStrings" SettingsPropertyName="KAHYToonConnectionString3" Provider="System.Data.SqlClient" />
   <Table Name="dbo.admin" Member="admins">
     <Type Name="admin">
       <Column Name="MaAdmin" Type="System.String" DbType="NVarChar(50) NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
@@ -146,16 +145,6 @@
       <Column Name="MoTa" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
     </ElementType>
   </Function>
-  <Function Name="dbo.sp_GetTruyenHotSlider" Method="sp_GetTruyenHotSlider">
-    <ElementType Name="sp_GetTruyenHotSliderResult">
-      <Column Name="MaTruyen" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
-      <Column Name="TenTruyen" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
-      <Column Name="AnhTruyen" Type="System.String" DbType="NVarChar(500)" CanBeNull="true" />
-      <Column Name="TacGia" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
-      <Column Name="TenTheLoai" Type="System.String" DbType="NVarChar(200)" CanBeNull="true" />
-      <Column Name="MoTa" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
-    </ElementType>
-  </Function>
   <Function Name="dbo.sp_GetTruyenDeCu" Method="sp_GetTruyenDeCu">
     <ElementType Name="sp_GetTruyenDeCuResult">
       <Column Name="MaTruyen" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
@@ -173,6 +162,17 @@
       <Column Name="TenTruyen" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
       <Column Name="AnhTruyen" Type="System.String" DbType="NVarChar(500)" CanBeNull="true" />
       <Column Name="TacGia" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="TenTheLoai" Type="System.String" DbType="NVarChar(200)" CanBeNull="true" />
+      <Column Name="MoTa" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+    </ElementType>
+  </Function>
+  <Function Name="dbo.sp_GetTruyenHotSlider" Method="sp_GetTruyenHotSlider">
+    <ElementType Name="sp_GetTruyenHotSliderResult">
+      <Column Name="MaTruyen" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="TenTruyen" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="AnhTruyen" Type="System.String" DbType="NVarChar(500)" CanBeNull="true" />
+      <Column Name="TacGia" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="MaTheLoai" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
       <Column Name="TenTheLoai" Type="System.String" DbType="NVarChar(200)" CanBeNull="true" />
       <Column Name="MoTa" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
     </ElementType>
