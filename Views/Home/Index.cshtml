@@ -31,7 +31,9 @@
                                     <p><i>(Mô tả ngắn của truyện... Bạn nên thêm cột 'MoTa' vào CSDL)</i></p>
 
                                     <div class="slider-tags">
-                                        <p><a>@truyen.TenTheLoai</a></p>
+                                        <a href="@Url.Action("TheLoai", "Home", new { id = truyen.MaTheLoai.Trim() })" class="badge text-decoration-none bg-secondary">
+                                            @truyen.TenTheLoai
+                                        </a>
                                     </div>
                                     <div>
                                         <a href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })" class="btn btn-read-now">Đọc Ngay</a>
@@ -79,13 +81,19 @@
 
     <section class="genre-section mt-4">
         <h3 class="section-title">THỂ LOẠI</h3>
-        <div>
-            <a href="#" class="genre-button">Action</a>
-            <a href="#" class="genre-button">Manhwa</a>
-            <a href="#" class="genre-button">Huyền Huyễn</a>
-            <a href="#" class="genre-button">Tiên Hiệp</a>
-            <a href="#" class="genre-button">Ngôn Tình</a>
-            <a href="#" class="genre-button">Xuyên Không</a>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="@Url.Action("TheLoai", "Home", new { id = "" })" class="genre-button">Tất Cả</a>
+
+            @* Vòng lặp lấy thể loại từ Database *@
+            @if (Model.ListTheLoai != null)
+            {
+                foreach (var tl in Model.ListTheLoai)
+                {
+                    <a href="@Url.Action("TheLoai", "Home", new { id = tl.MaTheLoai.Trim() })" class="genre-button">
+                        @tl.TenTheLoai
+                    </a>
+                }
+            }
         </div>
     </section>
 
@@ -145,11 +153,21 @@
                         <ul class="ranking-list">
                             @for (int i = 0; i < Model.TopNgay.Count; i++)
                             {
+                                var item = Model.TopNgay[i];
                                 <li>
                                     <span class="rank-number">@(i+1)</span>
                                     <div class="comic-info">
                                         <a href="@Url.Action("ChiTiet", "Truyen", new { id = Model.TopNgay[i].MaTruyen.Trim() })">@Model.TopNgay[i].TenTruyen</a>
-                                        <span>Chapter 10</span>
+                                        @if (item.SoChuongMoiNhat != null)
+                                        {
+                                            <a href="@Url.Action("DocTruyen", "Truyen", new { id = item.MaChuongMoiNhat.Trim() })" class="chapter-link">
+                                                Chapter @item.SoChuongMoiNhat
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span style="font-size: 12px; color: #888;">Đang cập nhật</span>
+                                        }
                                     </div>
                                 </li>
                             }

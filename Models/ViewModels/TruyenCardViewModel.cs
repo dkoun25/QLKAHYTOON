@@ -11,7 +11,10 @@ namespace QLKAHYTOON.Models.ViewModels
         public string TenTruyen { get; set; }
         public string AnhTruyen { get; set; }
         public string TacGia { get; set; }
+        public string MaTheLoai { get; set; }   
         public string TenTheLoai { get; set; } // Đây là cột chúng ta cần!
         public string MoTa { get; set; } // Thêm luôn cột MoTa cho slider
+        public int? SoChuongMoiNhat { get; set; } 
+        public string MaChuongMoiNhat { get; set; } 
     }
 }

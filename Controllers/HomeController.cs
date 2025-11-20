@@ -17,14 +17,16 @@ namespace QLKAHYTOON.Controllers
             // GET: Home
             public ActionResult Index()
             {
+                var listTheLoai = db.theloais.OrderBy(tl => tl.TenTheLoai).ToList();
                 var viewModel = new HomeViewModel();
-
+                viewModel.ListTheLoai = listTheLoai;
                 viewModel.TruyenHotSlider = db.sp_GetTruyenHotSlider().Select(t => new TruyenCardViewModel
                 {
                     MaTruyen = t.MaTruyen,
                     TenTruyen = t.TenTruyen,
                     AnhTruyen = t.AnhTruyen,
                     TacGia = t.TacGia,
+                    MaTheLoai = t.MaTheLoai,
                     TenTheLoai = t.TenTheLoai,
                     MoTa = t.MoTa
                 }).ToList();
@@ -76,6 +78,41 @@ namespace QLKAHYTOON.Controllers
                 }).ToList();
 
                 return View(viewModel);
+            }
+
+            public ActionResult TheLoai(string id)
+            {
+                // 1. Lấy danh sách TẤT CẢ thể loại để hiển thị lên thanh menu ngang
+                var allTheLoai = db.theloais.OrderBy(tl => tl.TenTheLoai).ToList();
+                ViewBag.AllTheLoai = allTheLoai; 
+
+                List<thongtintruyen> listTruyen;
+
+                if (string.IsNullOrEmpty(id))
+                {
+                    
+                    ViewBag.TenTheLoai = "Tất Cả Truyện";
+                    ViewBag.ActiveId = ""; 
+
+                    listTruyen = db.thongtintruyens.OrderByDescending(t => t.NgayDang).ToList();
+                }
+                else
+                {
+                    var theLoai = db.theloais.SingleOrDefault(tl => tl.MaTheLoai == id);
+                    if (theLoai == null) return HttpNotFound();
+
+                    ViewBag.TenTheLoai = theLoai.TenTheLoai;
+                    ViewBag.ActiveId = id;
+
+                    listTruyen = db.thongtintruyens
+                                    // Đổi "==" thành ".Contains(id)"
+                                    // Thêm kiểm tra t.MaTheLoai != null để tránh lỗi nếu dữ liệu bị rỗng
+                                    .Where(t => t.MaTheLoai != null && t.MaTheLoai.Contains(id))
+                                    .OrderByDescending(t => t.NgayDang)
+                                    .ToList();
+                }
+
+                return View(listTruyen);
             }
         }
     }
