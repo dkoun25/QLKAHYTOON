@@ -177,4 +177,154 @@
       <Column Name="MoTa" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
     </ElementType>
   </Function>
+  <Function Name="dbo.sp_Admin_DuyetBaoCao" Method="sp_Admin_DuyetBaoCao">
+    <Parameter Name="MaBaoCao" Parameter="maBaoCao" Type="System.String" DbType="NVarChar(50)" />
+    <Parameter Name="MaAdminXuLy" Parameter="maAdminXuLy" Type="System.String" DbType="NVarChar(50)" />
+    <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.sp_GetDanhSachChuong" Method="sp_GetDanhSachChuong">
+    <Parameter Name="MaTruyen" Parameter="maTruyen" Type="System.String" DbType="NVarChar(50)" />
+    <ElementType Name="sp_GetDanhSachChuongResult">
+      <Column Name="MaChuong" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="MaTruyen" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="SoChuong" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="TenChuong" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="AnhChuong" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="NgayDang" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+    </ElementType>
+  </Function>
+  <Function Name="dbo.sp_Admin_KhoaTaiKhoan" Method="sp_Admin_KhoaTaiKhoan">
+    <Parameter Name="MaNguoiDung" Parameter="maNguoiDung" Type="System.String" DbType="NVarChar(50)" />
+    <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.sp_Admin_SuaChuong" Method="sp_Admin_SuaChuong">
+    <Parameter Name="MaChuong" Parameter="maChuong" Type="System.String" DbType="NVarChar(50)" />
+    <Parameter Name="TenChuong" Parameter="tenChuong" Type="System.String" DbType="NVarChar(255)" />
+    <Parameter Name="AnhChuong" Parameter="anhChuong" Type="System.String" DbType="NVarChar(MAX)" />
+    <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.sp_Admin_SuaTheLoai" Method="sp_Admin_SuaTheLoai">
+    <Parameter Name="MaTheLoai" Parameter="maTheLoai" Type="System.String" DbType="NVarChar(50)" />
+    <Parameter Name="TenTheLoai" Parameter="tenTheLoai" Type="System.String" DbType="NVarChar(200)" />
+    <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.sp_Admin_SuaTruyen" Method="sp_Admin_SuaTruyen">
+    <Parameter Name="MaTruyen" Parameter="maTruyen" Type="System.String" DbType="NVarChar(50)" />
+    <Parameter Name="MaTheLoai" Parameter="maTheLoai" Type="System.String" DbType="NVarChar(255)" />
+    <Parameter Name="TenTruyen" Parameter="tenTruyen" Type="System.String" DbType="NVarChar(255)" />
+    <Parameter Name="TacGia" Parameter="tacGia" Type="System.String" DbType="NVarChar(255)" />
+    <Parameter Name="TrangThai" Parameter="trangThai" Type="System.String" DbType="NVarChar(40)" />
+    <Parameter Name="AnhTruyen" Parameter="anhTruyen" Type="System.String" DbType="NVarChar(500)" />
+    <Parameter Name="Slug" Parameter="slug" Type="System.String" DbType="NVarChar(255)" />
+    <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.sp_Admin_ThemChuong" Method="sp_Admin_ThemChuong">
+    <Parameter Name="MaChuong" Parameter="maChuong" Type="System.String" DbType="NVarChar(50)" />
+    <Parameter Name="MaTruyen" Parameter="maTruyen" Type="System.String" DbType="NVarChar(50)" />
+    <Parameter Name="SoChuong" Parameter="soChuong" Type="System.Int32" DbType="Int" />
+    <Parameter Name="TenChuong" Parameter="tenChuong" Type="System.String" DbType="NVarChar(255)" />
+    <Parameter Name="AnhChuong" Parameter="anhChuong" Type="System.String" DbType="NVarChar(MAX)" />
+    <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.sp_Admin_ThemTheLoai" Method="sp_Admin_ThemTheLoai">
+    <Parameter Name="MaTheLoai" Parameter="maTheLoai" Type="System.String" DbType="NVarChar(50)" />
+    <Parameter Name="TenTheLoai" Parameter="tenTheLoai" Type="System.String" DbType="NVarChar(200)" />
+    <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.sp_Admin_ThemTruyen" Method="sp_Admin_ThemTruyen">
+    <Parameter Name="MaTruyen" Parameter="maTruyen" Type="System.String" DbType="NVarChar(50)" />
+    <Parameter Name="MaTheLoai" Parameter="maTheLoai" Type="System.String" DbType="NVarChar(255)" />
+    <Parameter Name="TenTruyen" Parameter="tenTruyen" Type="System.String" DbType="NVarChar(255)" />
+    <Parameter Name="TacGia" Parameter="tacGia" Type="System.String" DbType="NVarChar(255)" />
+    <Parameter Name="TrangThai" Parameter="trangThai" Type="System.String" DbType="NVarChar(40)" />
+    <Parameter Name="AnhTruyen" Parameter="anhTruyen" Type="System.String" DbType="NVarChar(500)" />
+    <Parameter Name="Slug" Parameter="slug" Type="System.String" DbType="NVarChar(255)" />
+    <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.sp_Admin_ThongKeTongQuan" Method="sp_Admin_ThongKeTongQuan">
+    <ElementType Name="sp_Admin_ThongKeTongQuanResult">
+      <Column Name="TongTruyen" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="TongNguoiDung" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="TongLuotXem" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="BaoCaoMoi" Type="System.Int32" DbType="Int" CanBeNull="true" />
+    </ElementType>
+  </Function>
+  <Function Name="dbo.sp_Admin_XoaBinhLuan" Method="sp_Admin_XoaBinhLuan">
+    <Parameter Name="MaBinhLuan" Parameter="maBinhLuan" Type="System.String" DbType="NVarChar(50)" />
+    <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.sp_Admin_XoaChuong" Method="sp_Admin_XoaChuong">
+    <Parameter Name="MaChuong" Parameter="maChuong" Type="System.String" DbType="NVarChar(50)" />
+    <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.sp_Admin_XoaTheLoai" Method="sp_Admin_XoaTheLoai">
+    <Parameter Name="MaTheLoai" Parameter="maTheLoai" Type="System.String" DbType="NVarChar(50)" />
+    <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.sp_Admin_XoaTruyen" Method="sp_Admin_XoaTruyen">
+    <Parameter Name="MaTruyen" Parameter="maTruyen" Type="System.String" DbType="NVarChar(50)" />
+    <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.sp_GetBinhLuanByTruyen" Method="sp_GetBinhLuanByTruyen">
+    <Parameter Name="MaTruyen" Parameter="maTruyen" Type="System.String" DbType="NVarChar(50)" />
+    <ElementType Name="sp_GetBinhLuanByTruyenResult">
+      <Column Name="MaBinhLuan" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="NoiDung" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="NgayDang" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="HoTen" Type="System.String" DbType="NVarChar(100)" CanBeNull="true" />
+      <Column Name="Avatar" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+    </ElementType>
+  </Function>
+  <Function Name="dbo.sp_User_CapNhatThongTin" Method="sp_User_CapNhatThongTin">
+    <Parameter Name="MaNguoiDung" Parameter="maNguoiDung" Type="System.String" DbType="NVarChar(50)" />
+    <Parameter Name="HoTen" Parameter="hoTen" Type="System.String" DbType="NVarChar(100)" />
+    <Parameter Name="Avatar" Parameter="avatar" Type="System.String" DbType="NVarChar(255)" />
+    <Parameter Name="SoDienThoai" Parameter="soDienThoai" Type="System.String" DbType="VarChar(20)" />
+    <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.sp_User_GuiBinhLuan" Method="sp_User_GuiBinhLuan">
+    <Parameter Name="MaBinhLuan" Parameter="maBinhLuan" Type="System.String" DbType="NVarChar(50)" />
+    <Parameter Name="MaNguoiDung" Parameter="maNguoiDung" Type="System.String" DbType="NVarChar(50)" />
+    <Parameter Name="MaTruyen" Parameter="maTruyen" Type="System.String" DbType="NVarChar(50)" />
+    <Parameter Name="NoiDung" Parameter="noiDung" Type="System.String" DbType="NVarChar(MAX)" />
+    <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.sp_User_DangKy" Method="sp_User_DangKy">
+    <Parameter Name="MaNguoiDung" Parameter="maNguoiDung" Type="System.String" DbType="NVarChar(50)" />
+    <Parameter Name="HoTen" Parameter="hoTen" Type="System.String" DbType="NVarChar(100)" />
+    <Parameter Name="TenDangNhap" Parameter="tenDangNhap" Type="System.String" DbType="NVarChar(255)" />
+    <Parameter Name="MatKhau" Parameter="matKhau" Type="System.String" DbType="NVarChar(255)" />
+    <Parameter Name="Email" Parameter="email" Type="System.String" DbType="NVarChar(255)" />
+    <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.sp_User_DangNhap" Method="sp_User_DangNhap">
+    <Parameter Name="TenDangNhap" Parameter="tenDangNhap" Type="System.String" DbType="NVarChar(255)" />
+    <Parameter Name="MatKhau" Parameter="matKhau" Type="System.String" DbType="NVarChar(255)" />
+    <ElementType Name="sp_User_DangNhapResult">
+      <Column Name="MaNguoiDung" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="TenDangNhap" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="MatKhau" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="Email" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="NgayDangKy" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="VaiTro" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="ThoiGianDangNhap" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="IP_DangNhap" Type="System.String" DbType="VarChar(45)" CanBeNull="true" />
+      <Column Name="Avatar" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="HoTen" Type="System.String" DbType="NVarChar(100)" CanBeNull="true" />
+      <Column Name="SoDienThoai" Type="System.String" DbType="VarChar(20)" CanBeNull="true" />
+    </ElementType>
+  </Function>
+  <Function Name="dbo.sp_User_DoiMatKhau" Method="sp_User_DoiMatKhau">
+    <Parameter Name="MaNguoiDung" Parameter="maNguoiDung" Type="System.String" DbType="NVarChar(50)" />
+    <Parameter Name="MatKhauMoi" Parameter="matKhauMoi" Type="System.String" DbType="NVarChar(255)" />
+    <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.sp_User_GuiBaoCao" Method="sp_User_GuiBaoCao">
+    <Parameter Name="MaBaoCao" Parameter="maBaoCao" Type="System.String" DbType="NVarChar(50)" />
+    <Parameter Name="MaNguoiDung" Parameter="maNguoiDung" Type="System.String" DbType="NVarChar(50)" />
+    <Parameter Name="MaTruyen" Parameter="maTruyen" Type="System.String" DbType="NVarChar(50)" />
+    <Parameter Name="MaChuong" Parameter="maChuong" Type="System.String" DbType="NVarChar(50)" />
+    <Parameter Name="NoiDungBaoCao" Parameter="noiDungBaoCao" Type="System.String" DbType="NVarChar(MAX)" />
+    <Return Type="System.Int32" />
+  </Function>
 </Database>
