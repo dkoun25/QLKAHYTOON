@@ -123,6 +123,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AdminController.cs" />
+    <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\TruyenController.cs" />
     <Compile Include="Controllers\UserController.cs" />
@@ -131,6 +132,9 @@
     </Compile>
     <Compile Include="Models\ViewModels\HomeViewModel.cs" />
     <Compile Include="Models\ViewModels\LoginViewModel.cs" />
+    <Compile Include="Models\ViewModels\QLKAHYTOON.cs">
+      <DependentUpon>QLKAHYTOON.dbml</DependentUpon>
+    </Compile>
     <Compile Include="Models\ViewModels\QLKAHYTOON.designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -211,11 +215,16 @@
     <Content Include="Views\Admin\Login.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Admin\QuanLyTruyen.cshtml" />
+    <Content Include="Views\Admin\ThemTruyen.cshtml" />
+    <Content Include="Views\Admin\QuanLyNguoiDung.cshtml" />
+    <Content Include="Views\Admin\QuanLyBaoCao.cshtml" />
+    <Content Include="Views\Admin\QuanLyAdmin.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Anh\" />
     <Folder Include="App_Data\" />
     <Folder Include="SQL\" />
+    <Folder Include="Views\Base\" />
     <Folder Include="Views\User\" />
   </ItemGroup>
   <ItemGroup>

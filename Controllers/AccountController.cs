@@ -8,10 +8,8 @@ using System.Web.Mvc;
 
 namespace QLKAHYTOON.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
-        private QLKAHYTOONDataContext db = new QLKAHYTOONDataContext(System.Configuration.ConfigurationManager.ConnectionStrings["KAHYToonConnectionString"].ConnectionString);
-
         // GET: Account/Register
         public ActionResult Register()
         {

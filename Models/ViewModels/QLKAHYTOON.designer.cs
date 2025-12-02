@@ -62,6 +62,13 @@ namespace QLKAHYTOON.Models
     partial void Deletetruyenyeuthich(truyenyeuthich instance);
     #endregion
 		
+		public QLKAHYTOONDataContext() : 
+				base("Data Source=.;Initial Catalog=KAHYToon;Integrated Security=True;Trust Server Cert" +
+						"ificate=True", mappingSource)
+		{
+			OnCreated();
+		}
+		
 		public QLKAHYTOONDataContext(string connection) : 
 				base(connection, mappingSource)
 		{
@@ -192,6 +199,167 @@ namespace QLKAHYTOON.Models
 		{
 			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())));
 			return ((ISingleResult<sp_GetTruyenHotSliderResult>)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_Admin_DuyetBaoCao")]
+		public int sp_Admin_DuyetBaoCao([global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaBaoCao", DbType="NVarChar(50)")] string maBaoCao, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaAdminXuLy", DbType="NVarChar(50)")] string maAdminXuLy)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), maBaoCao, maAdminXuLy);
+			return ((int)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_GetDanhSachChuong")]
+		public ISingleResult<sp_GetDanhSachChuongResult> sp_GetDanhSachChuong([global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaTruyen", DbType="NVarChar(50)")] string maTruyen)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), maTruyen);
+			return ((ISingleResult<sp_GetDanhSachChuongResult>)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_Admin_KhoaTaiKhoan")]
+		public int sp_Admin_KhoaTaiKhoan([global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaNguoiDung", DbType="NVarChar(50)")] string maNguoiDung)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), maNguoiDung);
+			return ((int)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_Admin_SuaChuong")]
+		public int sp_Admin_SuaChuong([global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaChuong", DbType="NVarChar(50)")] string maChuong, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="TenChuong", DbType="NVarChar(255)")] string tenChuong, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="AnhChuong", DbType="NVarChar(MAX)")] string anhChuong)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), maChuong, tenChuong, anhChuong);
+			return ((int)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_Admin_SuaTheLoai")]
+		public int sp_Admin_SuaTheLoai([global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaTheLoai", DbType="NVarChar(50)")] string maTheLoai, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="TenTheLoai", DbType="NVarChar(200)")] string tenTheLoai)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), maTheLoai, tenTheLoai);
+			return ((int)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_Admin_ThemChuong")]
+		public int sp_Admin_ThemChuong([global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaChuong", DbType="NVarChar(50)")] string maChuong, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaTruyen", DbType="NVarChar(50)")] string maTruyen, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="SoChuong", DbType="Int")] System.Nullable<int> soChuong, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="TenChuong", DbType="NVarChar(255)")] string tenChuong, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="AnhChuong", DbType="NVarChar(MAX)")] string anhChuong)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), maChuong, maTruyen, soChuong, tenChuong, anhChuong);
+			return ((int)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_Admin_ThemTheLoai")]
+		public int sp_Admin_ThemTheLoai([global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaTheLoai", DbType="NVarChar(50)")] string maTheLoai, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="TenTheLoai", DbType="NVarChar(200)")] string tenTheLoai)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), maTheLoai, tenTheLoai);
+			return ((int)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_Admin_ThongKeTongQuan")]
+		public ISingleResult<sp_Admin_ThongKeTongQuanResult> sp_Admin_ThongKeTongQuan()
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())));
+			return ((ISingleResult<sp_Admin_ThongKeTongQuanResult>)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_Admin_XoaBinhLuan")]
+		public int sp_Admin_XoaBinhLuan([global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaBinhLuan", DbType="NVarChar(50)")] string maBinhLuan)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), maBinhLuan);
+			return ((int)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_Admin_XoaChuong")]
+		public int sp_Admin_XoaChuong([global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaChuong", DbType="NVarChar(50)")] string maChuong)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), maChuong);
+			return ((int)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_Admin_XoaTheLoai")]
+		public int sp_Admin_XoaTheLoai([global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaTheLoai", DbType="NVarChar(50)")] string maTheLoai)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), maTheLoai);
+			return ((int)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_Admin_XoaTruyen")]
+		public int sp_Admin_XoaTruyen([global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaTruyen", DbType="NVarChar(50)")] string maTruyen)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), maTruyen);
+			return ((int)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_GetBinhLuanByTruyen")]
+		public ISingleResult<sp_GetBinhLuanByTruyenResult> sp_GetBinhLuanByTruyen([global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaTruyen", DbType="NVarChar(50)")] string maTruyen)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), maTruyen);
+			return ((ISingleResult<sp_GetBinhLuanByTruyenResult>)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_User_CapNhatThongTin")]
+		public int sp_User_CapNhatThongTin([global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaNguoiDung", DbType="NVarChar(50)")] string maNguoiDung, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="HoTen", DbType="NVarChar(100)")] string hoTen, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="Avatar", DbType="NVarChar(255)")] string avatar, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="SoDienThoai", DbType="VarChar(20)")] string soDienThoai)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), maNguoiDung, hoTen, avatar, soDienThoai);
+			return ((int)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_User_GuiBinhLuan")]
+		public int sp_User_GuiBinhLuan([global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaBinhLuan", DbType="NVarChar(50)")] string maBinhLuan, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaNguoiDung", DbType="NVarChar(50)")] string maNguoiDung, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaTruyen", DbType="NVarChar(50)")] string maTruyen, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="NoiDung", DbType="NVarChar(MAX)")] string noiDung)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), maBinhLuan, maNguoiDung, maTruyen, noiDung);
+			return ((int)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_User_DangKy")]
+		public int sp_User_DangKy([global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaNguoiDung", DbType="NVarChar(50)")] string maNguoiDung, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="HoTen", DbType="NVarChar(100)")] string hoTen, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="TenDangNhap", DbType="NVarChar(255)")] string tenDangNhap, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="MatKhau", DbType="NVarChar(255)")] string matKhau, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="Email", DbType="NVarChar(255)")] string email)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), maNguoiDung, hoTen, tenDangNhap, matKhau, email);
+			return ((int)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_User_DangNhap")]
+		public ISingleResult<sp_User_DangNhapResult> sp_User_DangNhap([global::System.Data.Linq.Mapping.ParameterAttribute(Name="TenDangNhap", DbType="NVarChar(255)")] string tenDangNhap, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="MatKhau", DbType="NVarChar(255)")] string matKhau)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), tenDangNhap, matKhau);
+			return ((ISingleResult<sp_User_DangNhapResult>)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_User_DoiMatKhau")]
+		public int sp_User_DoiMatKhau([global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaNguoiDung", DbType="NVarChar(50)")] string maNguoiDung, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="MatKhauMoi", DbType="NVarChar(255)")] string matKhauMoi)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), maNguoiDung, matKhauMoi);
+			return ((int)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_User_GuiBaoCao")]
+		public int sp_User_GuiBaoCao([global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaBaoCao", DbType="NVarChar(50)")] string maBaoCao, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaNguoiDung", DbType="NVarChar(50)")] string maNguoiDung, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaTruyen", DbType="NVarChar(50)")] string maTruyen, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaChuong", DbType="NVarChar(50)")] string maChuong, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="NoiDungBaoCao", DbType="NVarChar(MAX)")] string noiDungBaoCao)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), maBaoCao, maNguoiDung, maTruyen, maChuong, noiDungBaoCao);
+			return ((int)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_Admin_SuaTruyen")]
+		public int sp_Admin_SuaTruyen([global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaTruyen", DbType="NVarChar(50)")] string maTruyen, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaTheLoai", DbType="NVarChar(255)")] string maTheLoai, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="TenTruyen", DbType="NVarChar(255)")] string tenTruyen, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="TacGia", DbType="NVarChar(255)")] string tacGia, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="TrangThai", DbType="NVarChar(40)")] string trangThai, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="AnhTruyen", DbType="NVarChar(500)")] string anhTruyen, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="Slug", DbType="NVarChar(MAX)")] string slug)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), maTruyen, maTheLoai, tenTruyen, tacGia, trangThai, anhTruyen, slug);
+			return ((int)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_Admin_ThemTruyen")]
+		public int sp_Admin_ThemTruyen([global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaTruyen", DbType="NVarChar(50)")] string maTruyen, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaTheLoai", DbType="NVarChar(255)")] string maTheLoai, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="TenTruyen", DbType="NVarChar(255)")] string tenTruyen, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="TacGia", DbType="NVarChar(255)")] string tacGia, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="TrangThai", DbType="NVarChar(40)")] string trangThai, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="AnhTruyen", DbType="NVarChar(500)")] string anhTruyen, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="Slug", DbType="NVarChar(MAX)")] string slug)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), maTruyen, maTheLoai, tenTruyen, tacGia, trangThai, anhTruyen, slug);
+			return ((int)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_Admin_ThemAdmin")]
+		public int sp_Admin_ThemAdmin([global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaAdmin", DbType="NVarChar(50)")] string maAdmin, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="TenDangNhap", DbType="NVarChar(255)")] string tenDangNhap, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="MatKhau", DbType="NVarChar(255)")] string matKhau, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="HoTen", DbType="NVarChar(100)")] string hoTen, [global::System.Data.Linq.Mapping.ParameterAttribute(Name="Email", DbType="NVarChar(255)")] string email)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), maAdmin, tenDangNhap, matKhau, hoTen, email);
+			return ((int)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_Admin_XoaAdmin")]
+		public int sp_Admin_XoaAdmin([global::System.Data.Linq.Mapping.ParameterAttribute(Name="MaAdmin", DbType="NVarChar(50)")] string maAdmin)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), maAdmin);
+			return ((int)(result.ReturnValue));
 		}
 	}
 	
@@ -3668,6 +3836,506 @@ namespace QLKAHYTOON.Models
 				if ((this._MoTa != value))
 				{
 					this._MoTa = value;
+				}
+			}
+		}
+	}
+	
+	public partial class sp_GetDanhSachChuongResult
+	{
+		
+		private string _MaChuong;
+		
+		private string _MaTruyen;
+		
+		private System.Nullable<int> _SoChuong;
+		
+		private string _TenChuong;
+		
+		private string _AnhChuong;
+		
+		private System.Nullable<System.DateTime> _NgayDang;
+		
+		public sp_GetDanhSachChuongResult()
+		{
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MaChuong", DbType="NVarChar(50) NOT NULL", CanBeNull=false)]
+		public string MaChuong
+		{
+			get
+			{
+				return this._MaChuong;
+			}
+			set
+			{
+				if ((this._MaChuong != value))
+				{
+					this._MaChuong = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MaTruyen", DbType="NVarChar(50)")]
+		public string MaTruyen
+		{
+			get
+			{
+				return this._MaTruyen;
+			}
+			set
+			{
+				if ((this._MaTruyen != value))
+				{
+					this._MaTruyen = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_SoChuong", DbType="Int")]
+		public System.Nullable<int> SoChuong
+		{
+			get
+			{
+				return this._SoChuong;
+			}
+			set
+			{
+				if ((this._SoChuong != value))
+				{
+					this._SoChuong = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TenChuong", DbType="NVarChar(255)")]
+		public string TenChuong
+		{
+			get
+			{
+				return this._TenChuong;
+			}
+			set
+			{
+				if ((this._TenChuong != value))
+				{
+					this._TenChuong = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_AnhChuong", DbType="NVarChar(MAX)")]
+		public string AnhChuong
+		{
+			get
+			{
+				return this._AnhChuong;
+			}
+			set
+			{
+				if ((this._AnhChuong != value))
+				{
+					this._AnhChuong = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_NgayDang", DbType="DateTime")]
+		public System.Nullable<System.DateTime> NgayDang
+		{
+			get
+			{
+				return this._NgayDang;
+			}
+			set
+			{
+				if ((this._NgayDang != value))
+				{
+					this._NgayDang = value;
+				}
+			}
+		}
+	}
+	
+	public partial class sp_Admin_ThongKeTongQuanResult
+	{
+		
+		private System.Nullable<int> _TongTruyen;
+		
+		private System.Nullable<int> _TongNguoiDung;
+		
+		private System.Nullable<int> _TongLuotXem;
+		
+		private System.Nullable<int> _BaoCaoMoi;
+		
+		public sp_Admin_ThongKeTongQuanResult()
+		{
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TongTruyen", DbType="Int")]
+		public System.Nullable<int> TongTruyen
+		{
+			get
+			{
+				return this._TongTruyen;
+			}
+			set
+			{
+				if ((this._TongTruyen != value))
+				{
+					this._TongTruyen = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TongNguoiDung", DbType="Int")]
+		public System.Nullable<int> TongNguoiDung
+		{
+			get
+			{
+				return this._TongNguoiDung;
+			}
+			set
+			{
+				if ((this._TongNguoiDung != value))
+				{
+					this._TongNguoiDung = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TongLuotXem", DbType="Int")]
+		public System.Nullable<int> TongLuotXem
+		{
+			get
+			{
+				return this._TongLuotXem;
+			}
+			set
+			{
+				if ((this._TongLuotXem != value))
+				{
+					this._TongLuotXem = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_BaoCaoMoi", DbType="Int")]
+		public System.Nullable<int> BaoCaoMoi
+		{
+			get
+			{
+				return this._BaoCaoMoi;
+			}
+			set
+			{
+				if ((this._BaoCaoMoi != value))
+				{
+					this._BaoCaoMoi = value;
+				}
+			}
+		}
+	}
+	
+	public partial class sp_GetBinhLuanByTruyenResult
+	{
+		
+		private string _MaBinhLuan;
+		
+		private string _NoiDung;
+		
+		private System.Nullable<System.DateTime> _NgayDang;
+		
+		private string _HoTen;
+		
+		private string _Avatar;
+		
+		public sp_GetBinhLuanByTruyenResult()
+		{
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MaBinhLuan", DbType="NVarChar(50) NOT NULL", CanBeNull=false)]
+		public string MaBinhLuan
+		{
+			get
+			{
+				return this._MaBinhLuan;
+			}
+			set
+			{
+				if ((this._MaBinhLuan != value))
+				{
+					this._MaBinhLuan = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_NoiDung", DbType="NVarChar(MAX)")]
+		public string NoiDung
+		{
+			get
+			{
+				return this._NoiDung;
+			}
+			set
+			{
+				if ((this._NoiDung != value))
+				{
+					this._NoiDung = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_NgayDang", DbType="DateTime")]
+		public System.Nullable<System.DateTime> NgayDang
+		{
+			get
+			{
+				return this._NgayDang;
+			}
+			set
+			{
+				if ((this._NgayDang != value))
+				{
+					this._NgayDang = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_HoTen", DbType="NVarChar(100)")]
+		public string HoTen
+		{
+			get
+			{
+				return this._HoTen;
+			}
+			set
+			{
+				if ((this._HoTen != value))
+				{
+					this._HoTen = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Avatar", DbType="NVarChar(255)")]
+		public string Avatar
+		{
+			get
+			{
+				return this._Avatar;
+			}
+			set
+			{
+				if ((this._Avatar != value))
+				{
+					this._Avatar = value;
+				}
+			}
+		}
+	}
+	
+	public partial class sp_User_DangNhapResult
+	{
+		
+		private string _MaNguoiDung;
+		
+		private string _TenDangNhap;
+		
+		private string _MatKhau;
+		
+		private string _Email;
+		
+		private System.Nullable<System.DateTime> _NgayDangKy;
+		
+		private string _VaiTro;
+		
+		private System.Nullable<System.DateTime> _ThoiGianDangNhap;
+		
+		private string _IP_DangNhap;
+		
+		private string _Avatar;
+		
+		private string _HoTen;
+		
+		private string _SoDienThoai;
+		
+		public sp_User_DangNhapResult()
+		{
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MaNguoiDung", DbType="NVarChar(50) NOT NULL", CanBeNull=false)]
+		public string MaNguoiDung
+		{
+			get
+			{
+				return this._MaNguoiDung;
+			}
+			set
+			{
+				if ((this._MaNguoiDung != value))
+				{
+					this._MaNguoiDung = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TenDangNhap", DbType="NVarChar(255) NOT NULL", CanBeNull=false)]
+		public string TenDangNhap
+		{
+			get
+			{
+				return this._TenDangNhap;
+			}
+			set
+			{
+				if ((this._TenDangNhap != value))
+				{
+					this._TenDangNhap = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MatKhau", DbType="NVarChar(255) NOT NULL", CanBeNull=false)]
+		public string MatKhau
+		{
+			get
+			{
+				return this._MatKhau;
+			}
+			set
+			{
+				if ((this._MatKhau != value))
+				{
+					this._MatKhau = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Email", DbType="NVarChar(255) NOT NULL", CanBeNull=false)]
+		public string Email
+		{
+			get
+			{
+				return this._Email;
+			}
+			set
+			{
+				if ((this._Email != value))
+				{
+					this._Email = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_NgayDangKy", DbType="DateTime")]
+		public System.Nullable<System.DateTime> NgayDangKy
+		{
+			get
+			{
+				return this._NgayDangKy;
+			}
+			set
+			{
+				if ((this._NgayDangKy != value))
+				{
+					this._NgayDangKy = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_VaiTro", DbType="NVarChar(50)")]
+		public string VaiTro
+		{
+			get
+			{
+				return this._VaiTro;
+			}
+			set
+			{
+				if ((this._VaiTro != value))
+				{
+					this._VaiTro = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ThoiGianDangNhap", DbType="DateTime")]
+		public System.Nullable<System.DateTime> ThoiGianDangNhap
+		{
+			get
+			{
+				return this._ThoiGianDangNhap;
+			}
+			set
+			{
+				if ((this._ThoiGianDangNhap != value))
+				{
+					this._ThoiGianDangNhap = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_IP_DangNhap", DbType="VarChar(45)")]
+		public string IP_DangNhap
+		{
+			get
+			{
+				return this._IP_DangNhap;
+			}
+			set
+			{
+				if ((this._IP_DangNhap != value))
+				{
+					this._IP_DangNhap = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Avatar", DbType="NVarChar(255)")]
+		public string Avatar
+		{
+			get
+			{
+				return this._Avatar;
+			}
+			set
+			{
+				if ((this._Avatar != value))
+				{
+					this._Avatar = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_HoTen", DbType="NVarChar(100)")]
+		public string HoTen
+		{
+			get
+			{
+				return this._HoTen;
+			}
+			set
+			{
+				if ((this._HoTen != value))
+				{
+					this._HoTen = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_SoDienThoai", DbType="VarChar(20)")]
+		public string SoDienThoai
+		{
+			get
+			{
+				return this._SoDienThoai;
+			}
+			set
+			{
+				if ((this._SoDienThoai != value))
+				{
+					this._SoDienThoai = value;
 				}
 			}
 		}

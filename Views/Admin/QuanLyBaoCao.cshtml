@@ -1,0 +1,59 @@
+﻿@model IEnumerable<QLKAHYTOON.Models.baocao>
+@{ ViewBag.Title = "Quản Lý Báo Cáo"; Layout = "~/Views/Shared/_AdminLayout.cshtml"; }
+
+<h2>Quản Lý Báo Cáo Vi Phạm/Lỗi</h2>
+@if (TempData["Success"] != null)
+{<div class="alert alert-success">@TempData["Success"]</div>}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Người báo</th>
+            <th>Nội dung</th>
+            <th>Tại Truyện/Chương</th>
+            <th>Thời gian</th>
+            <th>Trạng thái</th>
+            <th>Xử lý</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@(item.nguoidung != null ? item.nguoidung.TenDangNhap : "Khách")</td>
+                <td>@item.NoiDungBaoCao</td>
+                <td>
+                    @if (item.thongtintruyen != null)
+                    {<b>@item.thongtintruyen.TenTruyen</b>}
+                    @if (item.chuong != null)
+                    {<br /><span>Chương @item.chuong.SoChuong</span>}
+                </td>
+                <td>@String.Format("{0:dd/MM/yyyy HH:mm}", item.NgayBaoCao)</td>
+                <td>
+                    @if (item.TrangThai == "Chưa xử lý")
+                    {<span class="text-danger fw-bold">Chưa xử lý</span> }
+                    else
+                    {
+                        <span class="text-success">
+                            Đã xong
+                            @if (item.admin != null)
+                            {
+                                <span>(@item.admin.TenDangNhap)</span>
+                            }
+                            else
+                            {
+                                <span>(Ẩn danh)</span>
+                            }
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.TrangThai == "Chưa xử lý")
+                    {
+                        <a href="@Url.Action("DuyetBaoCao", "Admin", new { id = item.MaBaoCao })" class="btn btn-primary btn-sm">Xác nhận xong</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
