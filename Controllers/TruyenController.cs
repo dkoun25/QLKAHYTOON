@@ -6,10 +6,8 @@ using System.Collections.Generic; // Cần cho List
 
 namespace QLKAHYTOON.Controllers
 {
-    public class TruyenController : Controller
+    public class TruyenController : BaseController
     {
-        private QLKAHYTOONDataContext db = new QLKAHYTOONDataContext(System.Configuration.ConfigurationManager.ConnectionStrings["KAHYToonConnectionString"].ConnectionString);
-
         // GET: Truyen/ChiTiet/MT_1
         public ActionResult ChiTiet(string id)
         {

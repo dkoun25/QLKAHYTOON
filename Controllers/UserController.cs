@@ -25,10 +25,8 @@ namespace QLKAHYTOON.Controllers
     }
 
     [AuthorizeUser] // Sử dụng attribute vừa tạo để kiểm tra đăng nhập
-    public class UserController : Controller
+    public class UserController : BaseController
     {
-        private QLKAHYTOONDataContext db = new QLKAHYTOONDataContext(System.Configuration.ConfigurationManager.ConnectionStrings["KAHYToonConnectionString"].ConnectionString);
-
         private nguoidung GetCurrentUser()
         {
             return Session["User"] as nguoidung;

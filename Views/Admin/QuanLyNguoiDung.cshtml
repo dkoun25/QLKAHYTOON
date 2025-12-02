@@ -1,0 +1,42 @@
+﻿@model IEnumerable<QLKAHYTOON.Models.nguoidung>
+@{ ViewBag.Title = "Quản Lý Người Dùng"; Layout = "~/Views/Shared/_AdminLayout.cshtml"; }
+
+<h2>Quản Lý Người Dùng</h2>
+@if (TempData["Success"] != null)
+{<div class="alert alert-success">@TempData["Success"]</div>}
+
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Họ Tên</th>
+            <th>Email</th>
+            <th>Ngày Đăng Ký</th>
+            <th>Trạng Thái</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.TenDangNhap</td>
+                <td>@item.HoTen</td>
+                <td>@item.Email</td>
+                <td>@String.Format("{0:dd/MM/yyyy}", item.NgayDangKy)</td>
+                <td>
+                    @if (item.VaiTro == "Blocked")
+                    {<span class="label label-danger">Đang khóa</span> }
+                    else
+                    { <span class="label label-success">Hoạt động</span>}
+                </td>
+                <td>
+                    <a href="@Url.Action("ToggleTrangThaiUser", "Admin", new { id = item.MaNguoiDung })"
+                       class="btn btn-sm @(item.VaiTro == "Blocked" ? "btn-success" : "btn-warning")">
+                        @(item.VaiTro == "Blocked" ? "Mở Khóa" : "Khóa")
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

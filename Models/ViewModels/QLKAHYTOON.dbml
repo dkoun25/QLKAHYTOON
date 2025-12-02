@@ -1,4 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?><Database Name="KAHYToon" EntityNamespace="QLKAHYTOON.Models" ContextNamespace="QLKAHYTOON.Models" Class="QLKAHYTOONDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="ConnectionString" ConnectionString="Data Source=.;Initial Catalog=KAHYToon;Integrated Security=True;Trust Server Certificate=True" Provider="System.Data.SqlClient" />
   <Table Name="dbo.admin" Member="admins">
     <Type Name="admin">
       <Column Name="MaAdmin" Type="System.String" DbType="NVarChar(50) NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
@@ -208,16 +209,6 @@
     <Parameter Name="TenTheLoai" Parameter="tenTheLoai" Type="System.String" DbType="NVarChar(200)" />
     <Return Type="System.Int32" />
   </Function>
-  <Function Name="dbo.sp_Admin_SuaTruyen" Method="sp_Admin_SuaTruyen">
-    <Parameter Name="MaTruyen" Parameter="maTruyen" Type="System.String" DbType="NVarChar(50)" />
-    <Parameter Name="MaTheLoai" Parameter="maTheLoai" Type="System.String" DbType="NVarChar(255)" />
-    <Parameter Name="TenTruyen" Parameter="tenTruyen" Type="System.String" DbType="NVarChar(255)" />
-    <Parameter Name="TacGia" Parameter="tacGia" Type="System.String" DbType="NVarChar(255)" />
-    <Parameter Name="TrangThai" Parameter="trangThai" Type="System.String" DbType="NVarChar(40)" />
-    <Parameter Name="AnhTruyen" Parameter="anhTruyen" Type="System.String" DbType="NVarChar(500)" />
-    <Parameter Name="Slug" Parameter="slug" Type="System.String" DbType="NVarChar(255)" />
-    <Return Type="System.Int32" />
-  </Function>
   <Function Name="dbo.sp_Admin_ThemChuong" Method="sp_Admin_ThemChuong">
     <Parameter Name="MaChuong" Parameter="maChuong" Type="System.String" DbType="NVarChar(50)" />
     <Parameter Name="MaTruyen" Parameter="maTruyen" Type="System.String" DbType="NVarChar(50)" />
@@ -229,16 +220,6 @@
   <Function Name="dbo.sp_Admin_ThemTheLoai" Method="sp_Admin_ThemTheLoai">
     <Parameter Name="MaTheLoai" Parameter="maTheLoai" Type="System.String" DbType="NVarChar(50)" />
     <Parameter Name="TenTheLoai" Parameter="tenTheLoai" Type="System.String" DbType="NVarChar(200)" />
-    <Return Type="System.Int32" />
-  </Function>
-  <Function Name="dbo.sp_Admin_ThemTruyen" Method="sp_Admin_ThemTruyen">
-    <Parameter Name="MaTruyen" Parameter="maTruyen" Type="System.String" DbType="NVarChar(50)" />
-    <Parameter Name="MaTheLoai" Parameter="maTheLoai" Type="System.String" DbType="NVarChar(255)" />
-    <Parameter Name="TenTruyen" Parameter="tenTruyen" Type="System.String" DbType="NVarChar(255)" />
-    <Parameter Name="TacGia" Parameter="tacGia" Type="System.String" DbType="NVarChar(255)" />
-    <Parameter Name="TrangThai" Parameter="trangThai" Type="System.String" DbType="NVarChar(40)" />
-    <Parameter Name="AnhTruyen" Parameter="anhTruyen" Type="System.String" DbType="NVarChar(500)" />
-    <Parameter Name="Slug" Parameter="slug" Type="System.String" DbType="NVarChar(255)" />
     <Return Type="System.Int32" />
   </Function>
   <Function Name="dbo.sp_Admin_ThongKeTongQuan" Method="sp_Admin_ThongKeTongQuan">
@@ -325,6 +306,38 @@
     <Parameter Name="MaTruyen" Parameter="maTruyen" Type="System.String" DbType="NVarChar(50)" />
     <Parameter Name="MaChuong" Parameter="maChuong" Type="System.String" DbType="NVarChar(50)" />
     <Parameter Name="NoiDungBaoCao" Parameter="noiDungBaoCao" Type="System.String" DbType="NVarChar(MAX)" />
+    <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.sp_Admin_SuaTruyen" Method="sp_Admin_SuaTruyen">
+    <Parameter Name="MaTruyen" Parameter="maTruyen" Type="System.String" DbType="NVarChar(50)" />
+    <Parameter Name="MaTheLoai" Parameter="maTheLoai" Type="System.String" DbType="NVarChar(255)" />
+    <Parameter Name="TenTruyen" Parameter="tenTruyen" Type="System.String" DbType="NVarChar(255)" />
+    <Parameter Name="TacGia" Parameter="tacGia" Type="System.String" DbType="NVarChar(255)" />
+    <Parameter Name="TrangThai" Parameter="trangThai" Type="System.String" DbType="NVarChar(40)" />
+    <Parameter Name="AnhTruyen" Parameter="anhTruyen" Type="System.String" DbType="NVarChar(500)" />
+    <Parameter Name="Slug" Parameter="slug" Type="System.String" DbType="NVarChar(MAX)" />
+    <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.sp_Admin_ThemTruyen" Method="sp_Admin_ThemTruyen">
+    <Parameter Name="MaTruyen" Parameter="maTruyen" Type="System.String" DbType="NVarChar(50)" />
+    <Parameter Name="MaTheLoai" Parameter="maTheLoai" Type="System.String" DbType="NVarChar(255)" />
+    <Parameter Name="TenTruyen" Parameter="tenTruyen" Type="System.String" DbType="NVarChar(255)" />
+    <Parameter Name="TacGia" Parameter="tacGia" Type="System.String" DbType="NVarChar(255)" />
+    <Parameter Name="TrangThai" Parameter="trangThai" Type="System.String" DbType="NVarChar(40)" />
+    <Parameter Name="AnhTruyen" Parameter="anhTruyen" Type="System.String" DbType="NVarChar(500)" />
+    <Parameter Name="Slug" Parameter="slug" Type="System.String" DbType="NVarChar(MAX)" />
+    <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.sp_Admin_ThemAdmin" Method="sp_Admin_ThemAdmin">
+    <Parameter Name="MaAdmin" Parameter="maAdmin" Type="System.String" DbType="NVarChar(50)" />
+    <Parameter Name="TenDangNhap" Parameter="tenDangNhap" Type="System.String" DbType="NVarChar(255)" />
+    <Parameter Name="MatKhau" Parameter="matKhau" Type="System.String" DbType="NVarChar(255)" />
+    <Parameter Name="HoTen" Parameter="hoTen" Type="System.String" DbType="NVarChar(100)" />
+    <Parameter Name="Email" Parameter="email" Type="System.String" DbType="NVarChar(255)" />
+    <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.sp_Admin_XoaAdmin" Method="sp_Admin_XoaAdmin">
+    <Parameter Name="MaAdmin" Parameter="maAdmin" Type="System.String" DbType="NVarChar(50)" />
     <Return Type="System.Int32" />
   </Function>
 </Database>

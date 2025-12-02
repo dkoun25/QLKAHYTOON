@@ -10,10 +10,8 @@ namespace QLKAHYTOON.Controllers
 {
     namespace QLKAHYTOON.Controllers
     {
-        public class HomeController : Controller
+        public class HomeController : BaseController
         {
-            private QLKAHYTOONDataContext db = new QLKAHYTOONDataContext(System.Configuration.ConfigurationManager.ConnectionStrings["KAHYToonConnectionString"].ConnectionString);
-
             // GET: Home
             public ActionResult Index()
             {
