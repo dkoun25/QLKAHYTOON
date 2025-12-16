@@ -64,42 +64,50 @@ namespace QLKAHYTOON.Controllers
             {
                 return new HttpStatusCodeResult(System.Net.HttpStatusCode.BadRequest);
             }
-
             var chuong = db.chuongs.SingleOrDefault(c => c.MaChuong == id);
             if (chuong == null)
             {
                 return HttpNotFound();
             }
-
-            // Tách chuỗi ảnh thành một danh sách List<string>
             if (!string.IsNullOrEmpty(chuong.AnhChuong))
             {
-                // Chia chuỗi (được lưu bằng dấu ";") thành một danh sách
                 ViewBag.DanhSachAnh = chuong.AnhChuong.Split(';').ToList();
             }
             else
             {
-                ViewBag.DanhSachAnh = new List<string>(); // Trả về danh sách rỗng
+                ViewBag.DanhSachAnh = new List<string>();
             }
+            // --- Logic tìm chương trước/sau VÀ Lấy danh sách chương ---
+            var cacChuong = db.chuongs.Where(c => c.MaTruyen == chuong.MaTruyen)
+                                      .OrderBy(c => c.SoChuong)
+                                      .ToList();
 
-            string maNguoiDung = "KHACH"; // Mặc định là khách
+            // Gửi danh sách này sang View để làm Modal chọn chương
+            ViewBag.ListChuong = cacChuong;
 
+            int index = cacChuong.FindIndex(c => c.MaChuong == id);
+
+            if (index > 0) ViewBag.MaChuongTruoc = cacChuong[index - 1].MaChuong.Trim();
+            else ViewBag.MaChuongTruoc = null;
+
+            if (index < cacChuong.Count - 1) ViewBag.MaChuongSau = cacChuong[index + 1].MaChuong.Trim();
+            else ViewBag.MaChuongSau = null;
+            // ---------------------------------------------
+
+            string maNguoiDung = "KHACH";
             if (Session["User"] != null)
             {
                 var user = Session["User"] as nguoidung;
                 maNguoiDung = user.MaNguoiDung;
             }
-
-            // Ghi nhận lượt xem (cho cả Khách và User)
             var lichSu = new lichsudoc
             {
                 MaLichSuDoc = "LS" + Guid.NewGuid().ToString().Substring(0, 8).ToUpper(),
-                MaNguoiDung = maNguoiDung, // Dùng mã lấy được ở trên
+                MaNguoiDung = maNguoiDung,
                 MaTruyen = chuong.MaTruyen,
                 MaChuong = id,
                 ThoiGianDoc = DateTime.Now
             };
-
             db.lichsudocs.InsertOnSubmit(lichSu);
             db.SubmitChanges();
 
@@ -107,14 +115,50 @@ namespace QLKAHYTOON.Controllers
         }
 
         // GET: Truyen/TimKiem?keyword=Naruto
-        public ActionResult TimKiem(string keyword)
+        [HttpGet]
+        public ActionResult TimKiem(string keyword, int? page)
         {
-            var ketQua = db.thongtintruyens
-                           .Where(t => t.TenTruyen.Contains(keyword))
-                           .ToList();
+            // Nếu từ khóa rỗng -> về trang chủ
+            if (string.IsNullOrEmpty(keyword))
+            {
+                return RedirectToAction("Index", "Home");
+            }
 
-            ViewBag.Keyword = keyword;
-            return View(ketQua);
+            ViewBag.TuKhoa = keyword;
+            // --- QUAN TRỌNG: Lấy danh sách tất cả Thể loại để View hiển thị tên thể loại ---
+            var allTheLoai = db.theloais.ToList();
+            ViewBag.AllTheLoai = allTheLoai;
+
+            // --- LOGIC TÌM KIẾM KHÔNG DẤU ---
+            // B1: Lấy hết danh sách truyện (hoặc lọc sơ bộ để tối ưu nếu dữ liệu quá lớn)
+            var allTruyen = db.thongtintruyens.ToList();
+
+            // B2: Chuẩn hóa từ khóa tìm kiếm (bỏ dấu, thường)
+            string keywordClean = RemoveSign4VietnameseString(keyword);
+
+            // B3: Lọc trong bộ nhớ (In-Memory Filtering)
+            var ketqua = allTruyen.Where(s =>
+                RemoveSign4VietnameseString(s.TenTruyen).Contains(keywordClean) ||
+                RemoveSign4VietnameseString(s.TacGia).Contains(keywordClean)
+            ).ToList();
+
+            return View(ketqua);
         }
+        private string RemoveSign4VietnameseString(string str)
+        {
+            if (string.IsNullOrEmpty(str)) return str;
+            for (int i = 1; i < VietnameseSigns.Length; i++)
+            {
+                for (int j = 0; j < VietnameseSigns[i].Length; j++)
+                    str = str.Replace(VietnameseSigns[i][j], VietnameseSigns[0][i - 1]);
+            }
+            return str.ToLower(); // Chuyển về chữ thường để so sánh
+        }
+
+        private readonly string[] VietnameseSigns = new string[]
+        {
+            "aAeEoOuUiIdDyY","áàạảãâấầậẩẫăắằặẳẵ","ÁÀẠẢÃÂẤẦẬẨẪĂẮẰẶẲẴ","éèẹẻẽêếềệểễ","ÉÈẸẺẼÊẾỀỆỂỄ",
+            "óòọỏõôốồộổỗơớờợởỡ","ÓÒỌỎÕÔỐỒỘỔỖƠỚỜỢỞỠ","úùụủũưứừựửữ","ÚÙỤỦŨƯỨỪỰỬỮ","íìịỉĩ","ÍÌỊỈĨ","đ","Đ","ýỳỵỷỹ","ÝỲỴỶỸ"
+        };
     }
 }

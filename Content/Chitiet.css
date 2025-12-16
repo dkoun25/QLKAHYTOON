@@ -1,0 +1,83 @@
+﻿/* Content/Chitiet.css */
+body{
+    padding-top: 20px;
+}
+/* 1. Xử lý ảnh bìa truyện */
+.anhtruyen .img-wrapper {
+    width: 100%;
+    height: 400px;
+    overflow: hidden; /* Cắt phần thừa */
+    border-radius: 8px; /* Bo góc nhẹ */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2); /* Đổ bóng cho nổi */
+    border: 1px solid #ddd;
+}
+
+.anhtruyen img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top; /* Ưu tiên lấy phần trên của ảnh (thường là mặt nhân vật) */
+    transition: transform 0.3s ease;
+}
+
+/* Hiệu ứng khi di chuột vào ảnh */
+.anhtruyen:hover img {
+    transform: scale(1.05);
+}
+
+/* 2. Thông tin truyện */
+.comic-title {
+    color: #5f27a2; /* Tím chủ đạo */
+    font-weight: bold;
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+.comic-meta li {
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #333;
+}
+
+.comic-meta i {
+    color: #5f27a2;
+    width: 20px;
+    text-align: center;
+    margin-right: 5px;
+}
+
+/* 3. Nút bấm */
+.form-btn .btn {
+    margin-right: 10px;
+    border-radius: 30px; /* Nút bo tròn hiện đại */
+    padding-left: 20px;
+    padding-right: 20px;
+    font-family: var(--bs-body-font-family);
+    font-weight:bold;
+}
+
+/* 4. Danh sách chương */
+.chapter-list {
+    max-height: 500px; /* Giới hạn chiều cao */
+    overflow-y: auto; /* Hiện thanh cuộn nếu danh sách dài */
+}
+
+    /* Tùy chỉnh thanh cuộn cho đẹp (Chrome/Safari) */
+    .chapter-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .chapter-list::-webkit-scrollbar-thumb {
+        background-color: #ccc;
+        border-radius: 3px;
+    }
+
+.list-group-item {
+    transition: background-color 0.2s;
+}
+
+    .list-group-item:hover {
+        background-color: #f8f9fa;
+        color: #5f27a2; /* Chữ chuyển tím khi hover */
+    }

@@ -173,13 +173,6 @@ namespace QLKAHYTOON.Models
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_GetTruyenMoiNhat")]
-		public ISingleResult<sp_GetTruyenMoiNhatResult> sp_GetTruyenMoiNhat([global::System.Data.Linq.Mapping.ParameterAttribute(Name="SoLuong", DbType="Int")] System.Nullable<int> soLuong)
-		{
-			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), soLuong);
-			return ((ISingleResult<sp_GetTruyenMoiNhatResult>)(result.ReturnValue));
-		}
-		
 		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_GetTruyenDeCu")]
 		public ISingleResult<sp_GetTruyenDeCuResult> sp_GetTruyenDeCu()
 		{
@@ -360,6 +353,13 @@ namespace QLKAHYTOON.Models
 		{
 			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), maAdmin);
 			return ((int)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.sp_GetTruyenMoiNhat")]
+		public ISingleResult<sp_GetTruyenMoiNhatResult> sp_GetTruyenMoiNhat([global::System.Data.Linq.Mapping.ParameterAttribute(Name="SoLuong", DbType="Int")] System.Nullable<int> soLuong)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), soLuong);
+			return ((ISingleResult<sp_GetTruyenMoiNhatResult>)(result.ReturnValue));
 		}
 	}
 	
@@ -3359,122 +3359,6 @@ namespace QLKAHYTOON.Models
 		}
 	}
 	
-	public partial class sp_GetTruyenMoiNhatResult
-	{
-		
-		private string _MaTruyen;
-		
-		private string _TenTruyen;
-		
-		private string _AnhTruyen;
-		
-		private string _TacGia;
-		
-		private string _TenTheLoai;
-		
-		private string _MoTa;
-		
-		public sp_GetTruyenMoiNhatResult()
-		{
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MaTruyen", DbType="NVarChar(50) NOT NULL", CanBeNull=false)]
-		public string MaTruyen
-		{
-			get
-			{
-				return this._MaTruyen;
-			}
-			set
-			{
-				if ((this._MaTruyen != value))
-				{
-					this._MaTruyen = value;
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TenTruyen", DbType="NVarChar(255)")]
-		public string TenTruyen
-		{
-			get
-			{
-				return this._TenTruyen;
-			}
-			set
-			{
-				if ((this._TenTruyen != value))
-				{
-					this._TenTruyen = value;
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_AnhTruyen", DbType="NVarChar(500)")]
-		public string AnhTruyen
-		{
-			get
-			{
-				return this._AnhTruyen;
-			}
-			set
-			{
-				if ((this._AnhTruyen != value))
-				{
-					this._AnhTruyen = value;
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TacGia", DbType="NVarChar(255)")]
-		public string TacGia
-		{
-			get
-			{
-				return this._TacGia;
-			}
-			set
-			{
-				if ((this._TacGia != value))
-				{
-					this._TacGia = value;
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TenTheLoai", DbType="NVarChar(200)")]
-		public string TenTheLoai
-		{
-			get
-			{
-				return this._TenTheLoai;
-			}
-			set
-			{
-				if ((this._TenTheLoai != value))
-				{
-					this._TenTheLoai = value;
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MoTa", DbType="NVarChar(255) NOT NULL", CanBeNull=false)]
-		public string MoTa
-		{
-			get
-			{
-				return this._MoTa;
-			}
-			set
-			{
-				if ((this._MoTa != value))
-				{
-					this._MoTa = value;
-				}
-			}
-		}
-	}
-	
 	public partial class sp_GetTruyenDeCuResult
 	{
 		
@@ -4336,6 +4220,140 @@ namespace QLKAHYTOON.Models
 				if ((this._SoDienThoai != value))
 				{
 					this._SoDienThoai = value;
+				}
+			}
+		}
+	}
+	
+	public partial class sp_GetTruyenMoiNhatResult
+	{
+		
+		private string _MaTruyen;
+		
+		private string _TenTruyen;
+		
+		private string _AnhTruyen;
+		
+		private string _TacGia;
+		
+		private string _MaTheLoai;
+		
+		private string _TenTheLoai;
+		
+		private string _MoTa;
+		
+		public sp_GetTruyenMoiNhatResult()
+		{
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MaTruyen", DbType="NVarChar(50) NOT NULL", CanBeNull=false)]
+		public string MaTruyen
+		{
+			get
+			{
+				return this._MaTruyen;
+			}
+			set
+			{
+				if ((this._MaTruyen != value))
+				{
+					this._MaTruyen = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TenTruyen", DbType="NVarChar(255)")]
+		public string TenTruyen
+		{
+			get
+			{
+				return this._TenTruyen;
+			}
+			set
+			{
+				if ((this._TenTruyen != value))
+				{
+					this._TenTruyen = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_AnhTruyen", DbType="NVarChar(500)")]
+		public string AnhTruyen
+		{
+			get
+			{
+				return this._AnhTruyen;
+			}
+			set
+			{
+				if ((this._AnhTruyen != value))
+				{
+					this._AnhTruyen = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TacGia", DbType="NVarChar(255)")]
+		public string TacGia
+		{
+			get
+			{
+				return this._TacGia;
+			}
+			set
+			{
+				if ((this._TacGia != value))
+				{
+					this._TacGia = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MaTheLoai", DbType="NVarChar(255)")]
+		public string MaTheLoai
+		{
+			get
+			{
+				return this._MaTheLoai;
+			}
+			set
+			{
+				if ((this._MaTheLoai != value))
+				{
+					this._MaTheLoai = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TenTheLoai", DbType="NVarChar(200)")]
+		public string TenTheLoai
+		{
+			get
+			{
+				return this._TenTheLoai;
+			}
+			set
+			{
+				if ((this._TenTheLoai != value))
+				{
+					this._TenTheLoai = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MoTa", DbType="NVarChar(MAX)")]
+		public string MoTa
+		{
+			get
+			{
+				return this._MoTa;
+			}
+			set
+			{
+				if ((this._MoTa != value))
+				{
+					this._MoTa = value;
 				}
 			}
 		}

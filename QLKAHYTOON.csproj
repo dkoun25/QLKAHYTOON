@@ -145,6 +145,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\account.css" />
     <Content Include="Content\AdminLayout.css" />
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
@@ -162,7 +163,9 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
+    <Content Include="Content\Chitiet.css" />
     <Content Include="Content\homepage.css" />
+    <Content Include="Content\Navbar.css" />
     <Content Include="Content\theloai.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
@@ -219,6 +222,7 @@
     <Content Include="Views\Admin\QuanLyNguoiDung.cshtml" />
     <Content Include="Views\Admin\QuanLyBaoCao.cshtml" />
     <Content Include="Views\Admin\QuanLyAdmin.cshtml" />
+    <Content Include="Views\Truyen\TimKiem.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Anh\" />

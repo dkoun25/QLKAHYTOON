@@ -1,0 +1,92 @@
+﻿.kahy-navbar {
+        background-color: #5f27a2 !important; /* Màu chủ đạo tím */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Đổ bóng nhẹ cho nổi bật */
+        padding: 10px 0; /* Tăng độ dày navbar chút cho thoáng */
+}
+.kahy-navbar .navbar-brand {
+        font-weight: bold;
+        font-size: 1.5rem;
+        color: #fff !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 0;
+        margin-right:20px;
+}
+.kahy-navbar .navbar-brand img {
+        height: 70px; /* Tăng chiều cao lên (Lúc nãy là 40px) */
+        width: auto; /* Tự động chỉnh chiều rộng theo tỷ lệ ảnh */
+        transition: transform 0.3s ease; /* Hiệu ứng mượt */
+}
+.kahy-navbar .navbar-brand:hover img {
+        transform: scale(1.05);
+}
+.kahy-navbar .nav-link {
+        color: rgba(255, 255, 255, 0.85) !important;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        margin: 0 5px;
+        border-radius: 5px;
+}
+.kahy-navbar .nav-link:hover,
+.kahy-navbar .nav-link:focus {
+        color: #ffffff !important;
+        background-color: rgba(255, 255, 255, 0.1); 
+        transform: translateY(-1px); 
+}
+
+.kahy-navbar .nav-link.active {
+        color: #fff !important;
+        font-weight: bold;
+        border-bottom: 2px solid #ffcc00;
+}
+
+.kahy-navbar .form-control {
+    border-radius: 20px !important; /* Bo tròn đều 4 góc */
+    border: none;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding-left: 15px;
+    height: 40px; /* Cố định chiều cao */
+}
+
+.kahy-navbar .form-control:focus {
+    box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.5); /* Hiệu ứng focus màu vàng */
+    background-color: #fff;
+}
+
+/* --- SỬA LẠI NÚT TÌM KIẾM --- */
+.kahy-navbar .btn-search {
+    border-radius: 20px !important; /* Bo tròn đều 4 góc */
+    background-color: #4a148c;
+    color: white;
+    border: 1px solid rgba(255,255,255,0.8); /* Viền mỏng */
+    padding: 0 20px; /* Độ rộng nút */
+    height: 40px;    /* Chiều cao bằng ô input */
+    font-weight: 600;
+    transition: all 0.3s ease;
+    white-space: nowrap; /* Không xuống dòng chữ */
+}
+
+.kahy-navbar .btn-search:hover {
+    background-color: #ffcc00; 
+    color: #5f27a2; 
+    border-color: #ffcc00;
+    transform: translateY(-2px); /* Hiệu ứng nổi lên khi di chuột */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.kahy-navbar .navbar-toggler {
+        border-color: rgba(255,255,255,0.5);
+}
+.kahy-navbar .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+.kahy-navbar .navbar-nav.ms-auto .nav-link 
+{
+        font-size: 0.9rem;
+        border: 1px solid rgba(255,255,255,0.3);
+        margin-left: 10px;
+}
+.kahy-navbar .navbar-nav.ms-auto .nav-link:hover 
+{
+        background-color: #fff;
+        color: #5f27a2 !important;
+}

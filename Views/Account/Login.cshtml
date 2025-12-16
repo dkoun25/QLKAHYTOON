@@ -2,39 +2,40 @@
 @{
     ViewBag.Title = "Đăng Nhập";
 }
-
-<h2>@ViewBag.Title</h2>
-<div class="row">
-    <div class="col-md-8">
-        <section id="loginForm">
-            @using (Html.BeginForm("Login", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
-            {
-                @Html.AntiForgeryToken()
-                <hr />
-                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                <div class="form-group">
-                    @Html.LabelFor(m => m.TenDangNhap, new { @class = "col-md-2 control-label" })
-                    <div class="col-md-10">
-                        @Html.TextBoxFor(m => m.TenDangNhap, new { @class = "form-control" })
-                        @Html.ValidationMessageFor(m => m.TenDangNhap, "", new { @class = "text-danger" })
-                    </div>
-                </div>
-                <div class="form-group">
-                    @Html.LabelFor(m => m.MatKhau, new { @class = "col-md-2 control-label" })
-                    <div class="col-md-10">
-                        @Html.PasswordFor(m => m.MatKhau, new { @class = "form-control" })
-                        @Html.ValidationMessageFor(m => m.MatKhau, "", new { @class = "text-danger" })
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-md-offset-2 col-md-10">
-                        <input type="submit" value="Đăng nhập" class="btn btn-default" />
-                    </div>
-                </div>
-                <p>
-                    @Html.ActionLink("Chưa có tài khoản? Đăng ký ngay", "Register")
-                </p>
-            }
-        </section>
+@section Styles {
+    <link href="~/Content/account.css" rel="stylesheet" />
+}
+<div class="account-card">
+    <div class="account-header">
+        <h2>Đăng Nhập</h2>
+        <h4>Chào mừng đọc giả come back!!!~</h4>
+    </div>
+    @using (Html.BeginForm("Login", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(m => m.TenDangNhap, new { @class = "control-label" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.TenDangNhap, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.TenDangNhap, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(m => m.MatKhau, new { @class = "control-label" })
+            <div class="col-md-10">
+                @Html.PasswordFor(m => m.MatKhau, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.MatKhau, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Đăng nhập" class="btn btn-default" />
+            </div>
+        </div>
+    }
+    <div class="account-links">
+        <p>@Html.ActionLink("Chưa có tài khoản? Đăng ký ngay", "Register")</p>
     </div>
 </div>
