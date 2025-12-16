@@ -101,33 +101,84 @@
 
         <div class="col-lg-8 update-list">
             <h3 class="section-title">MỚI CẬP NHẬT</h3>
-            <div class="row row-cols-2 row-cols-md-3 g-3">
-                @* (Trong ảnh là 6 cột, nhưng 3 cột sẽ đẹp hơn trên layout 8-col) *@
+
+            @{
+                var allTheLoai = ViewBag.AllTheLoai as List<QLKAHYTOON.Models.theloai>;
+            }
+
+            <div class="row">
                 @foreach (var truyen in Model.TruyenMoiCapNhat)
                 {
-                    <div class="col">
-                        <div class="truyen-card">
-                            <a href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })">
-                                <img src="@truyen.AnhTruyen" alt="@truyen.TenTruyen">
-                            </a>
-                            <div class="card-body">
+                    <div class="col-md-6">
+                        <div class="truyen-card-horizontal">
+                            <div class="truyen-thumbnail">
                                 <a href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })">
-                                    <h5 class="card-title">@truyen.TenTruyen</h5>
+                                    <img src="@truyen.AnhTruyen" alt="@truyen.TenTruyen">
+                                    <span class="language-badge">VIE</span>
                                 </a>
-                                <p class="card-text">Chapter 10</p>
+                            </div>
+                            <div class="truyen-info">
+                                <a href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })" class="truyen-title">
+                                    @truyen.TenTruyen
+                                </a>
+
+                                @* HIỂN THỊ TẤT CẢ CÁC THỂ LOẠI *@
+                                <p class="truyen-genres">
+                                    @if (!string.IsNullOrEmpty(truyen.MaTheLoai) && allTheLoai != null)
+                                    {
+                                        var cacMaTheLoai = truyen.MaTheLoai.Split(',');
+                                        foreach (var ma in cacMaTheLoai)
+                                        {
+                                            var maClean = ma.Trim();
+                                            var theLoaiObj = allTheLoai.FirstOrDefault(x => x.MaTheLoai == maClean);
+
+                                            if (theLoaiObj != null)
+                                            {
+                                                <a href="@Url.Action("TheLoai", "Home", new { id = theLoaiObj.MaTheLoai.Trim() })">
+                                                    @theLoaiObj.TenTheLoai
+                                                </a>
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <text>Đang cập nhật</text>
+                                    }
+                                </p>
+                                <div class="truyen-chapters">
+                                    <a href="#" class="chapter-link">
+                                        <i class="bi bi-book"></i> Chap 35 [EN]
+                                    </a>
+                                    <a href="#" class="chapter-link">
+                                        <i class="bi bi-book"></i> Chap 34 [EN]
+                                    </a>
+                                    <a href="#" class="chapter-link">
+                                        <i class="bi bi-book"></i> Chap 33 [EN]
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 }
             </div>
-
             <nav class="mt-4 d-flex justify-content-center">
                 <ul class="pagination">
-                    <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                    @{
+                        int currentPage = ViewBag.CurrentPage;
+                        int totalPages = ViewBag.TotalPages;
+                    }
+                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = currentPage - 1 })">Trước</a>
+                    </li>
+                    @for (int i = 1; i <= totalPages && i <= 5; i++)
+                    {
+                        <li class="page-item @(currentPage == i ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = currentPage + 1 })">Sau</a>
+                    </li>
                 </ul>
             </nav>
         </div>

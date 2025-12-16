@@ -1,0 +1,127 @@
+﻿@model IEnumerable<QLKAHYTOON.Models.thongtintruyen>
+@{
+    ViewBag.Title = "Tìm kiếm: " + ViewBag.TuKhoa;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Lấy danh sách thể loại từ ViewBag (đã thêm ở Controller) để map ID -> Tên
+    var allTheLoai = ViewBag.AllTheLoai as List<QLKAHYTOON.Models.theloai>;
+}
+
+@section Styles {
+    <link href="@Url.Content("~/Content/theloai.css")" rel="stylesheet" type="text/css" />
+    <style>
+        /* Một chút CSS riêng cho trang tìm kiếm nếu cần */
+        .search-header {
+            margin-top: 20px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+
+        .text-highlight {
+            color: #e50914; /* Màu đỏ chủ đạo */
+            font-weight: bold;
+        }
+    </style>
+}
+
+<div class="container">
+
+    <nav class="breadcrumb" aria-label="breadcrumb" style="margin-top: 20px;">
+        <a href="@Url.Action("Index", "Home")">Home</a>
+        <span class="breadcrumb-sep">&gt;</span>
+        <span>Tìm kiếm</span>
+    </nav>
+
+    <div class="header-main search-header">
+        <h1 class="category-title">
+            Kết quả tìm kiếm: <span class="text-highlight">"@ViewBag.TuKhoa"</span>
+        </h1>
+        <div style="color: #888; margin-top: 5px;">
+            Tìm thấy @Model.Count() kết quả phù hợp
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning" style="background-color: #333; color: #fff; border: 1px solid #444; padding: 40px; border-radius: 5px; text-align: center;">
+            <i class="fa fa-search" style="font-size: 40px; margin-bottom: 15px; color: #666;"></i>
+            <h4>Không tìm thấy truyện nào!</h4>
+            <p style="color: #aaa;">
+                Thử tìm với từ khóa khác hoặc kiểm tra lại chính tả.<br />
+                Hệ thống hỗ trợ tìm kiếm không dấu (ví dụ: "thanh guom").
+            </p>
+            <a href="@Url.Action("Index", "Home")" class="btn btn-primary" style="margin-top: 15px;">Về trang chủ</a>
+        </div>
+    }
+    else
+    {
+        <div class="manhwa-list">
+            @foreach (var truyen in Model)
+            {
+                <article class="card" aria-label="@truyen.TenTruyen">
+                    <a class="thumb" href="@Url.Action("Chitiet", "Truyen", new { id = truyen.MaTruyen.Trim() })" title="@truyen.TenTruyen">
+                        <span class="en-badge">VIE</span> <img src="@truyen.AnhTruyen" alt="@truyen.TenTruyen" loading="lazy" />
+                    </a>
+
+                    <div class="info">
+                        <a class="title" href="@Url.Action("Chitiet", "Truyen", new { id = truyen.MaTruyen.Trim() })" title="@truyen.TenTruyen">
+                            @truyen.TenTruyen
+                        </a>
+
+                        @{
+                            if (!string.IsNullOrEmpty(truyen.MaTheLoai) && allTheLoai != null)
+                            {
+                                var cacMaTheLoai = truyen.MaTheLoai.Split(',');
+                                foreach (var ma in cacMaTheLoai)
+                                {
+                                    var maClean = ma.Trim();
+                                    var theLoaiObj = allTheLoai.FirstOrDefault(x => x.MaTheLoai == maClean);
+
+                                    if (theLoaiObj != null)
+                                    {
+                                        <a class="genres"
+                                           href="@Url.Action("TheLoai", "Home", new { id = theLoaiObj.MaTheLoai.Trim() })"
+                                           style="margin-right: 5px;">
+                                            @theLoaiObj.TenTheLoai
+                                        </a>
+                                    }
+                                }
+                            }
+                        }
+
+                        <p class="genres" style="color: #aaa; font-size: 12px; margin-top: 2px;">
+                            <i class="fa fa-pen-nib"></i> @truyen.TacGia
+                        </p>
+
+                        <div class="chapters">
+                            @{
+                                var recentChapters = truyen.chuongs
+                                                       .OrderByDescending(c => c.SoChuong)
+                                                       .Take(3)
+                                                       .ToList();
+                            }
+
+                            @if (recentChapters.Any())
+                            {
+                                foreach (var chuong in recentChapters)
+                                {
+                                    <a href="@Url.Action("DocTruyen", "Truyen", new { id = chuong.MaChuong.Trim() })">
+                                        <i class="icon-doc"></i> Chap @chuong.SoChuong
+                                        <span style="float: right; font-size: 11px; color: #888;">
+                                            @(chuong.NgayDang.HasValue ? chuong.NgayDang.Value.ToString("dd/MM") : "")
+                                        </span>
+                                    </a>
+                                }
+                            }
+                            else
+                            {
+                                <span style="color: #666; font-size: 12px; padding: 5px 0; display:block;">Đang cập nhật...</span>
+                            }
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</div>

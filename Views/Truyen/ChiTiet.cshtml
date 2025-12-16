@@ -2,106 +2,93 @@
 @{
     ViewBag.Title = Model.TenTruyen;
     var danhSachChuong = ViewBag.DanhSachChuong as List<QLKAHYTOON.Models.chuong>;
-    // Lấy danh sách thể loại từ Controller
     var danhSachTheLoai = ViewBag.DanhSachTheLoai as List<QLKAHYTOON.Models.theloai>;
 }
 
-<style>
-    .comic-detail-card {
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        padding: 15px;
-        margin-top: 20px;
-    }
+@section Styles {
+    <link href="@Url.Content("~/Content/Chitiet.css")" rel="stylesheet" type="text/css" />
+}
 
-    .chapter-list {
-        max-height: 400px;
-        overflow-y: auto;
-        border: 1px solid #eee;
-        padding: 10px;
-    }
-
-    /* Style cho link thể loại */
-    .genre-link {
-        margin-right: 5px;
-        color: #e50914; /* Màu đỏ hoặc màu chủ đạo của web */
-        text-decoration: none;
-    }
-
-        .genre-link:hover {
-            text-decoration: underline;
-        }
-</style>
-
-<h2>@Model.TenTruyen</h2>
-
-<div class="row">
-    <div class="col-md-4">
-        <img src="@Model.AnhTruyen" class="img-responsive thumbnail" alt="@Model.TenTruyen" style="width:100%" />
+<div class="row comic-info-container">
+    <div class="col-md-3 col-sm-4 anhtruyen">
+        <div class="img-wrapper">
+            <img src="@Model.AnhTruyen" class="img-fluid shadow rounded" alt="@Model.TenTruyen" />
+        </div>
     </div>
-    <div class="col-md-8">
-        <h3>Thông tin chi tiết</h3>
-        <ul class="list-group">
-            <li class="list-group-item"><strong>Tác giả:</strong> @Model.TacGia</li>
 
-            <li class="list-group-item">
-                <strong>Thể loại:</strong>
+    <div class="col-md-9 col-sm-8">
+        <h2 class="comic-title">@Model.TenTruyen</h2>
+
+        <ul class="list-unstyled comic-meta">
+            <li><strong><i class="fa fa-user"></i> Tác giả:</strong> @Model.TacGia</li>
+
+            <li>
+                <strong><i class="fa fa-tags"></i> Thể loại:</strong>
                 @if (danhSachTheLoai != null && danhSachTheLoai.Any())
                 {
                     foreach (var tl in danhSachTheLoai)
                     {
-                        <a href="@Url.Action("TheLoai", "Home", new { id = tl.MaTheLoai.Trim() })" class="genre-link">
+                        <a href="@Url.Action("TheLoai", "Home", new { id = tl.MaTheLoai.Trim() })" class="badge bg-secondary text-decoration-none">
                             @tl.TenTheLoai
                         </a>
-                        // Thêm dấu phẩy nếu không phải phần tử cuối
-                        if (tl != danhSachTheLoai.Last())
-                        {
-                            <span>, </span>
-                        }
                     }
                 }
                 else
                 {
-                    <span>Chưa cập nhật</span>
+                    <span class="text-muted">Đang cập nhật</span>
                 }
             </li>
-            <li class="list-group-item"><strong>Trạng thái:</strong> @Model.TrangThai</li>
-            <li class="list-group-item">
-                <strong>Ngày đăng:</strong>
+
+            <li><strong><i class="fa fa-info-circle"></i> Trạng thái:</strong> <span class="text-primary">@Model.TrangThai</span></li>
+            <li>
+                <strong><i class="fa fa-calendar"></i> Ngày đăng:</strong>
                 @(Model.NgayDang.HasValue ? Model.NgayDang.Value.ToString("dd/MM/yyyy") : "N/A")
             </li>
+            <li><strong><i class="fa fa-eye"></i> Lượt xem:</strong> @Model.lichsudocs.Count</li>
+            <li><strong><i class="fa fa-heart"></i> Lượt thích:</strong> 567</li>
         </ul>
 
-        <a href="#" class="btn btn-success">Theo dõi</a>
-
-        @if (danhSachChuong != null && danhSachChuong.Any())
-        {
-            <a href="@Url.Action("DocTruyen", "Truyen", new { id = danhSachChuong.First().MaChuong.Trim() })" class="btn btn-primary">Đọc từ đầu</a>
-        }
+        <div class="form-btn mt-3">
+            @if (danhSachChuong != null && danhSachChuong.Any())
+            {
+                <a href="@Url.Action("DocTruyen", "Truyen", new { id = danhSachChuong.First().MaChuong.Trim() })" class="btn btn-danger btn-lg">
+                    <i class="fa fa-book"></i> Đọc Ngay
+                </a>
+            }
+            <button class="btn btn-outline-success"><i class="fa fa-heart"></i> Thích</button>
+            <button class="btn btn-outline-primary"><i class="fa fa-bell"></i> Theo dõi</button>
+        </div>
     </div>
 </div>
 
-<div class="row comic-detail-card">
+<div class="row mt-4">
     <div class="col-md-12">
-        <h3><span class="glyphicon glyphicon-list"></span> Danh sách chương</h3>
-        <hr />
-        <div class="list-group chapter-list">
-            @if (danhSachChuong != null && danhSachChuong.Any())
-            {
-                foreach (var chuong in danhSachChuong)
-                {
-                    <a href="@Url.Action("DocTruyen", "Truyen", new { id = chuong.MaChuong.Trim() })" class="list-group-item">
-                        Chương @chuong.SoChuong - @chuong.TenChuong
-                        <span class="pull-right">
-                            @(chuong.NgayDang.HasValue ? chuong.NgayDang.Value.ToString("dd/MM/yyyy") : "")
-                        </span>
-                    </a>
-                }
-            }
-            else
-            {
-                <p>Truyện chưa có chương nào.</p>
-            }
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h4 class="mb-0"><i class="fa fa-list"></i> Danh sách chương</h4>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush chapter-list">
+                    @if (danhSachChuong != null && danhSachChuong.Any())
+                    {
+                        foreach (var chuong in danhSachChuong)
+                        {
+                            <a href="@Url.Action("DocTruyen", "Truyen", new { id = chuong.MaChuong.Trim() })" class="list-group-item list-group-item-action">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold">Chương @chuong.SoChuong: @chuong.TenChuong</span>
+                                    <small class="text-muted">
+                                        @(chuong.NgayDang.HasValue ? chuong.NgayDang.Value.ToString("dd/MM/yyyy") : "")
+                                    </small>
+                                </div>
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <p class="p-3 text-center text-muted">Truyện này chưa cập nhật chương mới.</p>
+                    }
+                </div>
+            </div>
         </div>
     </div>
 </div>

@@ -135,17 +135,6 @@
       <Association Name="thongtintruyen_truyenyeuthich" Member="thongtintruyen" ThisKey="MaTruyen" OtherKey="MaTruyen" Type="thongtintruyen" IsForeignKey="true" />
     </Type>
   </Table>
-  <Function Name="dbo.sp_GetTruyenMoiNhat" Method="sp_GetTruyenMoiNhat">
-    <Parameter Name="SoLuong" Parameter="soLuong" Type="System.Int32" DbType="Int" />
-    <ElementType Name="sp_GetTruyenMoiNhatResult">
-      <Column Name="MaTruyen" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
-      <Column Name="TenTruyen" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
-      <Column Name="AnhTruyen" Type="System.String" DbType="NVarChar(500)" CanBeNull="true" />
-      <Column Name="TacGia" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
-      <Column Name="TenTheLoai" Type="System.String" DbType="NVarChar(200)" CanBeNull="true" />
-      <Column Name="MoTa" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
-    </ElementType>
-  </Function>
   <Function Name="dbo.sp_GetTruyenDeCu" Method="sp_GetTruyenDeCu">
     <ElementType Name="sp_GetTruyenDeCuResult">
       <Column Name="MaTruyen" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
@@ -339,5 +328,17 @@
   <Function Name="dbo.sp_Admin_XoaAdmin" Method="sp_Admin_XoaAdmin">
     <Parameter Name="MaAdmin" Parameter="maAdmin" Type="System.String" DbType="NVarChar(50)" />
     <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.sp_GetTruyenMoiNhat" Method="sp_GetTruyenMoiNhat">
+    <Parameter Name="SoLuong" Parameter="soLuong" Type="System.Int32" DbType="Int" />
+    <ElementType Name="sp_GetTruyenMoiNhatResult">
+      <Column Name="MaTruyen" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="TenTruyen" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="AnhTruyen" Type="System.String" DbType="NVarChar(500)" CanBeNull="true" />
+      <Column Name="TacGia" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="MaTheLoai" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="TenTheLoai" Type="System.String" DbType="NVarChar(200)" CanBeNull="true" />
+      <Column Name="MoTa" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+    </ElementType>
   </Function>
 </Database>

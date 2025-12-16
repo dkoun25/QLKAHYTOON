@@ -1,66 +1,310 @@
 ﻿@model QLKAHYTOON.Models.chuong
+
 @{
     ViewBag.Title = $"Đọc truyện {Model.thongtintruyen.TenTruyen} - Chương {Model.SoChuong}";
-    Layout = "~/Views/Shared/_Layout.cshtml"; // Dùng layout chung
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
     var danhSachAnh = ViewBag.DanhSachAnh as List<string>;
+    var listChuong = ViewBag.ListChuong as List<QLKAHYTOON.Models.chuong>;
+
+    string maChuongTruoc = ViewBag.MaChuongTruoc;
+    string maChuongSau = ViewBag.MaChuongSau;
 }
 
-<style>
-    /* CSS để canh giữa và giới hạn chiều rộng ảnh */
-    .reading-container {
-        max-width: 800px;
-        margin: 0 auto;
-        text-align: center;
-    }
-
-        .reading-container img {
-            max-width: 100%;
-            height: auto;
-            margin-bottom: 5px;
-            display: block; /* Giúp margin auto hoạt động */
+@section Styles {
+    <style>
+        /* 1. ẨN NAVBAR GỐC CỦA LAYOUT VÀ CHỈNH BODY */
+        /* Lưu ý: .kahy-navbar là class của navbar trong _Layout bạn cung cấp lúc đầu */
+        /* Reset padding của body vì không còn navbar dính ở trên nữa */
+        .navbar, .navbar-fixed-top, .kahy-navbar {
+            position: absolute !important; /* Dính chặt vào đầu trang web, không chạy theo chuột */
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 10;
+        }
+        body, .body-content {
+            padding-top: 60px !important; /* Tùy chỉnh số này nếu navbar của bạn cao hơn */
+            background-color: #1a1a1a;
         }
 
-    .navigation-buttons {
-        margin-top: 20px;
-        margin-bottom: 20px;
-    }
-</style>
+        /* 2. CSS CHO TRANG ĐỌC */
+        .reading-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #222;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
 
-<div class="container mt-4">
-    <div class="text-center">
-        <h1>@Model.thongtintruyen.TenTruyen</h1>
-        <h3>Chương @Model.SoChuong - @Model.TenChuong</h3>
+            .reading-container img {
+                width: 100%;
+                height: auto;
+                display: block;
+                margin: 0;
+            }
+
+        /* Nút điều hướng TĨNH (Đầu/Cuối trang) */
+        .static-nav {
+            padding: 20px 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            background-color: #1a1a1a;
+        }
+
+        /* 3. THANH ĐIỀU HƯỚNG TRƯỢT (STICKY BOTTOM) */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(30, 30, 30, 0.95); /* Màu tối mờ */
+            border-top: 1px solid #444;
+            backdrop-filter: blur(5px);
+            padding: 10px 0;
+            z-index: 1000;
+            transition: transform 0.3s ease-in-out;
+            /* Dùng Flexbox để dàn hàng ngang các nút */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px; /* Khoảng cách giữa các nút nhỏ hơn để chứa nhiều nút */
+        }
+
+            /* Ẩn thanh này đi */
+            .bottom-nav.hidden {
+                transform: translateY(100%);
+            }
+
+            /* Style chung cho các nút trong thanh sticky */
+            .bottom-nav .btn {
+                border-radius: 5px;
+                padding: 5px 10px;
+                font-size: 14px;
+            }
+
+        /* Nút tròn cho Home, Lên đầu trang */
+        .btn-icon-only {
+            width: 38px;
+            height: 38px;
+            border-radius: 50% !important;
+            padding: 0 !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* CSS Modal Danh sách */
+        .chapter-modal-body {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .current-chapter {
+            border: 1px solid orange !important; 
+            color: orange !important;
+            background-color: rgba(255, 165, 0, 0.1) !important;
+            font-weight: bold;
+            pointer-events: none; 
+        }
+
+        /* Spacer để nội dung cuối không bị che */
+        .spacer-bottom {
+            height: 80px;
+        }
+    </style>
+}
+
+<div class="container-fluid p-0">
+
+    <div class="container pt-4 pb-2 text-center text-white">
+        <h4>
+            <a href="@Url.Action("Chitiet", "Truyen", new { id = Model.MaTruyen.Trim() })" class="text-white text-decoration-none">
+                @Model.thongtintruyen.TenTruyen
+            </a>
+        </h4>
+        <p class="text-secondary">Chương @Model.SoChuong: @Model.TenChuong</p>
     </div>
 
-    <div class="text-center navigation-buttons">
-        <a href="#" class="btn btn-primary">Chương Trước</a>
-        <a href="@Url.Action("ChiTiet", "Truyen", new { id = Model.MaTruyen.Trim() })" class="btn btn-secondary">Danh sách chương</a>
-        <a href="#" class="btn btn-primary">Chương Sau</a>
-    </div>
+    <div class="static-nav">
+        @if (!string.IsNullOrEmpty(maChuongTruoc))
+        {
+            <a href="@Url.Action("DocTruyen", "Truyen", new { id = maChuongTruoc })" class="btn btn-primary">
+                <i class="fa fa-chevron-left"></i> Trước
+            </a>
+        }
+        else
+        {
+            <button class="btn btn-secondary" disabled>Trước</button>
+        }
 
-    <hr />
+        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#chapterListModal">
+            <i class="fa fa-list"></i> Danh sách
+        </button>
+
+        @if (!string.IsNullOrEmpty(maChuongSau))
+        {
+            <a href="@Url.Action("DocTruyen", "Truyen", new { id = maChuongSau })" class="btn btn-primary">
+                Sau <i class="fa fa-chevron-right"></i>
+            </a>
+        }
+        else
+        {
+            <button class="btn btn-secondary" disabled>Sau</button>
+        }
+    </div>
 
     <div class="reading-container">
         @if (danhSachAnh != null && danhSachAnh.Any())
         {
             foreach (var anh in danhSachAnh)
             {
-                // @Url.Content() sẽ xử lý đường dẫn "/Anh/..."
-                // Dùng data-src cho lazyload
-                <img class="lazyload" data-src="@Url.Content(anh.Trim())" alt="Trang truyện" />
+                <img class="lazyload"
+                     src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+                     data-src="@Url.Content(anh.Trim())"
+                     alt="Trang truyện" />
             }
         }
         else
         {
-            <p class="text-center">Nội dung chương đang được cập nhật...</p>
+            <p class="text-white text-center p-5">Đang cập nhật nội dung...</p>
         }
     </div>
 
-    <hr />
+    <div class="static-nav">
+        @if (!string.IsNullOrEmpty(maChuongTruoc))
+        {
+            <a href="@Url.Action("DocTruyen", "Truyen", new { id = maChuongTruoc })" class="btn btn-primary">
+                <i class="fa fa-chevron-left"></i> Trước
+            </a>
+        }
+        else
+        {
+            <button class="btn btn-secondary" disabled>Trước</button>
+        }
 
-    <div class="text-center navigation-buttons">
-        <a href="#" class="btn btn-primary">Chương Trước</a>
-        <a href="@Url.Action("ChiTiet", "Truyen", new { id = Model.MaTruyen.Trim() })" class="btn btn-secondary">Danh sách chương</a>
-        <a href="#" class="btn btn-primary">Chương Sau</a>
+        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#chapterListModal">
+            <i class="fa fa-list"></i> Danh sách
+        </button>
+
+        @if (!string.IsNullOrEmpty(maChuongSau))
+        {
+            <a href="@Url.Action("DocTruyen", "Truyen", new { id = maChuongSau })" class="btn btn-primary">
+                Sau <i class="fa fa-chevron-right"></i>
+            </a>
+        }
+        else
+        {
+            <button class="btn btn-secondary" disabled>Sau</button>
+        }
+    </div>
+
+    <div class="spacer-bottom"></div>
+
+    <div id="stickyBottomNav" class="bottom-nav hidden">
+
+        <a href="@Url.Action("Index", "Home")" class="btn btn-outline-light btn-icon-only" title="Về trang chủ">
+            <i class="fa fa-home"></i>
+        </a>
+
+        @if (!string.IsNullOrEmpty(maChuongTruoc))
+        {
+            <a href="@Url.Action("DocTruyen", "Truyen", new { id = maChuongTruoc })" class="btn btn-light text-primary">
+                <i class="fa fa-chevron-left"></i>
+            </a>
+        }
+        else
+        {
+            <button class="btn btn-secondary" disabled><i class="fa fa-chevron-left"></i></button>
+        }
+
+        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#chapterListModal">
+            <i class="fa fa-list"></i> <span class="d-none d-sm-inline">Mục lục</span>
+        </button>
+
+        @if (!string.IsNullOrEmpty(maChuongSau))
+        {
+            <a href="@Url.Action("DocTruyen", "Truyen", new { id = maChuongSau })" class="btn btn-light text-primary">
+                <i class="fa fa-chevron-right"></i>
+            </a>
+        }
+        else
+        {
+            <button class="btn btn-secondary" disabled><i class="fa fa-chevron-right"></i></button>
+        }
+
+        <button class="btn btn-outline-danger btn-icon-only" title="Theo dõi truyện">
+            <i class="fa fa-heart"></i>
+        </button>
+
+        <button onclick="scrollToTop()" class="btn btn-outline-info btn-icon-only" title="Lên đầu trang">
+            <i class="fa fa-arrow-up"></i>
+        </button>
     </div>
 </div>
+
+<div class="modal fade" id="chapterListModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" style="background-color: #333; color: #fff;">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">Danh sách chương</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body chapter-modal-body p-0">
+                <div class="list-group list-group-flush">
+                    @if (listChuong != null)
+                    {
+                        foreach (var item in listChuong)
+                        {
+                            // So sánh Mã chương hiện tại vs Mã trong list
+                            // Dùng Trim() để cắt khoảng trắng thừa nếu có
+                            bool isActive = item.MaChuong.Trim() == Model.MaChuong.Trim();
+                            <a href="@Url.Action("DocTruyen", "Truyen", new { id = item.MaChuong.Trim() })"
+                               class="list-group-item list-group-item-action @(isActive ? "current-chapter" : "")"
+                               style="background-color: #333; color: #ccc; border-bottom: 1px solid #444;">
+
+                                <div class="d-flex justify-content-between">
+                                    <span>Chương @item.SoChuong: @item.TenChuong</span>
+                                    @if (isActive)
+                                    {
+                                        <i class="fa fa-check text-warning"></i>}
+                                </div>
+                            </a>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        // 1. Hàm cuộn lên đầu trang
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 2. Xử lý ẩn hiện thanh nav
+        let lastScrollTop = 0;
+        const navBar = document.getElementById('stickyBottomNav');
+
+        window.addEventListener("scroll", function () {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+            // Logic: Lăn xuống -> HIỆN. Lăn lên -> ẨN.
+            if (scrollTop > lastScrollTop) {
+                navBar.classList.remove('hidden'); // Hiện
+            } else {
+                navBar.classList.add('hidden'); // Ẩn
+            }
+            // Nếu ở sát đỉnh trang -> Luôn ẩn cho thoáng
+            if (scrollTop <= 100) {
+                navBar.classList.add('hidden');
+            }
+
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        }, false);
+    </script>
+}
