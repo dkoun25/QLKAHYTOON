@@ -199,6 +199,14 @@
             <button class="btn btn-secondary" disabled>Sau</button>
         }
     </div>
+    <div class="container mt-5" style="max-width: 800px;">
+        <hr />
+
+        <input type="hidden" id="hdMaTruyen" value="@Model.MaTruyen.Trim()" />
+        <input type="hidden" id="hdMaChuong" value="@Model.MaChuong.Trim()" />
+
+        @Html.Action("ListBinhLuan", "BinhLuan", new { maTruyen = Model.MaTruyen, isDetail = false })
+    </div>
 
     <div class="spacer-bottom"></div>
 
