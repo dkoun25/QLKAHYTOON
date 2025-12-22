@@ -1,5 +1,5 @@
-﻿@model QLKAHYTOON.Models.chuong
-
+﻿@using System.Linq
+@model QLKAHYTOON.Models.chuong
 @{
     ViewBag.Title = $"Đọc truyện {Model.thongtintruyen.TenTruyen} - Chương {Model.SoChuong}";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -13,9 +13,6 @@
 
 @section Styles {
     <style>
-        /* 1. ẨN NAVBAR GỐC CỦA LAYOUT VÀ CHỈNH BODY */
-        /* Lưu ý: .kahy-navbar là class của navbar trong _Layout bạn cung cấp lúc đầu */
-        /* Reset padding của body vì không còn navbar dính ở trên nữa */
         .navbar, .navbar-fixed-top, .kahy-navbar {
             position: absolute !important; /* Dính chặt vào đầu trang web, không chạy theo chuột */
             top: 0;
@@ -156,7 +153,7 @@
     </div>
 
     <div class="reading-container">
-        @if (danhSachAnh != null && danhSachAnh.Any())
+        @if (danhSachAnh != null && danhSachAnh.Count > 0)
         {
             foreach (var anh in danhSachAnh)
             {

@@ -8,6 +8,125 @@
 @section Styles {
     <link href="@Url.Content("~/Content/homepage.css")" rel="stylesheet" type="text/css" />
 }
+<style>
+    /* CSS cho chapter placeholder */
+    .chapter-placeholder {
+        display: block;
+        color: #ccc;
+        font-size: 0.85rem;
+        padding: 3px 0;
+        cursor: default;
+        pointer-events: none;
+    }
+
+        .chapter-placeholder i {
+            color: #ddd;
+        }
+
+    .truyen-chapters .chapter-link {
+        display: block;
+        color: #666;
+        font-size: 0.85rem;
+        text-decoration: none;
+        padding: 3px 0;
+        transition: color 0.3s;
+    }
+
+        .truyen-chapters .chapter-link:hover {
+            color: #5f27a2;
+            text-decoration: underline;
+        }
+
+        .truyen-chapters .chapter-link i {
+            margin-right: 5px;
+            color: #5f27a2;
+        }
+    /* CSS cho ranking list với ảnh */
+    .ranking-list li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background-color 0.3s;
+    }
+
+        .ranking-list li:hover {
+            background-color: #f8f9fa;
+        }
+
+    .ranking-list .rank-number {
+        font-size: 18px;
+        font-weight: bold;
+        color: #5f27a2;
+        min-width: 30px;
+        text-align: center;
+    }
+
+    /* Ảnh truyện */
+    .ranking-list .comic-thumbnail {
+        flex-shrink: 0;
+        display: block;
+        width: 50px;
+        height: 70px;
+        overflow: hidden;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+        .ranking-list .comic-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .ranking-list .comic-thumbnail:hover img {
+            transform: scale(1.1);
+        }
+
+    /* Thông tin truyện */
+    .ranking-list .comic-info {
+        flex: 1;
+        min-width: 0; /* Để text-overflow hoạt động */
+    }
+
+        .ranking-list .comic-info > a {
+            display: block;
+            font-weight: 500;
+            color: #333;
+            text-decoration: none;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+            .ranking-list .comic-info > a:hover {
+                color: #5f27a2;
+            }
+
+    /* Chapter link */
+    .ranking-list .chapter-link {
+        font-size: 12px;
+        color: #666;
+        text-decoration: none;
+        display: block;
+    }
+
+        .ranking-list .chapter-link:hover {
+            color: #5f27a2;
+            text-decoration: underline;
+        }
+
+    /* Chapter placeholder */
+    .ranking-list .chapter-placeholder {
+        font-size: 12px;
+        color: #888;
+        font-style: italic;
+        display: block;
+    }
+</style>
 
 <div class="container">
 
@@ -145,22 +264,52 @@
                                         <text>Đang cập nhật</text>
                                     }
                                 </p>
+                                @* HIỂN THỊ 3 CHAPTER MỚI NHẤT *@
                                 <div class="truyen-chapters">
-                                    <a href="#" class="chapter-link">
-                                        <i class="bi bi-book"></i> Chap 35 [EN]
-                                    </a>
-                                    <a href="#" class="chapter-link">
-                                        <i class="bi bi-book"></i> Chap 34 [EN]
-                                    </a>
-                                    <a href="#" class="chapter-link">
-                                        <i class="bi bi-book"></i> Chap 33 [EN]
-                                    </a>
+                                    @if (truyen.Top3Chapters != null && truyen.Top3Chapters.Any())
+                                    {
+                                        @* Hiển thị các chapter có thật *@
+                                        foreach (var chapter in truyen.Top3Chapters)
+                                        {
+                                            @* Đặt trong vòng foreach var chapter *@
+                                            <a href="@Url.Action("DocTruyen", "Truyen", new { id = chapter.MaChuong.Trim() })" class="chapter-link">
+                                                <i class="bi bi-book"></i>
+                                                @{
+                                                    string displayText = "Chương " + (chapter.SoChuong ?? 0);
+                                                    if (!string.IsNullOrEmpty(chapter.TenChuong))
+                                                    {
+                                                        displayText += ": " + chapter.TenChuong;
+                                                    }
+                                                }
+                                                @displayText
+                                            </a>
+                                        }
+
+                                        @* Thêm các dòng "-----" cho số chapter còn thiếu *@
+                                        for (int i = truyen.Top3Chapters.Count; i < 3; i++)
+                                        {
+                                            <span class="chapter-placeholder">
+                                                <i class="bi bi-book"></i> ---------------------
+                                            </span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @* Truyện không có chapter nào - hiển thị 3 dòng "-----" *@
+                                        for (int i = 0; i < 3; i++)
+                                        {
+                                            <span class="chapter-placeholder">
+                                                <i class="bi bi-book"></i> ---------------------
+                                            </span>
+                                        }
+                                    }
                                 </div>
                             </div>
                         </div>
                     </div>
                 }
             </div>
+
             <nav class="mt-4 d-flex justify-content-center">
                 <ul class="pagination">
                     @{
@@ -200,6 +349,7 @@
                 </ul>
 
                 <div class="tab-content" id="rankingTabContent">
+                    @* TAB NGÀY *@
                     <div class="tab-pane fade show active" id="top-day" role="tabpanel">
                         <ul class="ranking-list">
                             @for (int i = 0; i < Model.TopNgay.Count; i++)
@@ -207,46 +357,88 @@
                                 var item = Model.TopNgay[i];
                                 <li>
                                     <span class="rank-number">@(i+1)</span>
+
+                                    @* ẢNH TRUYỆN *@
+                                    <a href="@Url.Action("ChiTiet", "Truyen", new { id = item.MaTruyen.Trim() })" class="comic-thumbnail">
+                                        <img src="@item.AnhTruyen" alt="@item.TenTruyen">
+                                    </a>
+
                                     <div class="comic-info">
-                                        <a href="@Url.Action("ChiTiet", "Truyen", new { id = Model.TopNgay[i].MaTruyen.Trim() })">@Model.TopNgay[i].TenTruyen</a>
-                                        @if (item.SoChuongMoiNhat != null)
+                                        <a href="@Url.Action("ChiTiet", "Truyen", new { id = item.MaTruyen.Trim() })">@item.TenTruyen</a>
+                                        @if (item.SoChuongMoiNhat != null && item.MaChuongMoiNhat != null)
                                         {
                                             <a href="@Url.Action("DocTruyen", "Truyen", new { id = item.MaChuongMoiNhat.Trim() })" class="chapter-link">
-                                                Chapter @item.SoChuongMoiNhat
+                                                Chương @item.SoChuongMoiNhat
                                             </a>
                                         }
                                         else
                                         {
-                                            <span style="font-size: 12px; color: #888;">Đang cập nhật</span>
+                                            <span class="chapter-placeholder">Đang cập nhật</span>
                                         }
                                     </div>
                                 </li>
                             }
                         </ul>
                     </div>
+
+                    @* TAB TUẦN *@
                     <div class="tab-pane fade" id="top-week" role="tabpanel">
                         <ul class="ranking-list">
                             @for (int i = 0; i < Model.TopTuan.Count; i++)
                             {
+                                var item = Model.TopTuan[i];
                                 <li>
                                     <span class="rank-number">@(i+1)</span>
+
+                                    @* ẢNH TRUYỆN *@
+                                    <a href="@Url.Action("ChiTiet", "Truyen", new { id = item.MaTruyen.Trim() })" class="comic-thumbnail">
+                                        <img src="@item.AnhTruyen" alt="@item.TenTruyen">
+                                    </a>
+
                                     <div class="comic-info">
-                                        <a href="@Url.Action("ChiTiet", "Truyen", new { id = Model.TopTuan[i].MaTruyen.Trim() })">@Model.TopTuan[i].TenTruyen</a>
-                                        <span>Chapter 20</span>
+                                        <a href="@Url.Action("ChiTiet", "Truyen", new { id = item.MaTruyen.Trim() })">@item.TenTruyen</a>
+                                        @if (item.SoChuongMoiNhat != null && item.MaChuongMoiNhat != null)
+                                        {
+                                            <a href="@Url.Action("DocTruyen", "Truyen", new { id = item.MaChuongMoiNhat.Trim() })" class="chapter-link">
+                                                Chương @item.SoChuongMoiNhat
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="chapter-placeholder">Đang cập nhật</span>
+                                        }
                                     </div>
                                 </li>
                             }
                         </ul>
                     </div>
+
+                    @* TAB THÁNG *@
                     <div class="tab-pane fade" id="top-month" role="tabpanel">
                         <ul class="ranking-list">
                             @for (int i = 0; i < Model.TopThang.Count; i++)
                             {
+                                var item = Model.TopThang[i];
                                 <li>
                                     <span class="rank-number">@(i+1)</span>
+
+                                    @* ẢNH TRUYỆN *@
+                                    <a href="@Url.Action("ChiTiet", "Truyen", new { id = item.MaTruyen.Trim() })" class="comic-thumbnail">
+                                        <img src="@item.AnhTruyen" alt="@item.TenTruyen">
+                                    </a>
+
                                     <div class="comic-info">
-                                        <a href="@Url.Action("ChiTiet", "Truyen", new { id = Model.TopThang[i].MaTruyen.Trim() })">@Model.TopThang[i].TenTruyen</a>
-                                        <span>Chapter 30</span>
+                                        <a href="@Url.Action("ChiTiet", "Truyen", new { id = item.MaTruyen.Trim() })">@item.TenTruyen</a>
+                                        @if (item.SoChuongMoiNhat != null && item.MaChuongMoiNhat != null)
+                                        {
+                                            <a href="@Url.Action("DocTruyen", "Truyen", new { id = item.MaChuongMoiNhat.Trim() })" class="chapter-link">
+                                                Chương @item.SoChuongMoiNhat
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="chapter-placeholder">Đang cập nhật</span>
+                                        }
                                     </div>
                                 </li>
                             }

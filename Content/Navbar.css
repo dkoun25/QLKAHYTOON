@@ -1,92 +1,301 @@
-﻿.kahy-navbar {
-        background-color: #5f27a2 !important; /* Màu chủ đạo tím */
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Đổ bóng nhẹ cho nổi bật */
-        padding: 10px 0; /* Tăng độ dày navbar chút cho thoáng */
+﻿/* NAVBAR BACKGROUND */
+.kahy-navbar {
+    background-color: #5f27a2 !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    padding: 10px 0;
 }
-.kahy-navbar .navbar-brand {
+
+    .kahy-navbar .navbar-brand {
         font-weight: bold;
         font-size: 1.5rem;
         color: #fff !important;
         text-transform: uppercase;
         letter-spacing: 1px;
         padding: 0;
-        margin-right:20px;
-}
-.kahy-navbar .navbar-brand img {
-        height: 70px; /* Tăng chiều cao lên (Lúc nãy là 40px) */
-        width: auto; /* Tự động chỉnh chiều rộng theo tỷ lệ ảnh */
-        transition: transform 0.3s ease; /* Hiệu ứng mượt */
-}
-.kahy-navbar .navbar-brand:hover img {
-        transform: scale(1.05);
-}
-.kahy-navbar .nav-link {
+        margin-right: 20px;
+    }
+
+        .kahy-navbar .navbar-brand img {
+            height: 70px;
+            width: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .kahy-navbar .navbar-brand:hover img {
+            transform: scale(1.05);
+        }
+
+    .kahy-navbar .nav-link {
         color: rgba(255, 255, 255, 0.85) !important;
         font-weight: 500;
         transition: all 0.3s ease;
         margin: 0 5px;
         border-radius: 5px;
-}
-.kahy-navbar .nav-link:hover,
-.kahy-navbar .nav-link:focus {
-        color: #ffffff !important;
-        background-color: rgba(255, 255, 255, 0.1); 
-        transform: translateY(-1px); 
+    }
+
+        .kahy-navbar .nav-link:hover,
+        .kahy-navbar .nav-link:focus {
+            color: #ffffff !important;
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .kahy-navbar .nav-link.active {
+            color: #fff !important;
+            font-weight: bold;
+            border-bottom: 2px solid #ffcc00;
+        }
+
+/* ========== SEARCH CONTAINER ========== */
+.search-container {
+    width: 60%; /* Rộng hơn - 60% chiều rộng */
+    max-width: 600px;
+    position: relative;
 }
 
-.kahy-navbar .nav-link.active {
-        color: #fff !important;
-        font-weight: bold;
-        border-bottom: 2px solid #ffcc00;
+.search-form {
+    position: relative;
+    width: 100%;
 }
 
-.kahy-navbar .form-control {
-    border-radius: 20px !important; /* Bo tròn đều 4 góc */
-    border: none;
-    background-color: rgba(255, 255, 255, 0.9);
-    padding-left: 15px;
-    height: 40px; /* Cố định chiều cao */
-}
-
-.kahy-navbar .form-control:focus {
-    box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.5); /* Hiệu ứng focus màu vàng */
-    background-color: #fff;
-}
-
-/* --- SỬA LẠI NÚT TÌM KIẾM --- */
-.kahy-navbar .btn-search {
-    border-radius: 20px !important; /* Bo tròn đều 4 góc */
-    background-color: #4a148c;
-    color: white;
-    border: 1px solid rgba(255,255,255,0.8); /* Viền mỏng */
-    padding: 0 20px; /* Độ rộng nút */
-    height: 40px;    /* Chiều cao bằng ô input */
-    font-weight: 600;
+.search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 25px;
+    padding: 5px 10px;
     transition: all 0.3s ease;
-    white-space: nowrap; /* Không xuống dòng chữ */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.kahy-navbar .btn-search:hover {
-    background-color: #ffcc00; 
-    color: #5f27a2; 
-    border-color: #ffcc00;
-    transform: translateY(-2px); /* Hiệu ứng nổi lên khi di chuột */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    .search-wrapper:focus-within {
+        background-color: #fff;
+        box-shadow: 0 4px 12px rgba(255, 204, 0, 0.3);
+        transform: translateY(-2px);
+    }
+
+.search-icon {
+    color: #5f27a2;
+    font-size: 16px;
+    padding: 0 10px;
 }
+
+.search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 8px 10px;
+    font-size: 15px;
+    color: #333;
+}
+
+    .search-input::placeholder {
+        color: #999;
+    }
+
+.btn-search-submit {
+    background-color: #5f27a2;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+    .btn-search-submit:hover {
+        background-color: #ffcc00;
+        color: #5f27a2;
+        transform: scale(1.05);
+    }
+
+/* ========== DROPDOWN GỢI Ý ========== */
+.search-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    overflow: hidden;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.search-results {
+    max-height: 320px; /* Hiển thị ~3 items, có scroll nếu nhiều hơn */
+    overflow-y: auto;
+}
+
+    /* Custom scrollbar */
+    .search-results::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .search-results::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    .search-results::-webkit-scrollbar-thumb {
+        background: #5f27a2;
+        border-radius: 10px;
+    }
+
+        .search-results::-webkit-scrollbar-thumb:hover {
+            background: #4a148c;
+        }
+
+/* ========== SEARCH ITEM ========== */
+.search-item {
+    display: flex;
+    padding: 12px 15px;
+    text-decoration: none;
+    color: #333;
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+    .search-item:last-child {
+        border-bottom: none;
+    }
+
+    .search-item:hover {
+        background-color: #f8f9fa;
+    }
+
+.search-item-image {
+    flex-shrink: 0;
+    width: 60px;
+    height: 80px;
+    margin-right: 12px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+    .search-item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+.search-item:hover .search-item-image img {
+    transform: scale(1.1);
+}
+
+.search-item-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.search-item-title {
+    font-weight: 600;
+    font-size: 15px;
+    color: #333;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.search-item-chapter {
+    font-size: 13px;
+    color: #666;
+}
+
+    .search-item-chapter i {
+        color: #5f27a2;
+        margin-right: 4px;
+    }
+
+/* ========== EMPTY/ERROR STATE ========== */
+.search-item-empty,
+.search-item-error {
+    padding: 30px 20px;
+    text-align: center;
+    color: #999;
+    font-size: 14px;
+}
+
+.search-item-error {
+    color: #dc3545;
+}
+
+/* ========== FOOTER ========== */
+.search-footer {
+    padding: 10px 15px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    text-align: center;
+}
+
+    .search-footer .text-muted {
+        font-size: 12px;
+        color: #666;
+    }
+
+/* ========== NAVBAR TOGGLES ========== */
 .kahy-navbar .navbar-toggler {
-        border-color: rgba(255,255,255,0.5);
+    border-color: rgba(255, 255, 255, 0.5);
 }
+
 .kahy-navbar .navbar-toggler-icon {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
-.kahy-navbar .navbar-nav.ms-auto .nav-link 
-{
-        font-size: 0.9rem;
-        border: 1px solid rgba(255,255,255,0.3);
-        margin-left: 10px;
+
+.kahy-navbar .navbar-nav.ms-auto .nav-link {
+    font-size: 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    margin-left: 10px;
 }
-.kahy-navbar .navbar-nav.ms-auto .nav-link:hover 
-{
+
+    .kahy-navbar .navbar-nav.ms-auto .nav-link:hover {
         background-color: #fff;
         color: #5f27a2 !important;
+    }
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 991px) {
+    .search-container {
+        width: 100%;
+        max-width: none;
+        margin: 15px 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .search-item-image {
+        width: 50px;
+        height: 70px;
+    }
+
+    .search-item-title {
+        font-size: 14px;
+    }
+
+    .search-item-chapter {
+        font-size: 12px;
+    }
 }

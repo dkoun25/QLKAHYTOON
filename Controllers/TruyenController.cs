@@ -16,30 +16,36 @@ namespace QLKAHYTOON.Controllers
                 return new HttpStatusCodeResult(System.Net.HttpStatusCode.BadRequest);
             }
 
-            // 1. Lấy thông tin truyện (Không JOIN nữa, lấy trực tiếp)
+            // 1. Lấy thông tin truyện
             var truyen = db.thongtintruyens.SingleOrDefault(t => t.MaTruyen == id);
-
             if (truyen == null)
             {
                 return HttpNotFound();
             }
 
-            // --- XỬ LÝ NHIỀU THỂ LOẠI ---
-            var listTheLoai = new List<theloai>();
+            // 2. Danh sách thể loại (nhiều thể loại)
+            var danhSachTheLoai = new List<theloai>();
             if (!string.IsNullOrEmpty(truyen.MaTheLoai))
             {
-                // Tách chuỗi "TL01, TL02" thành mảng ID
-                var maTheLoaiArray = truyen.MaTheLoai.Split(',').Select(m => m.Trim()).ToList();
+                var maTheLoaiArray = truyen.MaTheLoai
+                    .Split(',')
+                    .Select(m => m.Trim())
+                    .ToList();
 
-                // Tìm các thể loại có mã nằm trong danh sách trên
-                listTheLoai = db.theloais.Where(tl => maTheLoaiArray.Contains(tl.MaTheLoai)).ToList();
+                danhSachTheLoai = db.theloais
+                    .Where(tl => maTheLoaiArray.Contains(tl.MaTheLoai))
+                    .ToList();
             }
-            // Truyền danh sách đối tượng thể loại sang View
-            ViewBag.DanhSachTheLoai = listTheLoai;
+            ViewBag.DanhSachTheLoai = danhSachTheLoai;
 
+            // 3. Danh sách chương
+            var danhSachChuong = db.chuongs
+                .Where(c => c.MaTruyen == id)
+                .OrderBy(c => c.SoChuong)
+                .ToList();
+            ViewBag.DanhSachChuong = danhSachChuong;
 
-            ViewBag.DanhSachChuong = db.chuongs.Where(c => c.MaTruyen == id).OrderBy(c => c.SoChuong).ToList();
-
+            // 4. Bình luận + người dùng
             var danhSachBinhLuan = (from bl in db.binhluans
                                     join nd in db.nguoidungs on bl.MaNguoiDung equals nd.MaNguoiDung
                                     where bl.MaTruyen == id
@@ -51,8 +57,24 @@ namespace QLKAHYTOON.Controllers
                                         nd.HoTen,
                                         nd.Avatar
                                     }).ToList();
-
             ViewBag.BinhLuan = danhSachBinhLuan;
+
+            // 5. Đếm lượt theo dõi
+            var soLuotTheoDoi = db.truyenyeuthiches.Count(x => x.MaTruyen == id);
+            ViewBag.SoLuotTheoDoi = soLuotTheoDoi;
+
+            // 6. Kiểm tra user đã theo dõi chưa
+            var user = Session["User"] as nguoidung;
+            if (user != null)
+            {
+                var daTheoDoi = db.truyenyeuthiches
+                    .Any(x => x.MaTruyen == id && x.MaNguoiDung == user.MaNguoiDung);
+                ViewBag.DaTheoDoi = daTheoDoi;
+            }
+            else
+            {
+                ViewBag.DaTheoDoi = false;
+            }
 
             return View(truyen);
         }
@@ -114,51 +136,74 @@ namespace QLKAHYTOON.Controllers
             return View(chuong);
         }
 
-        // GET: Truyen/TimKiem?keyword=Naruto
-        [HttpGet]
-        public ActionResult TimKiem(string keyword, int? page)
+        
+        [HttpPost]
+        public JsonResult ThichTruyen(string maTruyen)
         {
-            // Nếu từ khóa rỗng -> về trang chủ
-            if (string.IsNullOrEmpty(keyword))
+            if (Session["User"] == null)
             {
-                return RedirectToAction("Index", "Home");
+                return Json(new { success = false, msg = "Vui lòng đăng nhập!" });
             }
 
-            ViewBag.TuKhoa = keyword;
-            // --- QUAN TRỌNG: Lấy danh sách tất cả Thể loại để View hiển thị tên thể loại ---
-            var allTheLoai = db.theloais.ToList();
-            ViewBag.AllTheLoai = allTheLoai;
-
-            // --- LOGIC TÌM KIẾM KHÔNG DẤU ---
-            // B1: Lấy hết danh sách truyện (hoặc lọc sơ bộ để tối ưu nếu dữ liệu quá lớn)
-            var allTruyen = db.thongtintruyens.ToList();
-
-            // B2: Chuẩn hóa từ khóa tìm kiếm (bỏ dấu, thường)
-            string keywordClean = RemoveSign4VietnameseString(keyword);
-
-            // B3: Lọc trong bộ nhớ (In-Memory Filtering)
-            var ketqua = allTruyen.Where(s =>
-                RemoveSign4VietnameseString(s.TenTruyen).Contains(keywordClean) ||
-                RemoveSign4VietnameseString(s.TacGia).Contains(keywordClean)
-            ).ToList();
-
-            return View(ketqua);
-        }
-        private string RemoveSign4VietnameseString(string str)
-        {
-            if (string.IsNullOrEmpty(str)) return str;
-            for (int i = 1; i < VietnameseSigns.Length; i++)
+            var truyen = db.thongtintruyens.SingleOrDefault(t => t.MaTruyen == maTruyen);
+            if (truyen == null)
             {
-                for (int j = 0; j < VietnameseSigns[i].Length; j++)
-                    str = str.Replace(VietnameseSigns[i][j], VietnameseSigns[0][i - 1]);
+                return Json(new { success = false, msg = "Truyện không tồn tại!" });
             }
-            return str.ToLower(); // Chuyển về chữ thường để so sánh
+
+            // Nếu null thì set = 0 trước
+            if (truyen.LuotThich == null)
+            {
+                truyen.LuotThich = 0;
+            }
+
+            truyen.LuotThich += 1;
+            db.SubmitChanges();
+
+            return Json(new
+            {
+                success = true,
+                luotThich = truyen.LuotThich
+            });
+        }
+        [HttpPost]
+        public JsonResult TheoDoiTruyen(string maTruyen)
+        {
+            var user = Session["User"] as nguoidung;
+            if (user == null)
+            {
+                return Json(new { success = false, msg = "Vui lòng đăng nhập!" });
+            }
+            var daTheoDoi = db.truyenyeuthiches
+                .SingleOrDefault(x => x.MaTruyen == maTruyen && x.MaNguoiDung == user.MaNguoiDung);
+            bool trangThaiTheoDoi = false;
+            if (daTheoDoi == null)
+            {
+                var theoDoiMoi = new truyenyeuthich
+                {
+                    MaNguoiDung = user.MaNguoiDung,
+                    MaTruyen = maTruyen,
+                    NgayThem = DateTime.Now
+                };
+
+                db.truyenyeuthiches.InsertOnSubmit(theoDoiMoi);
+                trangThaiTheoDoi = true;
+            }
+            else
+            {
+                db.truyenyeuthiches.DeleteOnSubmit(daTheoDoi);
+                trangThaiTheoDoi = false;
+            }
+            db.SubmitChanges();
+            var soLuotTheoDoi = db.truyenyeuthiches.Count(x => x.MaTruyen == maTruyen);
+            return Json(new
+            {
+                success = true,
+                daTheoDoi = trangThaiTheoDoi,
+                soLuotTheoDoi = soLuotTheoDoi
+            });
         }
 
-        private readonly string[] VietnameseSigns = new string[]
-        {
-            "aAeEoOuUiIdDyY","áàạảãâấầậẩẫăắằặẳẵ","ÁÀẠẢÃÂẤẦẬẨẪĂẮẰẶẲẴ","éèẹẻẽêếềệểễ","ÉÈẸẺẼÊẾỀỆỂỄ",
-            "óòọỏõôốồộổỗơớờợởỡ","ÓÒỌỎÕÔỐỒỘỔỖƠỚỜỢỞỠ","úùụủũưứừựửữ","ÚÙỤỦŨƯỨỪỰỬỮ","íìịỉĩ","ÍÌỊỈĨ","đ","Đ","ýỳỵỷỹ","ÝỲỴỶỸ"
-        };
+
     }
 }

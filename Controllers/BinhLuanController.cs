@@ -14,14 +14,30 @@ namespace QLKAHYTOON.Controllers
         {
             return View();
         }
+
         public ActionResult ListBinhLuan(string maTruyen, bool isDetail)
         {
-            // Lấy tất cả bình luận của truyện này (bao gồm cả các chap)
-            // Chỉ lấy bình luận GỐC (MaBinhLuanCha là null)
-            var listBinhLuan = db.binhluans
-                .Where(x => x.MaTruyen == maTruyen && x.MaBinhLuanCha == null)
+            // Lấy tất cả bình luận của truyện này (1 lần query)
+            var allComments = db.binhluans
+                .Where(x => x.MaTruyen == maTruyen)
+                .ToList();
+
+            // Lọc bình luận GỐC (MaBinhLuanCha là null)
+            var listBinhLuan = allComments
+                .Where(x => x.MaBinhLuanCha == null)
                 .OrderByDescending(x => x.NgayDang)
                 .ToList();
+
+            // Load replies cho mỗi comment và lưu vào ViewData
+            foreach (var comment in allComments)
+            {
+                var replies = allComments
+                    .Where(x => x.MaBinhLuanCha == comment.MaBinhLuan)
+                    .OrderBy(x => x.NgayDang)
+                    .ToList();
+
+                ViewData["Replies_" + comment.MaBinhLuan] = replies;
+            }
 
             ViewBag.IsDetail = isDetail;
             ViewBag.MaTruyen = maTruyen;
@@ -33,7 +49,7 @@ namespace QLKAHYTOON.Controllers
         [HttpPost]
         public ActionResult PostBinhLuan(string maTruyen, string maChuong, string noiDung, string maBinhLuanCha)
         {
-            var user = Session["User"] as nguoidung; // Lấy từ Session đăng nhập
+            var user = Session["User"] as nguoidung;
             if (user == null)
             {
                 return Json(new { success = false, msg = "Bạn cần đăng nhập để bình luận!" });
@@ -47,12 +63,9 @@ namespace QLKAHYTOON.Controllers
             try
             {
                 var bl = new binhluan();
-                bl.MaBinhLuan = Guid.NewGuid().ToString(); // Tạo ID ngẫu nhiên vì DB là nvarchar
+                bl.MaBinhLuan = Guid.NewGuid().ToString();
                 bl.MaTruyen = maTruyen;
-
-                // Nếu maChuong rỗng (bình luận ở trang chi tiết) thì gán null
                 bl.MaChuong = string.IsNullOrEmpty(maChuong) ? null : maChuong;
-
                 bl.MaNguoiDung = user.MaNguoiDung;
                 bl.NoiDung = noiDung;
                 bl.NgayDang = DateTime.Now;
@@ -66,7 +79,6 @@ namespace QLKAHYTOON.Controllers
             }
             catch (Exception ex)
             {
-                // Ghi log ex.Message nếu cần
                 return Json(new { success = false, msg = "Có lỗi xảy ra: " + ex.Message });
             }
         }
@@ -75,7 +87,7 @@ namespace QLKAHYTOON.Controllers
         [HttpPost]
         public ActionResult LikeBinhLuan(string maBinhLuan)
         {
-            var bl = db.binhluans.SingleOrDefault(x => x.MaBinhLuan==maBinhLuan);
+            var bl = db.binhluans.SingleOrDefault(x => x.MaBinhLuan == maBinhLuan);
             if (bl != null)
             {
                 bl.LuotLike = (bl.LuotLike ?? 0) + 1;
@@ -83,6 +95,61 @@ namespace QLKAHYTOON.Controllers
                 return Json(new { success = true, likes = bl.LuotLike });
             }
             return Json(new { success = false });
+        }
+
+        // 4. XÓA BÌNH LUẬN
+        [HttpPost]
+        public ActionResult XoaBinhLuan(string maBinhLuan)
+        {
+            var user = Session["User"] as nguoidung;
+            if (user == null)
+            {
+                return Json(new { success = false, msg = "Bạn cần đăng nhập!" });
+            }
+
+            try
+            {
+                var bl = db.binhluans.SingleOrDefault(x => x.MaBinhLuan == maBinhLuan);
+
+                if (bl == null)
+                {
+                    return Json(new { success = false, msg = "Không tìm thấy bình luận!" });
+                }
+
+                // Kiểm tra quyền: chỉ cho phép xóa bình luận của chính mình
+                if (bl.MaNguoiDung != user.MaNguoiDung)
+                {
+                    return Json(new { success = false, msg = "Bạn không có quyền xóa bình luận này!" });
+                }
+
+                // Xóa tất cả replies của bình luận này trước (recursive)
+                XoaRepliesRecursive(maBinhLuan);
+
+                // Xóa bình luận chính
+                db.binhluans.DeleteOnSubmit(bl);
+                db.SubmitChanges();
+
+                return Json(new { success = true, msg = "Đã xóa bình luận!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, msg = "Có lỗi xảy ra: " + ex.Message });
+            }
+        }
+
+        // Helper method: Xóa replies đệ quy
+        private void XoaRepliesRecursive(string maBinhLuanCha)
+        {
+            var replies = db.binhluans.Where(x => x.MaBinhLuanCha == maBinhLuanCha).ToList();
+
+            foreach (var reply in replies)
+            {
+                // Xóa replies của reply này trước (đệ quy)
+                XoaRepliesRecursive(reply.MaBinhLuan);
+
+                // Xóa reply
+                db.binhluans.DeleteOnSubmit(reply);
+            }
         }
     }
 }

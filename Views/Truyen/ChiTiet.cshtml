@@ -3,6 +3,8 @@
     ViewBag.Title = Model.TenTruyen;
     var danhSachChuong = ViewBag.DanhSachChuong as List<QLKAHYTOON.Models.chuong>;
     var danhSachTheLoai = ViewBag.DanhSachTheLoai as List<QLKAHYTOON.Models.theloai>;
+    var soLuotTheoDoi = ViewBag.SoLuotTheoDoi ?? 0;
+    var daTheoDoi = ViewBag.DaTheoDoi ?? false;
 }
 
 @section Styles {
@@ -45,7 +47,8 @@
                 @(Model.NgayDang.HasValue ? Model.NgayDang.Value.ToString("dd/MM/yyyy") : "N/A")
             </li>
             <li><strong><i class="fa fa-eye"></i> Lượt xem:</strong> @Model.lichsudocs.Count</li>
-            <li><strong><i class="fa fa-heart"></i> Lượt thích:</strong> 567</li>
+            <li><strong><i class="fa fa-heart text-danger"></i> Lượt thích:</strong> <span id="luotThichCount">@(Model.LuotThich ?? 0)</span></li>
+            <li><strong><i class="fa fa-bookmark text-warning"></i> Lượt theo dõi:</strong> <span id="luotTheoDoiCount">@soLuotTheoDoi</span></li>
         </ul>
 
         <div class="form-btn mt-3">
@@ -55,8 +58,12 @@
                     <i class="fa fa-book"></i> Đọc Ngay
                 </a>
             }
-            <button class="btn btn-outline-success"><i class="fa fa-heart"></i> Thích</button>
-            <button class="btn btn-outline-primary"><i class="fa fa-bell"></i> Theo dõi</button>
+            <button class="btn btn-outline-success" id="btnThich" onclick="thichTruyen()">
+                <i class="fa fa-heart"></i> <span id="btnThichText">Thích</span>
+            </button>
+            <button class="btn btn-outline-primary @(daTheoDoi ? "active" : "")" id="btnTheoDoi" onclick="theoDoiTruyen()">
+                <i class="fa fa-bell"></i> <span id="btnTheoDoiText">@(daTheoDoi ? "Đã theo dõi" : "Theo dõi")</span>
+            </button>
         </div>
     </div>
 </div>
@@ -92,8 +99,79 @@
         </div>
     </div>
 </div>
+
 <div class="container mt-4">
     <hr />
     <input type="hidden" id="hdMaTruyen" value="@Model.MaTruyen.Trim()" />
-    <input type="hidden" id="hdMaChuong" value="" /> @Html.Action("ListBinhLuan", "BinhLuan", new { maTruyen = Model.MaTruyen, isDetail = true })
+    <input type="hidden" id="hdMaChuong" value="" />
+    @Html.Action("ListBinhLuan", "BinhLuan", new { maTruyen = Model.MaTruyen, isDetail = true })
 </div>
+
+<script>
+    function thichTruyen() {
+        var maTruyen = document.getElementById('hdMaTruyen').value;
+
+        $.ajax({
+            url: '@Url.Action("ThichTruyen", "Truyen")',
+            type: 'POST',
+            data: { maTruyen: maTruyen },
+            success: function(res) {
+                if (res.success) {
+                    // Cập nhật số lượt thích
+                    $('#luotThichCount').text(res.luotThich);
+
+                    // Đổi màu nút
+                    $('#btnThich').removeClass('btn-outline-success').addClass('btn-success');
+                    $('#btnThichText').text('Đã thích');
+
+                    // Disable nút sau khi thích
+                    $('#btnThich').prop('disabled', true);
+                } else {
+                    alert(res.msg || 'Có lỗi xảy ra!');
+                }
+            },
+            error: function() {
+                alert('Lỗi kết nối server!');
+            }
+        });
+    }
+
+    function theoDoiTruyen() {
+        var maTruyen = document.getElementById('hdMaTruyen').value;
+
+        $.ajax({
+            url: '@Url.Action("TheoDoiTruyen", "Truyen")',
+            type: 'POST',
+            data: { maTruyen: maTruyen },
+            success: function(res) {
+                if (res.success) {
+                    // Cập nhật số lượt theo dõi
+                    $('#luotTheoDoiCount').text(res.soLuotTheoDoi);
+
+                    if (res.daTheoDoi) {
+                        // Đã theo dõi
+                        $('#btnTheoDoi').addClass('active');
+                        $('#btnTheoDoiText').text('Đã theo dõi');
+                    } else {
+                        // Bỏ theo dõi
+                        $('#btnTheoDoi').removeClass('active');
+                        $('#btnTheoDoiText').text('Theo dõi');
+                    }
+                } else {
+                    alert(res.msg || 'Có lỗi xảy ra!');
+                }
+            },
+            error: function() {
+                alert('Lỗi kết nối server!');
+            }
+        });
+    }
+</script>
+
+<style>
+    .btn.active {
+        background-color: #0d6efd;
+        color: white;
+        border-color: #0d6efd;
+    }
+</style>

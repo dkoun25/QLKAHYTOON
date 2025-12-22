@@ -1,6 +1,8 @@
 ﻿@model QLKAHYTOON.Models.binhluan
 @{
     var user = ViewBag.User as QLKAHYTOON.Models.nguoidung;
+    // Lấy danh sách replies từ ViewData (đã được load sẵn từ Controller)
+    var replies = ViewData["Replies_" + Model.MaBinhLuan] as List<QLKAHYTOON.Models.binhluan>;
 }
 
 <div class="comment-item d-flex mb-3 p-2" id="cmt-@Model.MaBinhLuan" style="border-bottom: 1px dashed #ddd;">
@@ -21,7 +23,14 @@
             <button class="btn-action me-3" onclick="likeComment('@Model.MaBinhLuan')">
                 <i class="fa-regular fa-thumbs-up"></i> <span id="like-count-@Model.MaBinhLuan">@Model.LuotLike</span> Thích
             </button>
-            <button class="btn-action" onclick="toggleReplyBox('@Model.MaBinhLuan')">Trả lời</button>
+            <button class="btn-action me-3" onclick="toggleReplyBox('@Model.MaBinhLuan')">Trả lời</button>
+
+            @if (user != null && user.MaNguoiDung == Model.MaNguoiDung)
+            {
+                <button class="btn-action text-danger" onclick="deleteComment('@Model.MaBinhLuan')">
+                    <i class="fa-solid fa-trash"></i> Xóa
+                </button>
+            }
         </div>
 
         <div class="reply-box mt-2" id="reply-box-@Model.MaBinhLuan" style="display:none;">
@@ -34,10 +43,10 @@
             }
         </div>
 
-        @if (Model.binhluan1 != null && Model.binhluan1.Any())
+        @if (replies != null && replies.Count > 0)
         {
             <div class="replies-list ms-4 mt-2 ps-3" style="border-left: 3px solid #e9ecef;">
-                @foreach (var child in Model.binhluan1.OrderBy(c => c.NgayDang))
+                @foreach (var child in replies)
                 {
                     @Html.Partial("_CommentItem", child)
                 }

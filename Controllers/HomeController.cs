@@ -2,7 +2,9 @@
 using QLKAHYTOON.Models.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 
@@ -47,17 +49,24 @@ namespace QLKAHYTOON.Controllers
                 }).ToList();
 
                 // --- Lấy Truyện Mới Cập Nhật CÓ PHÂN TRANG ---
-                var allTruyenMoiCapNhat = db.sp_GetTruyenMoiNhat(1000).ToList(); // Lấy nhiều để phân trang
+                var allTruyenMoiCapNhat = db.sp_GetTruyenMoiNhat(1000).ToList();
 
                 // Tính tổng số trang
                 int totalTruyen = allTruyenMoiCapNhat.Count();
                 int totalPages = (int)Math.Ceiling((double)totalTruyen / pageSize);
 
                 // Lấy truyện theo trang hiện tại
-                viewModel.TruyenMoiCapNhat = allTruyenMoiCapNhat
+                var pagedTruyen = allTruyenMoiCapNhat
                     .Skip((pageNumber - 1) * pageSize)
                     .Take(pageSize)
-                    .Select(t => new TruyenCardViewModel
+                    .ToList();
+
+                // Chuyển đổi sang ViewModel và load chapters
+                viewModel.TruyenMoiCapNhat = new List<TruyenCardViewModel>();
+
+                foreach (var t in pagedTruyen)
+                {
+                    var truyenVM = new TruyenCardViewModel
                     {
                         MaTruyen = t.MaTruyen,
                         TenTruyen = t.TenTruyen,
@@ -65,36 +74,83 @@ namespace QLKAHYTOON.Controllers
                         TacGia = t.TacGia,
                         TenTheLoai = t.TenTheLoai,
                         MoTa = t.MoTa,
-                        MaTheLoai = t.MaTheLoai                      
-                    }).ToList();
+                        MaTheLoai = t.MaTheLoai
+                    };
+
+                    // Lấy 3 chapter mới nhất của truyện này
+                    var top3Chapters = db.chuongs
+                        .Where(c => c.MaTruyen == t.MaTruyen)
+                        .OrderByDescending(c => c.SoChuong)
+                        .Take(3)
+                        .Select(c => new ChapterViewModel
+                        {
+                            MaChuong = c.MaChuong,
+                            TenChuong = c.TenChuong,
+                            SoChuong = c.SoChuong
+                        })
+                        .ToList();
+
+                    truyenVM.Top3Chapters = top3Chapters;
+                    viewModel.TruyenMoiCapNhat.Add(truyenVM);
+                }
 
                 // Truyền thông tin phân trang qua ViewBag
                 ViewBag.CurrentPage = pageNumber;
                 ViewBag.TotalPages = totalPages;
 
-                // --- Lấy TOP (Tạm thời) ---
-                viewModel.TopNgay = db.sp_GetTopTruyenByView("Ngay").Select(sp_result => new TruyenCardViewModel
-                {
-                    MaTruyen = sp_result.MaTruyen,
-                    TenTruyen = sp_result.TenTruyen,
-                    AnhTruyen = sp_result.AnhTruyen,
-                    TenTheLoai = sp_result.TenTheLoai,
+                // --- Lấy TOP với Chapter mới nhất ---
+                var topNgayData = db.sp_GetTopTruyenByView("Ngay").ToList();
+                viewModel.TopNgay = topNgayData.Select(sp_result => {
+                    var latestChapter = db.chuongs
+                        .Where(c => c.MaTruyen == sp_result.MaTruyen)
+                        .OrderByDescending(c => c.SoChuong)
+                        .FirstOrDefault();
+
+                    return new TruyenCardViewModel
+                    {
+                        MaTruyen = sp_result.MaTruyen,
+                        TenTruyen = sp_result.TenTruyen,
+                        AnhTruyen = sp_result.AnhTruyen,
+                        TenTheLoai = sp_result.TenTheLoai,
+                        SoChuongMoiNhat = latestChapter?.SoChuong,
+                        MaChuongMoiNhat = latestChapter?.MaChuong
+                    };
                 }).ToList();
 
-                viewModel.TopTuan = db.sp_GetTopTruyenByView("Tuan").Select(sp_result => new TruyenCardViewModel
-                {
-                    MaTruyen = sp_result.MaTruyen,
-                    TenTruyen = sp_result.TenTruyen,
-                    AnhTruyen = sp_result.AnhTruyen,
-                    TenTheLoai = sp_result.TenTheLoai,
+                var topTuanData = db.sp_GetTopTruyenByView("Tuan").ToList();
+                viewModel.TopTuan = topTuanData.Select(sp_result => {
+                    var latestChapter = db.chuongs
+                        .Where(c => c.MaTruyen == sp_result.MaTruyen)
+                        .OrderByDescending(c => c.SoChuong)
+                        .FirstOrDefault();
+
+                    return new TruyenCardViewModel
+                    {
+                        MaTruyen = sp_result.MaTruyen,
+                        TenTruyen = sp_result.TenTruyen,
+                        AnhTruyen = sp_result.AnhTruyen,
+                        TenTheLoai = sp_result.TenTheLoai,
+                        SoChuongMoiNhat = latestChapter?.SoChuong,
+                        MaChuongMoiNhat = latestChapter?.MaChuong
+                    };
                 }).ToList();
 
-                viewModel.TopThang = db.sp_GetTopTruyenByView("Thang").Select(sp_result => new TruyenCardViewModel
-                {
-                    MaTruyen = sp_result.MaTruyen,
-                    TenTruyen = sp_result.TenTruyen,
-                    AnhTruyen = sp_result.AnhTruyen,
-                    TenTheLoai = sp_result.TenTheLoai,
+                var topThangData = db.sp_GetTopTruyenByView("Thang").ToList();
+                viewModel.TopThang = topThangData.Select(sp_result => {
+                    var latestChapter = db.chuongs
+                        .Where(c => c.MaTruyen == sp_result.MaTruyen)
+                        .OrderByDescending(c => c.SoChuong)
+                        .FirstOrDefault();
+
+                    return new TruyenCardViewModel
+                    {
+                        MaTruyen = sp_result.MaTruyen,
+                        TenTruyen = sp_result.TenTruyen,
+                        AnhTruyen = sp_result.AnhTruyen,
+                        TenTheLoai = sp_result.TenTheLoai,
+                        SoChuongMoiNhat = latestChapter?.SoChuong,
+                        MaChuongMoiNhat = latestChapter?.MaChuong
+                    };
                 }).ToList();
 
                 return View(viewModel);
@@ -131,8 +187,33 @@ namespace QLKAHYTOON.Controllers
 
                 return View(listTruyen);
             }
+
+            // Thay thế action GetSearchSuggestions trong HomeController.cs
+            private string RemoveDiacritics(string text)
+            {
+                if (string.IsNullOrEmpty(text))
+                    return text;
+
+                // Normalize về dạng FormD (tách ký tự và dấu)
+                var normalizedString = text.Normalize(NormalizationForm.FormD);
+                var stringBuilder = new StringBuilder();
+
+                foreach (var c in normalizedString)
+                {
+                    var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                    // Bỏ qua các dấu (NonSpacingMark)
+                    if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                    {
+                        stringBuilder.Append(c);
+                    }
+                }
+
+                return stringBuilder.ToString()
+                                    .Normalize(NormalizationForm.FormC)
+                                    .ToLower(); // Chuyển về chữ thường để so sánh
+            }
             [HttpGet]
-            public ActionResult GetSearchSuggestions(string keyword) // <--- Đổi thành ActionResult
+            public ActionResult GetSearchSuggestions(string keyword)
             {
                 // 1. Kiểm tra từ khóa
                 if (string.IsNullOrEmpty(keyword))
@@ -140,24 +221,42 @@ namespace QLKAHYTOON.Controllers
                     return Json(new { data = new object[] { } }, JsonRequestBehavior.AllowGet);
                 }
 
-                // 2. Truy vấn Database
-                // Lưu ý: db.Truyens có thể là db.Truyen (tùy cách bạn đặt tên trong Model)
-                var query = db.thongtintruyens.Where(t => t.TenTruyen.Contains(keyword));
+                // 2. Bỏ dấu từ khóa tìm kiếm
+                var keywordKhongDau = RemoveDiacritics(keyword);
 
-                // Sắp xếp và lấy 5 tin
-                var listTruyen = query.OrderByDescending(t => t.NgayDang).Take(5).ToList();
+                // 3. Lấy tất cả truyện và filter trong memory (để có thể bỏ dấu)
+                var allTruyen = db.thongtintruyens.ToList();
 
-                // 3. Chọn lọc dữ liệu để trả về (Chỉ lấy cái cần thiết)
-                var ketQua = listTruyen.Select(t => new {
-                    t.MaTruyen,      // Hoặc t.Id
-                    t.TenTruyen,
-                    t.AnhTruyen,        // Link ảnh
-                                     // Lấy tên chapter mới nhất (xử lý lỗi nếu chưa có chapter nào)
-                    ChapterMoi = t.chuongs.OrderByDescending(c => c.SoChuong).FirstOrDefault() != null
-                                 ? t.chuongs.OrderByDescending(c => c.SoChuong).FirstOrDefault().TenChuong
-                                 : "Mới"
+                // 4. Tìm kiếm không dấu
+                var listTruyen = allTruyen
+                    .Where(t => RemoveDiacritics(t.TenTruyen).Contains(keywordKhongDau))
+                    .OrderByDescending(t => t.NgayDang)
+                    .Take(5)
+                    .ToList();
+
+                // 5. Chọn lọc dữ liệu để trả về
+                var ketQua = listTruyen.Select(t => {
+                    var latestChapter = t.chuongs
+                        .OrderByDescending(c => c.SoChuong)
+                        .FirstOrDefault();
+
+                    string chapterText = "Đang cập nhật";
+                    if (latestChapter != null)
+                    {
+                        // CHỈ HIỂN THỊ "Chương X" - KHÔNG CÓ TÊN CHƯƠNG
+                        chapterText = "Chương " + latestChapter.SoChuong;
+                    }
+
+                    return new
+                    {
+                        t.MaTruyen,
+                        t.TenTruyen,
+                        t.AnhTruyen,
+                        ChapterMoi = chapterText
+                    };
                 });
-                // 4. Trả về JSON (QUAN TRỌNG: Phải có AllowGet)
+
+                // 6. Trả về JSON
                 return Json(new { data = ketQua }, JsonRequestBehavior.AllowGet);
             }
         }

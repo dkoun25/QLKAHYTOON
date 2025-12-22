@@ -45,14 +45,15 @@
 
     function submitComment(parentId) {
         // 1. Lấy nội dung
-        var txtInput = parentId == null 
-            ? document.getElementById('txtMainComment') 
+        var txtInput = parentId == null
+            ? document.getElementById('txtMainComment')
             : document.getElementById('txtReply-' + parentId);
-        
+
         var content = txtInput ? txtInput.value : "";
 
         if (!content || !content.trim()) {
-            alert("Vui lòng nhập nội dung!"); return;
+            alert("Vui lòng nhập nội dung!");
+            return;
         }
 
         // 2. Lấy ID Truyện/Chương
@@ -60,17 +61,16 @@
         var maChuongEl = document.getElementById('hdMaChuong');
 
         if (!maTruyenEl) {
-            alert("Lỗi: Không tìm thấy thẻ input id='hdMaTruyen' trong file ChiTiet.cshtml");
+            alert("Lỗi: Không tìm thấy thẻ input id='hdMaTruyen'");
             return;
         }
 
         var vMaTruyen = maTruyenEl.value;
-        // JAVASCRIPT FIX: Nếu không có chương hoặc value rỗng, gán là null để C# không lỗi
         var vMaChuong = (maChuongEl && maChuongEl.value !== "") ? maChuongEl.value : null;
 
-        // 3. Gửi Ajax (Dùng link cứng để tránh lỗi biên dịch Razor)
+        // 3. Gửi Ajax
         $.ajax({
-            url: '/BinhLuan/PostBinhLuan', 
+            url: '/BinhLuan/PostBinhLuan',
             type: 'POST',
             data: {
                 maTruyen: vMaTruyen,
@@ -86,8 +86,8 @@
                 }
             },
             error: function (xhr) {
-                alert("Lỗi Server (Code " + xhr.status + "). Kiểm tra Console.");
-                console.log(xhr.responseText);
+                alert("Lỗi Server (Code " + xhr.status + ")");
+                console.error("Error details:", xhr.responseText);
             }
         });
     }
@@ -102,9 +102,54 @@
             }
         });
     }
+
+    function deleteComment(id) {
+        if (!confirm('Bạn có chắc chắn muốn xóa bình luận này? (Tất cả replies sẽ bị xóa)')) {
+            return;
+        }
+
+        $.ajax({
+            url: '/BinhLuan/XoaBinhLuan',
+            type: 'POST',
+            data: { maBinhLuan: id },
+            success: function (res) {
+                if (res.success) {
+                    // Ẩn bình luận với animation
+                    $('#cmt-' + id).fadeOut(300, function () {
+                        $(this).remove();
+                    });
+
+                    // Hoặc reload trang
+                    // location.reload();
+                } else {
+                    alert("Lỗi: " + res.msg);
+                }
+            },
+            error: function (xhr) {
+                alert("Lỗi Server (Code " + xhr.status + ")");
+                console.error("Error details:", xhr.responseText);
+            }
+        });
+    }
 </script>
 
 <style>
-    .btn-action { background: none; border: none; color: #666; font-size: 0.9rem; padding: 0; cursor: pointer; }
-    .btn-action:hover { color: #5f27a2; text-decoration: underline; }
+    .btn-action {
+        background: none;
+        border: none;
+        color: #666;
+        font-size: 0.9rem;
+        padding: 0;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+        .btn-action:hover {
+            color: #5f27a2;
+            text-decoration: underline;
+        }
+
+        .btn-action.text-danger:hover {
+            color: #dc3545 !important;
+        }
 </style>

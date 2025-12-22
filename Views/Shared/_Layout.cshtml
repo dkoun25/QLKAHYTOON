@@ -16,7 +16,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top kahy-navbar">
         <div class="container">
             <a class="navbar-brand" href="@Url.Action("Index", "Home", new { area = "" })">
-                <img src="@Url.Content("~/Anh/logo.png")" alt="KAHY Toon" height="40"/>
+                <img src="@Url.Content("~/Anh/logo.png")" alt="KAHY Toon" height="40" />
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -32,13 +32,33 @@
                     </li>
                 </ul>
 
-                <form action="@Url.Action("TimKiem", "Truyen")" method="get" class="d-flex w-50 mx-auto position-relative">
-                    <div class="search-wrapper">
-                        <input type="text" id="searchInput" name="keyword" class="form-control" placeholder="Tìm kiếm truyện..." autocomplete="off">
-                        <div id="searchDropdown" class="search-dropdown"></div>
-                    </div>
-                    <button type="submit" class="btn btn-search ms-2">Tìm</button>
-                </form>
+                @* THANH TÌM KIẾM MỚI *@
+                <div class="search-container mx-auto">
+                    <form action="@Url.Action("TimKiem", "Truyen")" method="get" class="search-form">
+                        <div class="search-wrapper">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text"
+                                   id="searchInput"
+                                   name="keyword"
+                                   class="search-input"
+                                   placeholder="Tìm kiếm truyện..."
+                                   autocomplete="off">
+                            <button type="submit" class="btn-search-submit">
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+
+                        @* DROPDOWN GỢI Ý *@
+                        <div id="searchDropdown" class="search-dropdown" style="display: none;">
+                            <div class="search-results" id="searchResults">
+                                <!-- Kết quả tìm kiếm sẽ được load bằng JavaScript -->
+                            </div>
+                            <div class="search-footer">
+                                <span class="text-muted">Nhấn Enter để xem tất cả kết quả</span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
 
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     @{
@@ -66,6 +86,7 @@
             </div>
         </div>
     </nav>
+
     <div class="container body-content" style="padding-top: 80px;">
         @RenderBody()
         <hr style="border-top: 1px solid #333;" />
@@ -74,9 +95,94 @@
         </footer>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.3.2/lazysizes.min.js" integrity="sha512-q583ppKrCRc7N5O0n2nzUiJ+suUv7Et1JGels4bXOaMFQcamPk9HjdUknZuuFjBNs7tsMuadge5k9RzdmO+1GQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    @* JAVASCRIPT TÌM KIẾM *@
+    <script>
+        $(document).ready(function() {
+            var searchTimeout;
+            var $searchInput = $('#searchInput');
+            var $searchDropdown = $('#searchDropdown');
+            var $searchResults = $('#searchResults');
+
+            // Tìm kiếm khi nhập
+            $searchInput.on('input', function() {
+                clearTimeout(searchTimeout);
+                var keyword = $(this).val().trim();
+
+                if (keyword.length < 2) {
+                    $searchDropdown.hide();
+                    return;
+                }
+
+                searchTimeout = setTimeout(function() {
+                    searchManga(keyword);
+                }, 300); // Delay 300ms để tránh gọi API quá nhiều
+            });
+
+            // Ẩn dropdown khi click ra ngoài
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.search-container').length) {
+                    $searchDropdown.hide();
+                }
+            });
+
+            // Hiện lại dropdown khi focus vào input (nếu có kết quả)
+            $searchInput.on('focus', function() {
+                if ($searchResults.children().length > 0) {
+                    $searchDropdown.show();
+                }
+            });
+
+            function searchManga(keyword) {
+                $.ajax({
+                    url: '@Url.Action("GetSearchSuggestions", "Home")',
+                    type: 'GET',
+                    data: { keyword: keyword },
+                    success: function(response) {
+                        displayResults(response.data);
+                    },
+                    error: function() {
+                        $searchResults.html('<div class="search-item-error">Lỗi kết nối!</div>');
+                        $searchDropdown.show();
+                    }
+                });
+            }
+
+            function displayResults(data) {
+                $searchResults.empty();
+
+                if (!data || data.length === 0) {
+                    $searchResults.html('<div class="search-item-empty">Không tìm thấy truyện nào</div>');
+                    $searchDropdown.show();
+                    return;
+                }
+
+                $.each(data, function(index, item) {
+                    var chapterText = item.ChapterMoi || 'Đang cập nhật';
+
+                    var html = `
+                        <a href="/Truyen/ChiTiet/${item.MaTruyen.trim()}" class="search-item">
+                            <div class="search-item-image">
+                                <img src="${item.AnhTruyen}" alt="${item.TenTruyen}">
+                            </div>
+                            <div class="search-item-info">
+                                <div class="search-item-title">${item.TenTruyen}</div>
+                                <div class="search-item-chapter">
+                                    <i class="fas fa-book"></i> ${chapterText}
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                    $searchResults.append(html);
+                });
+
+                $searchDropdown.show();
+            }
+        });
+    </script>
 
     @RenderSection("scripts", required: false)
 
