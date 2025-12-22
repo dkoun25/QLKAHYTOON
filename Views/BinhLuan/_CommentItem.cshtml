@@ -1,0 +1,47 @@
+﻿@model QLKAHYTOON.Models.binhluan
+@{
+    var user = ViewBag.User as QLKAHYTOON.Models.nguoidung;
+}
+
+<div class="comment-item d-flex mb-3 p-2" id="cmt-@Model.MaBinhLuan" style="border-bottom: 1px dashed #ddd;">
+    <img src="@(Model.nguoidung.Avatar ?? "/Anh/avatar-default.png")" class="rounded-circle me-3" style="width:45px; height:45px; object-fit:cover; border: 1px solid #ddd;">
+    <div class="flex-grow-1">
+        <div class="d-flex align-items-center flex-wrap">
+            <span class="me-2 fw-bold text-dark">@Model.nguoidung.HoTen</span>
+            @if (Model.chuong != null)
+            {
+                <span class="badge bg-warning text-dark me-2" style="font-size: 0.75rem;">Chapter @Model.chuong.SoChuong</span>
+            }
+            <small class="text-muted">@((Model.NgayDang ?? DateTime.Now).ToString("dd/MM/yyyy HH:mm"))</small>
+        </div>
+
+        <div class="mt-1 text-dark">@Model.NoiDung</div>
+
+        <div class="mt-2">
+            <button class="btn-action me-3" onclick="likeComment('@Model.MaBinhLuan')">
+                <i class="fa-regular fa-thumbs-up"></i> <span id="like-count-@Model.MaBinhLuan">@Model.LuotLike</span> Thích
+            </button>
+            <button class="btn-action" onclick="toggleReplyBox('@Model.MaBinhLuan')">Trả lời</button>
+        </div>
+
+        <div class="reply-box mt-2" id="reply-box-@Model.MaBinhLuan" style="display:none;">
+            @if (user != null)
+            {
+                <div class="d-flex">
+                    <textarea id="txtReply-@Model.MaBinhLuan" class="form-control sm-textarea me-2" rows="1" placeholder="Trả lời @Model.nguoidung.HoTen..."></textarea>
+                    <button class="btn btn-sm btn-primary" onclick="submitComment('@Model.MaBinhLuan')">Gửi</button>
+                </div>
+            }
+        </div>
+
+        @if (Model.binhluan1 != null && Model.binhluan1.Any())
+        {
+            <div class="replies-list ms-4 mt-2 ps-3" style="border-left: 3px solid #e9ecef;">
+                @foreach (var child in Model.binhluan1.OrderBy(c => c.NgayDang))
+                {
+                    @Html.Partial("_CommentItem", child)
+                }
+            </div>
+        }
+    </div>
+</div>

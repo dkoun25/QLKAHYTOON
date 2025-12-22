@@ -92,3 +92,8 @@
         </div>
     </div>
 </div>
+<div class="container mt-4">
+    <hr />
+    <input type="hidden" id="hdMaTruyen" value="@Model.MaTruyen.Trim()" />
+    <input type="hidden" id="hdMaChuong" value="" /> @Html.Action("ListBinhLuan", "BinhLuan", new { maTruyen = Model.MaTruyen, isDetail = true })
+</div>

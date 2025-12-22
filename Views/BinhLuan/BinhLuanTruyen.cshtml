@@ -1,0 +1,110 @@
+﻿@model IEnumerable<QLKAHYTOON.Models.binhluan>
+@{
+    var user = Session["User"] as QLKAHYTOON.Models.nguoidung;
+    ViewBag.User = user; // Truyền user xuống Partial View
+}
+
+<div class="comment-section mt-5 p-3 bg-light rounded">
+    <h4 class="mb-4 text-primary fw-bold"><i class="fa-solid fa-comments"></i> BÌNH LUẬN</h4>
+
+    @if (user != null)
+    {
+        <div class="d-flex mb-4">
+            <img src="@(user.Avatar ?? "/Anh/avatar-default.png")" class="rounded-circle me-3" style="width:50px; height:50px;">
+            <div class="w-100">
+                <textarea id="txtMainComment" class="form-control" rows="2" placeholder="Viết bình luận..."></textarea>
+                <button class="btn btn-sm mt-2 text-white" style="background-color: #5f27a2;" onclick="submitComment(null)">Gửi bình luận</button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">Vui lòng <a href="/Account/Login" class="fw-bold">Đăng nhập</a> để bình luận.</div>
+    }
+
+    <div class="comment-list">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                @Html.Partial("_CommentItem", item)
+            }
+        }
+        else
+        {
+            <p class="text-center text-muted">Chưa có bình luận nào.</p>
+        }
+    </div>
+</div>
+
+<script>
+    function toggleReplyBox(id) {
+        var box = document.getElementById('reply-box-' + id);
+        if (box) box.style.display = (box.style.display === 'none') ? 'block' : 'none';
+    }
+
+    function submitComment(parentId) {
+        // 1. Lấy nội dung
+        var txtInput = parentId == null 
+            ? document.getElementById('txtMainComment') 
+            : document.getElementById('txtReply-' + parentId);
+        
+        var content = txtInput ? txtInput.value : "";
+
+        if (!content || !content.trim()) {
+            alert("Vui lòng nhập nội dung!"); return;
+        }
+
+        // 2. Lấy ID Truyện/Chương
+        var maTruyenEl = document.getElementById('hdMaTruyen');
+        var maChuongEl = document.getElementById('hdMaChuong');
+
+        if (!maTruyenEl) {
+            alert("Lỗi: Không tìm thấy thẻ input id='hdMaTruyen' trong file ChiTiet.cshtml");
+            return;
+        }
+
+        var vMaTruyen = maTruyenEl.value;
+        // JAVASCRIPT FIX: Nếu không có chương hoặc value rỗng, gán là null để C# không lỗi
+        var vMaChuong = (maChuongEl && maChuongEl.value !== "") ? maChuongEl.value : null;
+
+        // 3. Gửi Ajax (Dùng link cứng để tránh lỗi biên dịch Razor)
+        $.ajax({
+            url: '/BinhLuan/PostBinhLuan', 
+            type: 'POST',
+            data: {
+                maTruyen: vMaTruyen,
+                maChuong: vMaChuong,
+                noiDung: content,
+                maBinhLuanCha: parentId
+            },
+            success: function (res) {
+                if (res.success) {
+                    location.reload();
+                } else {
+                    alert("Lỗi: " + res.msg);
+                }
+            },
+            error: function (xhr) {
+                alert("Lỗi Server (Code " + xhr.status + "). Kiểm tra Console.");
+                console.log(xhr.responseText);
+            }
+        });
+    }
+
+    function likeComment(id) {
+        $.ajax({
+            url: '/BinhLuan/LikeBinhLuan',
+            type: 'POST',
+            data: { maBinhLuan: id },
+            success: function (res) {
+                if (res.success) $('#like-count-' + id).text(res.likes);
+            }
+        });
+    }
+</script>
+
+<style>
+    .btn-action { background: none; border: none; color: #666; font-size: 0.9rem; padding: 0; cursor: pointer; }
+    .btn-action:hover { color: #5f27a2; text-decoration: underline; }
+</style>
