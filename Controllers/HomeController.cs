@@ -187,6 +187,33 @@ namespace QLKAHYTOON.Controllers
 
                 return View(listTruyen);
             }
+            [HttpGet]
+            public ActionResult TimKiem(string keyword)
+            {
+                // Lấy tất cả thể loại để hiển thị trong view
+                var allTheLoai = db.theloais.OrderBy(tl => tl.TenTheLoai).ToList();
+                ViewBag.AllTheLoai = allTheLoai;
+                ViewBag.TuKhoa = keyword ?? "";
+
+                List<thongtintruyen> ketQua = new List<thongtintruyen>();
+
+                if (!string.IsNullOrEmpty(keyword))
+                {
+                    // Bỏ dấu từ khóa tìm kiếm
+                    var keywordKhongDau = RemoveDiacritics(keyword);
+
+                    // Lấy tất cả truyện và filter trong memory
+                    var allTruyen = db.thongtintruyens.ToList();
+
+                    // Tìm kiếm không dấu
+                    ketQua = allTruyen
+                        .Where(t => RemoveDiacritics(t.TenTruyen).Contains(keywordKhongDau))
+                        .OrderByDescending(t => t.NgayDang)
+                        .ToList();
+                }
+
+                return View(ketQua);
+            }
 
             // Thay thế action GetSearchSuggestions trong HomeController.cs
             private string RemoveDiacritics(string text)

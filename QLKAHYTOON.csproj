@@ -220,7 +220,7 @@
     <Content Include="Views\Admin\QuanLyNguoiDung.cshtml" />
     <Content Include="Views\Admin\QuanLyBaoCao.cshtml" />
     <Content Include="Views\Admin\QuanLyAdmin.cshtml" />
-    <Content Include="Views\Truyen\TimKiem.cshtml" />
+    <Content Include="Views\Home\TimKiem.cshtml" />
     <Content Include="Views\BinhLuan\BinhLuanTruyen.cshtml" />
     <Content Include="Views\BinhLuan\_CommentItem.cshtml" />
   </ItemGroup>

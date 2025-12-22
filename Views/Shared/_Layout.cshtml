@@ -33,32 +33,32 @@
                 </ul>
 
                 @* THANH TÌM KIẾM MỚI *@
-                <div class="search-container mx-auto">
-                    <form action="@Url.Action("TimKiem", "Truyen")" method="get" class="search-form">
-                        <div class="search-wrapper">
-                            <i class="fas fa-search search-icon"></i>
-                            <input type="text"
-                                   id="searchInput"
-                                   name="keyword"
-                                   class="search-input"
-                                   placeholder="Tìm kiếm truyện..."
-                                   autocomplete="off">
-                            <button type="submit" class="btn-search-submit">
-                                <i class="fas fa-arrow-right"></i>
-                            </button>
-                        </div>
+            <div class="search-container mx-auto">
+                <form action="@Url.Action("TimKiem", "Home")" method="get" class="search-form" id="searchForm">
+                    <div class="search-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text"
+                               id="searchInput"
+                               name="keyword"
+                               class="search-input"
+                               placeholder="Tìm kiếm truyện..."
+                               autocomplete="off">
+                        <button type="submit" class="btn-search-submit">
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
 
-                        @* DROPDOWN GỢI Ý *@
-                        <div id="searchDropdown" class="search-dropdown" style="display: none;">
-                            <div class="search-results" id="searchResults">
-                                <!-- Kết quả tìm kiếm sẽ được load bằng JavaScript -->
-                            </div>
-                            <div class="search-footer">
-                                <span class="text-muted">Nhấn Enter để xem tất cả kết quả</span>
-                            </div>
+                    @* DROPDOWN GỢI Ý *@
+                    <div id="searchDropdown" class="search-dropdown" style="display: none;">
+                        <div class="search-results" id="searchResults">
+                            <!-- Kết quả tìm kiếm sẽ được load bằng JavaScript -->
                         </div>
-                    </form>
-                </div>
+                        <div class="search-footer">
+                            <span class="text-muted">Nhấn Enter để xem tất cả kết quả</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
 
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     @{
@@ -100,89 +100,112 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.3.2/lazysizes.min.js" integrity="sha512-q583ppKrCRc7N5O0n2nzUiJ+suUv7Et1JGels4bXOaMFQcamPk9HjdUknZuuFjBNs7tsMuadge5k9RzdmO+1GQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     @* JAVASCRIPT TÌM KIẾM *@
-    <script>
-        $(document).ready(function() {
-            var searchTimeout;
-            var $searchInput = $('#searchInput');
-            var $searchDropdown = $('#searchDropdown');
-            var $searchResults = $('#searchResults');
+<script>
+    $(document).ready(function() {
+        var searchTimeout;
+        var $searchInput = $('#searchInput');
+        var $searchDropdown = $('#searchDropdown');
+        var $searchResults = $('#searchResults');
+        var $searchForm = $('#searchForm');
 
-            // Tìm kiếm khi nhập
-            $searchInput.on('input', function() {
-                clearTimeout(searchTimeout);
-                var keyword = $(this).val().trim();
+        // Tìm kiếm khi nhập (hiển thị gợi ý)
+        $searchInput.on('input', function() {
+            clearTimeout(searchTimeout);
+            var keyword = $(this).val().trim();
 
-                if (keyword.length < 2) {
-                    $searchDropdown.hide();
-                    return;
-                }
-
-                searchTimeout = setTimeout(function() {
-                    searchManga(keyword);
-                }, 300); // Delay 300ms để tránh gọi API quá nhiều
-            });
-
-            // Ẩn dropdown khi click ra ngoài
-            $(document).on('click', function(e) {
-                if (!$(e.target).closest('.search-container').length) {
-                    $searchDropdown.hide();
-                }
-            });
-
-            // Hiện lại dropdown khi focus vào input (nếu có kết quả)
-            $searchInput.on('focus', function() {
-                if ($searchResults.children().length > 0) {
-                    $searchDropdown.show();
-                }
-            });
-
-            function searchManga(keyword) {
-                $.ajax({
-                    url: '@Url.Action("GetSearchSuggestions", "Home")',
-                    type: 'GET',
-                    data: { keyword: keyword },
-                    success: function(response) {
-                        displayResults(response.data);
-                    },
-                    error: function() {
-                        $searchResults.html('<div class="search-item-error">Lỗi kết nối!</div>');
-                        $searchDropdown.show();
-                    }
-                });
+            if (keyword.length < 2) {
+                $searchDropdown.hide();
+                return;
             }
 
-            function displayResults(data) {
-                $searchResults.empty();
+            searchTimeout = setTimeout(function() {
+                searchManga(keyword);
+            }, 300);
+        });
 
-                if (!data || data.length === 0) {
-                    $searchResults.html('<div class="search-item-empty">Không tìm thấy truyện nào</div>');
-                    $searchDropdown.show();
-                    return;
-                }
+        // Xử lý khi nhấn Enter
+        $searchForm.on('submit', function(e) {
+            var keyword = $searchInput.val().trim();
 
-                $.each(data, function(index, item) {
-                    var chapterText = item.ChapterMoi || 'Đang cập nhật';
+            // Nếu không có từ khóa, ngăn submit
+            if (keyword.length === 0) {
+                e.preventDefault();
+                alert('Vui lòng nhập từ khóa tìm kiếm!');
+                return false;
+            }
 
-                    var html = `
-                        <a href="/Truyen/ChiTiet/${item.MaTruyen.trim()}" class="search-item">
-                            <div class="search-item-image">
-                                <img src="${item.AnhTruyen}" alt="${item.TenTruyen}">
-                            </div>
-                            <div class="search-item-info">
-                                <div class="search-item-title">${item.TenTruyen}</div>
-                                <div class="search-item-chapter">
-                                    <i class="fas fa-book"></i> ${chapterText}
-                                </div>
-                            </div>
-                        </a>
-                    `;
-                    $searchResults.append(html);
-                });
+            // Ẩn dropdown trước khi chuyển trang
+            $searchDropdown.hide();
 
+            // Form sẽ tự động submit và chuyển trang đến /Truyen/TimKiem?keyword=...
+        });
+
+        // Ẩn dropdown khi click ra ngoài
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.search-container').length) {
+                $searchDropdown.hide();
+            }
+        });
+
+        // Hiện lại dropdown khi focus vào input (nếu có kết quả)
+        $searchInput.on('focus', function() {
+            if ($searchResults.children().length > 0) {
                 $searchDropdown.show();
             }
         });
-    </script>
+
+        // Khi click vào một item trong dropdown
+        $(document).on('click', '.search-item', function() {
+            $searchDropdown.hide();
+        });
+
+        function searchManga(keyword) {
+            $.ajax({
+                url: '@Url.Action("GetSearchSuggestions", "Home")',
+                type: 'GET',
+                data: { keyword: keyword },
+                success: function(response) {
+                    displayResults(response.data);
+                },
+                error: function() {
+                    $searchResults.html('<div class="search-item-error">Lỗi kết nối!</div>');
+                    $searchDropdown.show();
+                }
+            });
+        }
+
+        function displayResults(data) {
+            $searchResults.empty();
+
+            if (!data || data.length === 0) {
+                $searchResults.html('<div class="search-item-empty">Không tìm thấy truyện nào</div>');
+                $searchDropdown.show();
+                return;
+            }
+
+            $.each(data, function(index, item) {
+                var chapterText = item.ChapterMoi || 'Đang cập nhật';
+
+                var html = `
+                    <a href="/Truyen/ChiTiet/${item.MaTruyen.trim()}" class="search-item">
+                        <div class="search-item-image">
+                            <img src="${item.AnhTruyen}" alt="${item.TenTruyen}">
+                        </div>
+                        <div class="search-item-info">
+                            <div class="search-item-title">${item.TenTruyen}</div>
+                            <div class="search-item-chapter">
+                                <i class="fas fa-book"></i> ${chapterText}
+                            </div>
+                        </div>
+                    </a>
+                `;
+                $searchResults.append(html);
+            });
+
+            $searchDropdown.show();
+        }
+    });
+</script>
 
     @RenderSection("scripts", required: false)
 

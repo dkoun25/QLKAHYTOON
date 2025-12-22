@@ -146,8 +146,7 @@
                                 <div class="col-md-7 slider-content-left">
                                     <h2>@truyen.TenTruyen</h2>
 
-                                    <p>@truyen.TacGia</p>
-                                    <p><i>(Mô tả ngắn của truyện... Bạn nên thêm cột 'MoTa' vào CSDL)</i></p>
+                                    <p>Tác giả: @truyen.TacGia</p>
 
                                     <div class="slider-tags">
                                         <a href="@Url.Action("TheLoai", "Home", new { id = truyen.MaTheLoai.Trim() })" class="badge text-decoration-none bg-secondary">
@@ -156,7 +155,6 @@
                                     </div>
                                     <div>
                                         <a href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })" class="btn btn-read-now">Đọc Ngay</a>
-                                        <a href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })" class="btn btn-view-info">View Info</a>
                                     </div>
                                 </div>
 
