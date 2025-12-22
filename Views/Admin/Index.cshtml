@@ -1,34 +1,333 @@
 ﻿@{
     ViewBag.Title = "Dashboard";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml"; // Dùng layout admin
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    // Lấy dữ liệu từ ViewBag (bạn cần thêm vào Controller)
+    var tongSoTruyen = ViewBag.TongSoTruyen ?? 0;
+    var tongNguoiDung = ViewBag.TongNguoiDung ?? 0;
+    var baoCaoChuaXuLy = ViewBag.BaoCaoChuaXuLy ?? 0;
+    var tongLuotXem = ViewBag.TongLuotXem ?? 0;
+    var tongLuotTheoDoi = ViewBag.TongLuotTheoDoi ?? 0;
 }
 
-<h2>Dashboard</h2>
-<p>Chào mừng bạn đến với trang quản trị KAHY Toon.</p>
+<h2>Dashboard - Tổng Quan Hệ Thống</h2>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <div class="panel panel-primary">
-            <div class="panel-heading">Tổng số truyện</div>
-            <div class="panel-body">
-                <h3>18</h3>
+
+<!-- Dashboard Stats Cards -->
+<div class="dashboard-stats">
+    <div class="stat-card primary">
+        <div class="stat-card-header">
+            <div>
+                <div class="stat-card-title">Tổng số truyện</div>
+            </div>
+            <div class="stat-card-icon">
+                <i class="fa fa-book"></i>
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="panel panel-success">
-            <div class="panel-heading">Tổng số người dùng</div>
-            <div class="panel-body">
-                <h3>120</h3>
-            </div>
+        <div class="stat-card-value">@tongSoTruyen</div>
+        <div class="stat-card-footer">
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="panel panel-warning">
-            <div class="panel-heading">Báo cáo chưa xử lý</div>
-            <div class="panel-body">
-                <h3>5</h3>
+
+    <div class="stat-card success">
+        <div class="stat-card-header">
+            <div>
+                <div class="stat-card-title">Người dùng</div>
+            </div>
+            <div class="stat-card-icon">
+                <i class="fa fa-users"></i>
+            </div>
+        </div>
+        <div class="stat-card-value">@tongNguoiDung</div>
+        <div class="stat-card-footer">
+        </div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-card-header">
+            <div>
+                <div class="stat-card-title">Báo cáo chưa xử lý</div>
+            </div>
+            <div class="stat-card-icon">
+                <i class="fa fa-exclamation-triangle"></i>
+            </div>
+        </div>
+        <div class="stat-card-value">@baoCaoChuaXuLy</div>
+        <div class="stat-card-footer">
+        </div>
+    </div>
+
+    <div class="stat-card info">
+        <div class="stat-card-header">
+            <div>
+                <div class="stat-card-title">Tổng lượt xem</div>
+            </div>
+            <div class="stat-card-icon">
+                <i class="fa fa-eye"></i>
+            </div>
+        </div>
+        <div class="stat-card-value">@tongLuotXem.ToString("#,##0")</div>
+        <div class="stat-card-footer">
+        </div>
+    </div>
+
+    <div class="stat-card danger">
+        <div class="stat-card-header">
+            <div>
+                <div class="stat-card-title">Lượt theo dõi</div>
+            </div>
+            <div class="stat-card-icon">
+                <i class="fa fa-heart"></i>
+            </div>
+        </div>
+        <div class="stat-card-value">@tongLuotTheoDoi.ToString("#,##0")</div>
+        <div class="stat-card-footer">
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="chart-section">
+    <!-- Biểu đồ lớn: Lượt xem trong tuần -->
+    <div class="chart-container">
+        <div class="chart-header">
+            <div>
+                <div class="chart-title">Lượt Xem Trong 7 Ngày Qua</div>
+                <div class="chart-subtitle">Theo dõi xu hướng lượt xem hàng ngày</div>
+            </div>
+        </div>
+        <div class="chart-canvas">
+            <canvas id="weeklyViewsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- 2 Biểu đồ nhỏ -->
+    <div class="chart-grid">
+        <div class="chart-container">
+            <div class="chart-header">
+                <div>
+                    <div class="chart-title">So Sánh Tuần</div>
+                    <div class="chart-subtitle">Tuần trước vs Tuần này</div>
+                </div>
+            </div>
+            <div class="chart-canvas chart-small">
+                <canvas id="weekComparisonChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-header">
+                <div>
+                    <div class="chart-title">Người Dùng Mới</div>
+                    <div class="chart-subtitle">30 ngày gần nhất</div>
+                </div>
+            </div>
+            <div class="chart-canvas chart-small">
+                <canvas id="monthlyUsersChart"></canvas>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <script>
+        // Dữ liệu mẫu - Bạn cần thay bằng dữ liệu thật từ Controller
+        const weeklyViewsData = @Html.Raw(ViewBag.WeeklyViewsJson ?? "[2400, 3200, 2800, 4100, 3800, 4500, 5200]");
+        const lastWeekViews = @Html.Raw(ViewBag.LastWeekViewsJson ?? "18500");
+        const thisWeekViews = @Html.Raw(ViewBag.ThisWeekViewsJson ?? "26000");
+        const monthlyUsersData = @Html.Raw(ViewBag.MonthlyUsersJson ?? "[12, 19, 15, 25, 22, 30, 28, 35, 32, 38, 42, 45, 48, 52, 50, 55, 58, 62, 60, 65, 68, 70, 72, 75, 78, 80, 82, 85, 88, 90]");
+
+        // Cấu hình màu sắc
+        const colors = {
+            primary: 'rgb(102, 126, 234)',
+            primaryLight: 'rgba(102, 126, 234, 0.1)',
+            success: 'rgb(46, 204, 113)',
+            successLight: 'rgba(46, 204, 113, 0.1)',
+            warning: 'rgb(243, 156, 18)',
+            warningLight: 'rgba(243, 156, 18, 0.1)',
+            purple: 'rgb(155, 89, 182)',
+            purpleLight: 'rgba(155, 89, 182, 0.1)'
+        };
+
+        // Chart 1: Lượt xem trong tuần (Line Chart)
+        const ctx1 = document.getElementById('weeklyViewsChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật'],
+                datasets: [{
+                    label: 'Lượt xem',
+                    data: weeklyViewsData,
+                    borderColor: colors.primary,
+                    backgroundColor: colors.primaryLight,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    pointBackgroundColor: colors.primary,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: { size: 14, weight: 'bold' },
+                        bodyFont: { size: 13 },
+                        callbacks: {
+                            label: function(context) {
+                                return 'Lượt xem: ' + context.parsed.y.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString();
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Chart 2: So sánh tuần (Bar Chart)
+        const ctx2 = document.getElementById('weekComparisonChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: ['Tuần trước', 'Tuần này'],
+                datasets: [{
+                    label: 'Lượt xem',
+                    data: [lastWeekViews, thisWeekViews],
+                    backgroundColor: [colors.warningLight, colors.successLight],
+                    borderColor: [colors.warning, colors.success],
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        callbacks: {
+                            label: function(context) {
+                                const change = ((thisWeekViews - lastWeekViews) / lastWeekViews * 100).toFixed(1);
+                                return 'Lượt xem: ' + context.parsed.y.toLocaleString() +
+                                       (context.dataIndex === 1 ? ' (+' + change + '%)' : '');
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString();
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Chart 3: Người dùng trong tháng (Line Chart)
+        const ctx3 = document.getElementById('monthlyUsersChart').getContext('2d');
+        const days = Array.from({length: 30}, (_, i) => i + 1);
+
+        new Chart(ctx3, {
+            type: 'line',
+            data: {
+                labels: days,
+                datasets: [{
+                    label: 'Người dùng mới',
+                    data: monthlyUsersData,
+                    borderColor: colors.purple,
+                    backgroundColor: colors.purpleLight,
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 5,
+                    pointBackgroundColor: colors.purple,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        callbacks: {
+                            title: function(context) {
+                                return 'Ngày ' + context[0].label;
+                            },
+                            label: function(context) {
+                                return 'Người dùng mới: ' + context.parsed.y;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            maxTicksLimit: 10
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}

@@ -1,4 +1,5 @@
-﻿using QLKAHYTOON.Models;
+﻿using Newtonsoft.Json;
+using QLKAHYTOON.Models;
 using QLKAHYTOON.Models.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -66,14 +67,98 @@ namespace QLKAHYTOON.Controllers
                 return RedirectToAction("Login", "Admin");
             }
 
-            // Lấy dữ liệu thống kê
-            ViewBag.SoLuongTruyen = db.thongtintruyens.Count();
-            ViewBag.SoLuongNguoiDung = db.nguoidungs.Count();
-            ViewBag.SoLuongBaoCao = db.baocaos.Count(b => b.TrangThai == "Chưa xử lý");
+            try
+            {
+                // 1. Tổng số truyện
+                var tongSoTruyen = db.thongtintruyens.Count();
 
-            return View();
+                // 2. Tổng số người dùng
+                var tongNguoiDung = db.nguoidungs.Count();
+
+                // 3. Báo cáo chưa xử lý
+                var baoCaoChuaXuLy = db.baocaos.Count(b => b.TrangThai == "Chưa xử lý");
+
+                // 4. Tổng lượt xem (từ bảng lichsudoc)
+                var tongLuotXem = db.lichsudocs.Count();
+
+                // 5. Tổng lượt theo dõi (từ bảng theodoi)
+                var tongLuotTheoDoi = db.truyenyeuthiches.Count();
+
+                // 6. Dữ liệu lượt xem 7 ngày qua (cho biểu đồ đường)
+                var today = DateTime.Today;
+                var weeklyViews = new int[7];
+
+                for (int i = 0; i < 7; i++)
+                {
+                    var date = today.AddDays(-6 + i);
+                    var nextDate = date.AddDays(1);
+
+                    weeklyViews[i] = db.lichsudocs
+                        .Count(l => l.ThoiGianDoc >= date && l.ThoiGianDoc < nextDate);
+                }
+
+                // 7. So sánh tuần này với tuần trước
+                var startOfThisWeek = today.AddDays(-(int)today.DayOfWeek + 1); // Thứ 2 tuần này
+                var startOfLastWeek = startOfThisWeek.AddDays(-7);
+
+                var thisWeekViews = db.lichsudocs
+                    .Count(l => l.ThoiGianDoc >= startOfThisWeek && l.ThoiGianDoc < today.AddDays(1));
+
+                var lastWeekViews = db.lichsudocs
+                    .Count(l => l.ThoiGianDoc >= startOfLastWeek && l.ThoiGianDoc < startOfThisWeek);
+
+                // 8. Số người dùng mới trong 30 ngày
+                var monthlyUsers = new int[30];
+
+                for (int i = 0; i < 30; i++)
+                {
+                    var date = today.AddDays(-29 + i);
+                    var nextDate = date.AddDays(1);
+
+                    monthlyUsers[i] = db.nguoidungs
+                        .Count(n => n.NgayDangKy >= date && n.NgayDangKy < nextDate);
+                }
+
+                // Gửi dữ liệu sang View
+                ViewBag.TongSoTruyen = tongSoTruyen;
+                ViewBag.TongNguoiDung = tongNguoiDung;
+                ViewBag.BaoCaoChuaXuLy = baoCaoChuaXuLy;
+                ViewBag.TongLuotXem = tongLuotXem;
+                ViewBag.TongLuotTheoDoi = tongLuotTheoDoi;
+
+                // Chuyển dữ liệu sang JSON cho Chart.js
+                ViewBag.WeeklyViewsJson = JsonConvert.SerializeObject(weeklyViews);
+                ViewBag.LastWeekViewsJson = lastWeekViews;
+                ViewBag.ThisWeekViewsJson = thisWeekViews;
+                ViewBag.MonthlyUsersJson = JsonConvert.SerializeObject(monthlyUsers);
+
+                // Giữ lại code cũ để tương thích
+                ViewBag.SoLuongTruyen = tongSoTruyen;
+                ViewBag.SoLuongNguoiDung = tongNguoiDung;
+                ViewBag.SoLuongBaoCao = baoCaoChuaXuLy;
+
+                return View();
+            }
+            catch (Exception ex)
+            {
+                // Log lỗi nếu cần
+                ViewBag.Error = "Có lỗi xảy ra khi tải dữ liệu: " + ex.Message;
+
+                // Giá trị mặc định nếu lỗi
+                ViewBag.TongSoTruyen = 0;
+                ViewBag.TongNguoiDung = 0;
+                ViewBag.BaoCaoChuaXuLy = 0;
+                ViewBag.TongLuotXem = 0;
+                ViewBag.TongLuotTheoDoi = 0;
+                ViewBag.WeeklyViewsJson = "[0,0,0,0,0,0,0]";
+                ViewBag.LastWeekViewsJson = 0;
+                ViewBag.ThisWeekViewsJson = 0;
+                ViewBag.MonthlyUsersJson = "[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]";
+
+                return View();
+            }
         }
-
+        
         // GET: Admin/QuanLyTruyen
         public ActionResult QuanLyTruyen()
         {
@@ -354,6 +439,71 @@ namespace QLKAHYTOON.Controllers
             db.sp_Admin_XoaAdmin(id);
             TempData["Success"] = "Đã xóa Admin.";
             return RedirectToAction("QuanLyAdmin");
+        }
+
+        [HttpGet]
+        public JsonResult GetDashboardData()
+        {
+            if (!IsAdminLoggedIn())
+            {
+                return Json(new { success = false, message = "Chưa đăng nhập" }, JsonRequestBehavior.AllowGet);
+            }
+
+            try
+            {
+                var today = DateTime.Today;
+
+                // Lượt xem 7 ngày qua
+                var weeklyViews = new int[7];
+                for (int i = 0; i < 7; i++)
+                {
+                    var date = today.AddDays(-6 + i);
+                    var nextDate = date.AddDays(1);
+                    weeklyViews[i] = db.lichsudocs
+                        .Count(l => l.ThoiGianDoc >= date && l.ThoiGianDoc < nextDate);
+                }
+
+                // So sánh tuần
+                var startOfThisWeek = today.AddDays(-(int)today.DayOfWeek + 1);
+                var startOfLastWeek = startOfThisWeek.AddDays(-7);
+
+                var thisWeekViews = db.lichsudocs
+                    .Count(l => l.ThoiGianDoc >= startOfThisWeek && l.ThoiGianDoc < today.AddDays(1));
+
+                var lastWeekViews = db.lichsudocs
+                    .Count(l => l.ThoiGianDoc >= startOfLastWeek && l.ThoiGianDoc < startOfThisWeek);
+
+                // Người dùng mới 30 ngày
+                var monthlyUsers = new int[30];
+                for (int i = 0; i < 30; i++)
+                {
+                    var date = today.AddDays(-29 + i);
+                    var nextDate = date.AddDays(1);
+                    monthlyUsers[i] = db.nguoidungs
+                        .Count(n => n.NgayDangKy >= date && n.NgayDangKy < nextDate);
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    data = new
+                    {
+                        tongSoTruyen = db.thongtintruyens.Count(),
+                        tongNguoiDung = db.nguoidungs.Count(),
+                        baoCaoChuaXuLy = db.baocaos.Count(b => b.TrangThai == "Chưa xử lý"),
+                        tongLuotXem = db.lichsudocs.Count(),
+                        tongLuotTheoDoi = db.truyenyeuthiches.Count(),
+                        weeklyViews = weeklyViews,
+                        thisWeekViews = thisWeekViews,
+                        lastWeekViews = lastWeekViews,
+                        monthlyUsers = monthlyUsers
+                    }
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
     }
 
