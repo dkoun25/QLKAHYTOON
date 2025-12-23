@@ -1,59 +1,283 @@
 ﻿@model IEnumerable<QLKAHYTOON.Models.baocao>
-@{ ViewBag.Title = "Quản Lý Báo Cáo"; Layout = "~/Views/Shared/_AdminLayout.cshtml"; }
+@{
+    ViewBag.Title = "Quản Lý Báo Cáo";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var tongSoBaoCao = ViewBag.TongSoBaoCao ?? 0;
+    int currentPage = ViewBag.CurrentPage;
+    int totalPages = ViewBag.TotalPages;
+}
 
 <h2>Quản Lý Báo Cáo Vi Phạm/Lỗi</h2>
-@if (TempData["Success"] != null)
-{<div class="alert alert-success">@TempData["Success"]</div>}
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Người báo</th>
-            <th>Nội dung</th>
-            <th>Tại Truyện/Chương</th>
-            <th>Thời gian</th>
-            <th>Trạng thái</th>
-            <th>Xử lý</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+<p class="text-muted">
+    <i class="fa fa-flag"></i> Tổng số: <strong>@tongSoBaoCao</strong> báo cáo
+</p>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade in">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <i class="fa fa-check-circle"></i> @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade in">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <i class="fa fa-exclamation-circle"></i> @TempData["Error"]
+    </div>
+}
+
+<div class="table-responsive">
+    <table class="table table-striped table-bordered">
+        <thead>
             <tr>
-                <td>@(item.nguoidung != null ? item.nguoidung.TenDangNhap : "Khách")</td>
-                <td>@item.NoiDungBaoCao</td>
-                <td>
-                    @if (item.thongtintruyen != null)
-                    {<b>@item.thongtintruyen.TenTruyen</b>}
-                    @if (item.chuong != null)
-                    {<br /><span>Chương @item.chuong.SoChuong</span>}
-                </td>
-                <td>@String.Format("{0:dd/MM/yyyy HH:mm}", item.NgayBaoCao)</td>
-                <td>
-                    @if (item.TrangThai == "Chưa xử lý")
-                    {<span class="text-danger fw-bold">Chưa xử lý</span> }
-                    else
-                    {
-                        <span class="text-success">
-                            Đã xong
-                            @if (item.admin != null)
+                <th style="width: 120px;">Người báo</th>
+                <th>Nội dung</th>
+                <th style="width: 180px;">Tại Truyện/Chương</th>
+                <th style="width: 130px;">Thời gian</th>
+                <th style="width: 150px;">Trạng thái</th>
+                <th style="width: 140px;">Xử lý</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr class="@(item.TrangThai == "Chưa xử lý" ? "warning-row" : "")">
+                    <td>
+                        <strong>@(item.nguoidung != null ? item.nguoidung.TenDangNhap : "Khách")</strong>
+                    </td>
+                    <td>
+                        @item.NoiDungBaoCao
+                    </td>
+                    <td>
+                        @if (item.thongtintruyen != null)
+                        {
+                            <b>@item.thongtintruyen.TenTruyen</b>
+                        }
+                        @if (item.chuong != null)
+                        {
+                            <br />
+                            <span class="text-muted">
+                                <i class="fa fa-book"></i> Chương @item.chuong.SoChuong
+                            </span>
+                        }
+                    </td>
+                    <td>
+                        @String.Format("{0:dd/MM/yyyy HH:mm}", item.NgayBaoCao)
+                    </td>
+                    <td>
+                        @if (item.TrangThai == "Chưa xử lý")
+                        {
+                            <span class="label label-danger">
+                                <i class="fa fa-exclamation-circle"></i> Chưa xử lý
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="label label-success">
+                                <i class="fa fa-check"></i> Đã xong
+                            </span>
+                            <br />
+
+                            @* CASE 1: Có admin object với TenDangNhap *@
+                            if (item.admin != null && !string.IsNullOrEmpty(item.admin.TenDangNhap))
                             {
-                                <span>(@item.admin.TenDangNhap)</span>
+                                <small class="text-muted">
+                                    <i class="fa fa-user"></i> Bởi: <strong>@item.admin.TenDangNhap</strong>
+                                </small>
                             }
+                            @* CASE 2: Có admin object nhưng không có TenDangNhap *@
+                            else if (item.admin != null && !string.IsNullOrEmpty(item.admin.MaAdmin))
+                            {
+                                <small class="text-muted">
+                                    <i class="fa fa-user"></i> Admin: <strong>@item.admin.MaAdmin</strong>
+                                </small>
+                            }
+                            @* CASE 3: Không có admin object nhưng có MaAdmin trong bảng baocao *@
+                            else if (!string.IsNullOrEmpty(item.MaAdminXuLy))
+                            {
+                                <small class="text-muted">
+                                    <i class="fa fa-user"></i> Admin: <strong>@item.MaAdminXuLy</strong>
+                                </small>
+                            }
+                            @* CASE 4: Báo cáo cũ - không có thông tin admin *@
                             else
                             {
-                                <span>(Ẩn danh)</span>
+                                <small class="text-muted" style="font-style: italic;">
+                                    <i class="fa fa-history"></i> Đã xử lý trước đây
+                                </small>
                             }
-                        </span>
-                    }
-                </td>
-                <td>
-                    @if (item.TrangThai == "Chưa xử lý")
-                    {
-                        <a href="@Url.Action("DuyetBaoCao", "Admin", new { id = item.MaBaoCao })" class="btn btn-primary btn-sm">Xác nhận xong</a>
-                    }
-                </td>
-            </tr>
+                        }
+                    </td>
+                    <td>
+                        @if (item.TrangThai == "Chưa xử lý")
+                        {
+                            <a href="@Url.Action("DuyetBaoCao", "Admin", new { id = item.MaBaoCao })"
+                               class="btn btn-primary btn-sm"
+                               onclick="return confirm('Xác nhận đã xử lý xong báo cáo này?');">
+                                <i class="fa fa-check"></i> Xác nhận xong
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                <i class="fa fa-check-circle"></i> Đã xử lý
+                            </span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+<nav class="mt-4 d-flex justify-content-center">
+    <ul class="pagination">
+        @* Nút Trước *@
+        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+            <a class="page-link" href="@Url.Action("QuanLyBaoCao", "Admin", new { page = currentPage - 1 })">
+                <i class="fa fa-chevron-left"></i> Trước
+            </a>
+        </li>
+
+        @{
+            int startPage = Math.Max(1, currentPage - 2);
+            int endPage = Math.Min(totalPages, currentPage + 2);
+
+            if (endPage - startPage < 4)
+            {
+                if (startPage == 1)
+                {
+                    endPage = Math.Min(totalPages, startPage + 4);
+                }
+                else if (endPage == totalPages)
+                {
+                    startPage = Math.Max(1, endPage - 4);
+                }
+            }
         }
-    </tbody>
-</table>
+
+        @* Trang đầu tiên *@
+        @if (startPage > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" href="@Url.Action("QuanLyBaoCao", "Admin", new { page = 1 })">1</a>
+            </li>
+            if (startPage > 2)
+            {
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            }
+        }
+
+        @* Các trang trong khoảng *@
+        @for (int i = startPage; i <= endPage; i++)
+        {
+            <li class="page-item @(currentPage == i ? "active" : "")">
+                <a class="page-link" href="@Url.Action("QuanLyBaoCao", "Admin", new { page = i })">@i</a>
+            </li>
+        }
+
+        @* Trang cuối cùng *@
+        @if (endPage < totalPages)
+        {
+            if (endPage < totalPages - 1)
+            {
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            }
+            <li class="page-item">
+                <a class="page-link" href="@Url.Action("QuanLyBaoCao", "Admin", new { page = totalPages })">@totalPages</a>
+            </li>
+        }
+
+        @* Nút Sau *@
+        <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+            <a class="page-link" href="@Url.Action("QuanLyBaoCao", "Admin", new { page = currentPage + 1 })">
+                Sau <i class="fa fa-chevron-right"></i>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<style>
+    /* Warning row for unprocessed reports */
+    .warning-row {
+        background-color: #fff3cd !important;
+    }
+
+        .warning-row:hover {
+            background-color: #ffe69c !important;
+        }
+
+    /* Pagination Styles */
+    .pagination {
+        display: inline-flex;
+        padding-left: 0;
+        margin: 20px 0;
+        border-radius: 4px;
+        list-style: none;
+    }
+
+        .pagination .page-item {
+            display: inline;
+        }
+
+        .pagination .page-link {
+            position: relative;
+            display: block;
+            padding: 10px 16px;
+            margin-left: -1px;
+            line-height: 1.42857143;
+            color: #667eea;
+            text-decoration: none;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .pagination .page-item:first-child .page-link {
+            margin-left: 0;
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+
+        .pagination .page-item:last-child .page-link {
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+
+        .pagination .page-link:hover,
+        .pagination .page-link:focus {
+            z-index: 2;
+            color: #fff;
+            background-color: #764ba2;
+            border-color: #764ba2;
+        }
+
+        .pagination .page-item.active .page-link {
+            z-index: 3;
+            color: #fff;
+            cursor: default;
+            background-color: #667eea;
+            border-color: #667eea;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #999;
+            cursor: not-allowed;
+            background-color: #fff;
+            border-color: #ddd;
+            pointer-events: none;
+        }
+
+    .table-responsive {
+        margin-bottom: 20px;
+    }
+
+    .table tbody tr {
+        transition: background-color 0.2s ease;
+    }
+</style>

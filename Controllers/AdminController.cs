@@ -124,16 +124,29 @@ namespace QLKAHYTOON.Controllers
         // Thay thế action QuanLyTruyen trong AdminController.cs
 
         // GET: Admin/QuanLyTruyen
-        public ActionResult QuanLyTruyen()
+        public ActionResult QuanLyTruyen(int? page)
         {
             if (!IsAdminLoggedIn()) return RedirectToAction("Login", "Admin");
 
-            // Lấy 8 truyện đầu tiên (DISTINCT theo MaTruyen)
-            var danhSachTruyen = db.thongtintruyens
+            // Cấu hình phân trang
+            int pageSize = 8; // Hiển thị 8 truyện mỗi trang
+            int pageNumber = (page ?? 1); // Nếu page là null thì mặc định là trang 1
+
+            // Lấy TẤT CẢ truyện DISTINCT
+            var allTruyen = db.thongtintruyens
                 .GroupBy(t => t.MaTruyen)
                 .Select(g => g.FirstOrDefault())
                 .OrderByDescending(t => t.NgayDang)
-                .Take(8)
+                .ToList();
+
+            // Tính tổng số trang
+            int tongSoTruyen = allTruyen.Count();
+            int totalPages = (int)Math.Ceiling((double)tongSoTruyen / pageSize);
+
+            // Lấy truyện theo trang hiện tại
+            var danhSachTruyen = allTruyen
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToList();
 
             // Lấy tất cả thể loại để tra cứu
@@ -167,13 +180,11 @@ namespace QLKAHYTOON.Controllers
             }
 
             ViewBag.TruyenTheLoaiDict = truyenTheLoaiDict;
-
-            // Đếm số truyện DISTINCT
-            var tongSoTruyen = db.thongtintruyens
-                .GroupBy(t => t.MaTruyen)
-                .Count();
-
             ViewBag.TongSoTruyen = tongSoTruyen;
+
+            // Truyền thông tin phân trang qua ViewBag (GIỐNG TRANG INDEX)
+            ViewBag.CurrentPage = pageNumber;
+            ViewBag.TotalPages = totalPages;
 
             return View(danhSachTruyen);
         }
@@ -393,19 +404,21 @@ namespace QLKAHYTOON.Controllers
             {
                 try
                 {
-                    var truyen = db.thongtintruyens.SingleOrDefault(t => t.MaTruyen == model.MaTruyen);
-                    if (truyen == null)
+                    // Lấy TẤT CẢ các records của truyện này (vì có thể có nhiều records cho nhiều thể loại)
+                    var allTruyenRecords = db.thongtintruyens
+                        .Where(t => t.MaTruyen == model.MaTruyen)
+                        .ToList();
+
+                    if (allTruyenRecords == null || allTruyenRecords.Count == 0)
                     {
                         return HttpNotFound();
                     }
 
-                    // Cập nhật thông tin
-                    truyen.TenTruyen = model.TenTruyen;
-                    truyen.TacGia = model.TacGia;
-                    truyen.TrangThai = model.TrangThai;
-                    truyen.Slug = model.Slug ?? "";
+                    // Lấy ảnh cũ từ record đầu tiên
+                    string anhCu = allTruyenRecords.First().AnhTruyen;
 
-                    // Nếu có upload ảnh mới
+                    // Xử lý upload ảnh mới (nếu có)
+                    string anhMoi = anhCu; // Mặc định giữ nguyên ảnh cũ
                     if (fileAnh != null && fileAnh.ContentLength > 0)
                     {
                         string fileName = Path.GetFileName(fileAnh.FileName);
@@ -417,23 +430,29 @@ namespace QLKAHYTOON.Controllers
                             Directory.CreateDirectory(Server.MapPath("~/Anh/BiaTruyen/"));
                         }
                         fileAnh.SaveAs(path);
-                        truyen.AnhTruyen = "/Anh/BiaTruyen/" + newFileName;
+                        anhMoi = "/Anh/BiaTruyen/" + newFileName;
                     }
 
-                    // Cập nhật thể loại
-                    // Xóa thể loại cũ
-                    var oldGenres = db.thongtintruyens.Where(ttl => ttl.MaTruyen == model.MaTruyen);
-                    db.thongtintruyens.DeleteAllOnSubmit(oldGenres);
+                    // Xóa TẤT CẢ các records cũ của truyện này
+                    db.thongtintruyens.DeleteAllOnSubmit(allTruyenRecords);
 
-                    // Thêm thể loại mới
+                    // Tạo lại records mới với thể loại mới
                     foreach (var maTheLoai in theloai)
                     {
-                        var truyenTheLoai = new thongtintruyen
+                        var truyenMoi = new thongtintruyen
                         {
                             MaTruyen = model.MaTruyen,
-                            MaTheLoai = maTheLoai
+                            MaTheLoai = maTheLoai.Trim(),
+                            TenTruyen = model.TenTruyen,
+                            TacGia = model.TacGia,
+                            TrangThai = model.TrangThai,
+                            AnhTruyen = anhMoi, // Dùng ảnh mới hoặc ảnh cũ
+                            Slug = model.Slug ?? "",
+                            NgayDang = allTruyenRecords.First().NgayDang, // Giữ nguyên ngày đăng gốc
+                            LuotThich = allTruyenRecords.First().LuotThich, // Giữ nguyên lượt thích
+                            LuotXem = allTruyenRecords.First().LuotXem // Giữ nguyên lượt xem
                         };
-                        db.thongtintruyens.InsertOnSubmit(truyenTheLoai);
+                        db.thongtintruyens.InsertOnSubmit(truyenMoi);
                     }
 
                     db.SubmitChanges();
@@ -446,13 +465,11 @@ namespace QLKAHYTOON.Controllers
                 }
             }
 
+            // Nếu có lỗi, load lại form
             ViewBag.ListTheLoai = db.theloais.OrderBy(tl => tl.TenTheLoai).ToList();
             ViewBag.IsEdit = true;
 
-            var selectedGenres = db.thongtintruyens
-                .Where(ttl => ttl.MaTruyen == model.MaTruyen)
-                .Select(ttl => ttl.MaTheLoai)
-                .ToList();
+            var selectedGenres = theloai != null ? theloai.ToList() : new List<string>();
             ViewBag.SelectedGenres = selectedGenres;
 
             return View("ThemTruyen", model);
@@ -591,10 +608,34 @@ namespace QLKAHYTOON.Controllers
         }
 
         // GET: Admin/QuanLyNguoiDung
-        public ActionResult QuanLyNguoiDung()
+        public ActionResult QuanLyNguoiDung(int? page)
         {
             if (!IsAdminLoggedIn()) return RedirectToAction("Login", "Admin");
-            var listUser = db.nguoidungs.Where(u => u.VaiTro != "Admin").ToList();
+
+            // Cấu hình phân trang
+            int pageSize = 8; // Hiển thị 8 người dùng mỗi trang
+            int pageNumber = (page ?? 1); // Nếu page là null thì mặc định là trang 1
+
+            // Lấy tất cả người dùng (không phải Admin)
+            var allUsers = db.nguoidungs
+                .Where(u => u.VaiTro != "Admin")
+                .OrderByDescending(u => u.NgayDangKy)
+                .ToList();
+
+            // Tính tổng số trang
+            int tongSoNguoiDung = allUsers.Count();
+            int totalPages = (int)Math.Ceiling((double)tongSoNguoiDung / pageSize);
+
+            // Lấy người dùng theo trang hiện tại
+            var listUser = allUsers
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            ViewBag.TongSoNguoiDung = tongSoNguoiDung;
+            ViewBag.CurrentPage = pageNumber;
+            ViewBag.TotalPages = totalPages;
+
             return View(listUser);
         }
 
@@ -622,10 +663,42 @@ namespace QLKAHYTOON.Controllers
         }
 
         // GET: Admin/QuanLyBaoCao
-        public ActionResult QuanLyBaoCao()
+        public ActionResult QuanLyBaoCao(int? page)
         {
             if (!IsAdminLoggedIn()) return RedirectToAction("Login", "Admin");
-            var listBaoCao = db.baocaos.OrderBy(b => b.TrangThai).ThenByDescending(b => b.NgayBaoCao).ToList();
+
+            // Cấu hình phân trang
+            int pageSize = 8; // Hiển thị 8 báo cáo mỗi trang
+            int pageNumber = (page ?? 1); // Nếu page là null thì mặc định là trang 1
+
+            // Cấu hình DataLoadOptions để load relations
+            var loadOptions = new System.Data.Linq.DataLoadOptions();
+            loadOptions.LoadWith<baocao>(b => b.nguoidung);
+            loadOptions.LoadWith<baocao>(b => b.admin);
+            loadOptions.LoadWith<baocao>(b => b.thongtintruyen);
+            loadOptions.LoadWith<baocao>(b => b.chuong);
+            db.LoadOptions = loadOptions;
+
+            // Lấy tất cả báo cáo, sắp xếp: Chưa xử lý lên đầu, sau đó theo thời gian
+            var allBaoCao = db.baocaos
+                .OrderBy(b => b.TrangThai)
+                .ThenByDescending(b => b.NgayBaoCao)
+                .ToList();
+
+            // Tính tổng số trang
+            int tongSoBaoCao = allBaoCao.Count();
+            int totalPages = (int)Math.Ceiling((double)tongSoBaoCao / pageSize);
+
+            // Lấy báo cáo theo trang hiện tại
+            var listBaoCao = allBaoCao
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            ViewBag.TongSoBaoCao = tongSoBaoCao;
+            ViewBag.CurrentPage = pageNumber;
+            ViewBag.TotalPages = totalPages;
+
             return View(listBaoCao);
         }
 

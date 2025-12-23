@@ -3,6 +3,8 @@
     ViewBag.Title = "Quản Lý Truyện";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     var tongSoTruyen = ViewBag.TongSoTruyen ?? 0;
+    int currentPage = ViewBag.CurrentPage;
+    int totalPages = ViewBag.TotalPages;
 }
 
 <h2>Quản Lý Truyện</h2>
@@ -12,7 +14,7 @@
         <i class="fa fa-plus"></i> Thêm Truyện Mới
     </a>
     <span class="text-muted" style="margin-left: 20px;">
-        <i class="fa fa-book"></i> Tổng số: <strong id="totalCount">@tongSoTruyen</strong> truyện
+        <i class="fa fa-book"></i> Tổng số: <strong>@tongSoTruyen</strong> truyện
     </span>
 </p>
 
@@ -32,14 +34,8 @@
     </div>
 }
 
-<!-- Loading Spinner -->
-<div id="loadingSpinner" style="display: none; text-align: center; padding: 30px;">
-    <i class="fa fa-spinner fa-spin fa-3x text-primary"></i>
-    <p class="text-muted" style="margin-top: 10px;">Đang tải dữ liệu...</p>
-</div>
-
 <div class="table-responsive">
-    <table class="table table-bordered table-striped" id="truyenTable">
+    <table class="table table-bordered table-striped">
         <thead>
             <tr>
                 <th style="width: 80px;">Ảnh Bìa</th>
@@ -50,14 +46,13 @@
                 <th style="width: 300px;">Chức năng</th>
             </tr>
         </thead>
-        <tbody id="truyenTableBody">
+        <tbody>
             @{
                 var truyenTheLoaiDict = ViewBag.TruyenTheLoaiDict as Dictionary<string, List<string>>;
             }
 
             @foreach (var item in Model)
             {
-                // Lấy danh sách thể loại từ Dictionary
                 var theLoaiNames = truyenTheLoaiDict != null && truyenTheLoaiDict.ContainsKey(item.MaTruyen)
                     ? truyenTheLoaiDict[item.MaTruyen]
                     : new List<string>();
@@ -104,12 +99,12 @@
                     </td>
                     <td>
                         @Html.ActionLink("Thêm Chương", "ThemChuong", "Admin",
-                                      new { maTruyen = item.MaTruyen.Trim() },
-                                      new { @class = "btn btn-primary btn-sm" })
+                                           new { maTruyen = item.MaTruyen.Trim() },
+                                           new { @class = "btn btn-primary btn-sm" })
 
                         @Html.ActionLink("Sửa", "SuaTruyen", "Admin",
-                                      new { maTruyen = item.MaTruyen.Trim() },
-                                      new { @class = "btn btn-warning btn-sm" })
+                                           new { maTruyen = item.MaTruyen.Trim() },
+                                           new { @class = "btn btn-warning btn-sm" })
 
                         <a href="@Url.Action("XoaTruyen", "Admin", new { maTruyen = item.MaTruyen.Trim() })"
                            class="btn btn-danger btn-sm"
@@ -123,12 +118,75 @@
     </table>
 </div>
 
-<!-- Pagination -->
-<div class="text-center" id="paginationContainer">
-    <ul class="pagination" id="pagination">
-        <!-- Pagination sẽ được tạo bằng JavaScript -->
+<!-- Pagination - GIỐNG TRANG INDEX -->
+<nav class="mt-4 d-flex justify-content-center">
+    <ul class="pagination">
+        @* Nút Trước *@
+        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+            <a class="page-link" href="@Url.Action("QuanLyTruyen", "Admin", new { page = currentPage - 1 })">
+                <i class="fa fa-chevron-left"></i> Trước
+            </a>
+        </li>
+
+        @* Hiển thị tối đa 5 trang *@
+        @{
+            int startPage = Math.Max(1, currentPage - 2);
+            int endPage = Math.Min(totalPages, currentPage + 2);
+
+            // Điều chỉnh để luôn hiển thị 5 trang nếu có thể
+            if (endPage - startPage < 4)
+            {
+                if (startPage == 1)
+                {
+                    endPage = Math.Min(totalPages, startPage + 4);
+                }
+                else if (endPage == totalPages)
+                {
+                    startPage = Math.Max(1, endPage - 4);
+                }
+            }
+        }
+
+        @* Trang đầu tiên nếu không nằm trong khoảng *@
+        @if (startPage > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" href="@Url.Action("QuanLyTruyen", "Admin", new { page = 1 })">1</a>
+            </li>
+            if (startPage > 2)
+            {
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            }
+        }
+
+        @* Các trang trong khoảng *@
+        @for (int i = startPage; i <= endPage; i++)
+        {
+            <li class="page-item @(currentPage == i ? "active" : "")">
+                <a class="page-link" href="@Url.Action("QuanLyTruyen", "Admin", new { page = i })">@i</a>
+            </li>
+        }
+
+        @* Trang cuối cùng nếu không nằm trong khoảng *@
+        @if (endPage < totalPages)
+        {
+            if (endPage < totalPages - 1)
+            {
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            }
+            <li class="page-item">
+                <a class="page-link" href="@Url.Action("QuanLyTruyen", "Admin", new { page = totalPages })">@totalPages</a>
+            </li>
+        }
+
+        @* Nút Sau *@
+        <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+            <a class="page-link" href="@Url.Action("QuanLyTruyen", "Admin", new { page = currentPage + 1 })">
+                Sau <i class="fa fa-chevron-right"></i>
+            </a>
+        </li>
     </ul>
-</div>
+</nav>
 
 <style>
     .label {
@@ -171,212 +229,91 @@
         white-space: nowrap;
     }
 
-        .badge-theloai:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: all 0.2s ease;
-        }
+    .badge-theloai:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        transition: all 0.2s ease;
+    }
 
-    .btn-group-vertical .btn {
-        margin-bottom: 3px;
-        width: 100%;
+    /* Pagination Styles */
+    .pagination {
+        display: inline-flex;
+        padding-left: 0;
         margin: 20px 0;
+        border-radius: 4px;
+        list-style: none;
     }
 
-    .pagination > li > a,
-    .pagination > li > span {
-        padding: 8px 16px;
-        font-size: 14px;
+    .pagination .page-item {
+        display: inline;
     }
 
-    .pagination > .active > a,
-    .pagination > .active > span {
+    .pagination .page-link {
+        position: relative;
+        display: block;
+        padding: 10px 16px;
+        margin-left: -1px;
+        line-height: 1.42857143;
+        color: #667eea;
+        text-decoration: none;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .pagination .page-item:first-child .page-link {
+        margin-left: 0;
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
+    }
+
+    .pagination .page-item:last-child .page-link {
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+    }
+
+    .pagination .page-link:hover,
+    .pagination .page-link:focus {
+        z-index: 2;
+        color: #fff;
+        background-color: #764ba2;
+        border-color: #764ba2;
+    }
+
+    .pagination .page-item.active .page-link {
+        z-index: 3;
+        color: #fff;
+        cursor: default;
         background-color: #667eea;
         border-color: #667eea;
     }
 
-    .pagination > li > a:hover {
-        background-color: #764ba2;
-        border-color: #764ba2;
-        color: white;
+    .pagination .page-item.disabled .page-link {
+        color: #999;
+        cursor: not-allowed;
+        background-color: #fff;
+        border-color: #ddd;
+        pointer-events: none;
     }
 
     .table-responsive {
         margin-bottom: 20px;
     }
 
-    #truyenTable tbody tr {
+    .table tbody tr {
         transition: background-color 0.2s ease;
     }
 
-        #truyenTable tbody tr:hover {
-            background-color: #f8f9fa;
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .pagination .page-link {
+            padding: 6px 10px;
+            font-size: 12px;
         }
+    }
 </style>
-
-@section scripts {
-    <script type="text/javascript">
-    var currentPage = 1;
-    var totalPages = Math.ceil(@tongSoTruyen / 8);
-    var urlThemChuong = '@Url.Action("ThemChuong", "Admin")';
-    var urlSuaTruyen = '@Url.Action("SuaTruyen", "Admin")';
-    var urlXoaTruyen = '@Url.Action("XoaTruyen", "Admin")';
-
-    $(document).ready(function() {
-        // Khởi tạo pagination
-        updatePagination(currentPage, totalPages);
-    });
-
-    // Load truyện theo trang
-    function loadTruyen(page) {
-        // Hiển thị loading
-        $('#loadingSpinner').show();
-        $('#truyenTableBody').hide();
-
-        $.ajax({
-            url: '@Url.Action("GetTruyenByPage", "Admin")',
-            type: 'GET',
-            data: { page: page, pageSize: 8 },
-            success: function(response) {
-                if (response.success) {
-                    currentPage = response.currentPage;
-                    totalPages = response.totalPages;
-
-                    // Cập nhật table
-                    renderTruyenTable(response.data);
-
-                    // Cập nhật pagination
-                    updatePagination(currentPage, totalPages);
-
-                    // Cập nhật tổng số
-                    $('#totalCount').text(response.totalItems);
-                } else {
-                    alert('Lỗi: ' + response.message);
-                }
-            },
-            error: function(xhr, status, error) {
-                alert('Có lỗi xảy ra khi tải dữ liệu: ' + error);
-            },
-            complete: function() {
-                // Ẩn loading
-                $('#loadingSpinner').hide();
-                $('#truyenTableBody').show();
-
-                // Scroll to top
-                $('html, body').animate({
-                    scrollTop: $('#truyenTable').offset().top - 100
-                }, 300);
-            }
-        });
-    }
-
-    // Render bảng truyện
-    function renderTruyenTable(data) {
-        var html = '';
-
-        if (data.length === 0) {
-            html = '<tr><td colspan="6" class="text-center text-muted"><i>Không có truyện nào</i></td></tr>';
-        } else {
-            data.forEach(function(item) {
-                html += '<tr>';
-
-                // Ảnh bìa
-                html += '<td><img src="' + item.anhTruyen + '" alt="' + item.tenTruyen + '" ' +
-                        'style="width: 60px; height: 90px; object-fit: cover; border-radius: 4px;" /></td>';
-
-                // Tên truyện
-                html += '<td><strong>' + item.tenTruyen + '</strong></td>';
-
-                // Tác giả
-                html += '<td>' + item.tacGia + '</td>';
-
-                // Thể loại
-                html += '<td>';
-                if (item.theLoai && item.theLoai.length > 0) {
-                    html += '<div class="theloai-badges">';
-                    item.theLoai.forEach(function(tl) {
-                        html += '<span class="badge badge-theloai">' + tl + '</span>';
-                    });
-                    html += '</div>';
-                } else {
-                    html += '<span class="text-muted"><i>Chưa có thể loại</i></span>';
-                }
-                html += '</td>';
-
-                // Trạng thái
-                html += '<td>';
-                if (item.trangThai === 'Đang cập nhật') {
-                    html += '<span class="label label-info">' + item.trangThai + '</span>';
-                } else if (item.trangThai === 'Hoàn thành') {
-                    html += '<span class="label label-success">' + item.trangThai + '</span>';
-                } else {
-                    html += '<span class="label label-default">' + item.trangThai + '</span>';
-                }
-                html += '</td>';
-
-                // Chức năng
-                html += '<td>';
-                html += '<a href="' + urlThemChuong + '?maTruyen=' + item.maTruyen + '" ' +
-                        'class="btn btn-primary btn-sm">Thêm Chương</a> ';
-                html += '<a href="' + urlSuaTruyen + '?maTruyen=' + item.maTruyen + '" ' +
-                        'class="btn btn-warning btn-sm">Sửa</a> ';
-                html += '<a href="' + urlXoaTruyen + '?maTruyen=' + item.maTruyen + '" ' +
-                        'class="btn btn-danger btn-sm" ' +
-                        'onclick="return confirm(\'Bạn có chắc chắn muốn xóa truyện này?\');">Xóa</a>';
-                html += '</td>';
-
-                html += '</tr>';
-            });
-        }
-
-        $('#truyenTableBody').html(html);
-    }
-
-    // Cập nhật pagination
-    function updatePagination(current, total) {
-        var html = '';
-
-        // Nút Previous
-        if (current > 1) {
-            html += '<li><a href="#" onclick="loadTruyen(' + (current - 1) + '); return false;">&laquo; Trước</a></li>';
-        } else {
-            html += '<li class="disabled"><span>&laquo; Trước</span></li>';
-        }
-
-        // Số trang
-        var startPage = Math.max(1, current - 2);
-        var endPage = Math.min(total, current + 2);
-
-        if (startPage > 1) {
-            html += '<li><a href="#" onclick="loadTruyen(1); return false;">1</a></li>';
-            if (startPage > 2) {
-                html += '<li class="disabled"><span>...</span></li>';
-            }
-        }
-
-        for (var i = startPage; i <= endPage; i++) {
-            if (i === current) {
-                html += '<li class="active"><span>' + i + '</span></li>';
-            } else {
-                html += '<li><a href="#" onclick="loadTruyen(' + i + '); return false;">' + i + '</a></li>';
-            }
-        }
-
-        if (endPage < total) {
-            if (endPage < total - 1) {
-                html += '<li class="disabled"><span>...</span></li>';
-            }
-            html += '<li><a href="#" onclick="loadTruyen(' + total + '); return false;">' + total + '</a></li>';
-        }
-
-        // Nút Next
-        if (current < total) {
-            html += '<li><a href="#" onclick="loadTruyen(' + (current + 1) + '); return false;">Sau &raquo;</a></li>';
-        } else {
-            html += '<li class="disabled"><span>Sau &raquo;</span></li>';
-        }
-
-        $('#pagination').html(html);
-    }
-    </script>
-}

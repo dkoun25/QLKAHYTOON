@@ -1,42 +1,216 @@
 ﻿@model IEnumerable<QLKAHYTOON.Models.nguoidung>
-@{ ViewBag.Title = "Quản Lý Người Dùng"; Layout = "~/Views/Shared/_AdminLayout.cshtml"; }
+@{
+    ViewBag.Title = "Quản Lý Người Dùng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var tongSoNguoiDung = ViewBag.TongSoNguoiDung ?? 0;
+    int currentPage = ViewBag.CurrentPage;
+    int totalPages = ViewBag.TotalPages;
+}
 
 <h2>Quản Lý Người Dùng</h2>
-@if (TempData["Success"] != null)
-{<div class="alert alert-success">@TempData["Success"]</div>}
 
-<table class="table table-bordered table-hover">
-    <thead>
-        <tr>
-            <th>Username</th>
-            <th>Họ Tên</th>
-            <th>Email</th>
-            <th>Ngày Đăng Ký</th>
-            <th>Trạng Thái</th>
-            <th>Hành động</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+<p class="text-muted">
+    <i class="fa fa-users"></i> Tổng số: <strong>@tongSoNguoiDung</strong> người dùng
+</p>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade in">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <i class="fa fa-check-circle"></i> @TempData["Success"]
+    </div>
+}
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead>
             <tr>
-                <td>@item.TenDangNhap</td>
-                <td>@item.HoTen</td>
-                <td>@item.Email</td>
-                <td>@String.Format("{0:dd/MM/yyyy}", item.NgayDangKy)</td>
-                <td>
-                    @if (item.VaiTro == "Blocked")
-                    {<span class="label label-danger">Đang khóa</span> }
-                    else
-                    { <span class="label label-success">Hoạt động</span>}
-                </td>
-                <td>
-                    <a href="@Url.Action("ToggleTrangThaiUser", "Admin", new { id = item.MaNguoiDung })"
-                       class="btn btn-sm @(item.VaiTro == "Blocked" ? "btn-success" : "btn-warning")">
-                        @(item.VaiTro == "Blocked" ? "Mở Khóa" : "Khóa")
-                    </a>
-                </td>
+                <th>Username</th>
+                <th>Họ Tên</th>
+                <th>Email</th>
+                <th>Ngày Đăng Ký</th>
+                <th>Trạng Thái</th>
+                <th>Hành động</th>
             </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <strong>@item.TenDangNhap</strong>
+                    </td>
+                    <td>@item.HoTen</td>
+                    <td>@item.Email</td>
+                    <td>@String.Format("{0:dd/MM/yyyy}", item.NgayDangKy)</td>
+                    <td>
+                        @if (item.VaiTro == "Blocked")
+                        {
+                            <span class="label label-danger">
+                                <i class="fa fa-lock"></i> Đang khóa
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="label label-success">
+                                <i class="fa fa-check"></i> Hoạt động
+                            </span>
+                        }
+                    </td>
+                    <td>
+                        <a href="@Url.Action("ToggleTrangThaiUser", "Admin", new { id = item.MaNguoiDung })"
+                           class="btn btn-sm @(item.VaiTro == "Blocked" ? "btn-success" : "btn-warning")"
+                           onclick="return confirm('@(item.VaiTro == "Blocked" ? "Bạn có chắc muốn mở khóa tài khoản này?" : "Bạn có chắc muốn khóa tài khoản này?")');">
+                            <i class="fa @(item.VaiTro == "Blocked" ? "fa-unlock" : "fa-lock")"></i>
+                            @(item.VaiTro == "Blocked" ? "Mở Khóa" : "Khóa")
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+<nav class="mt-4 d-flex justify-content-center">
+    <ul class="pagination">
+        @* Nút Trước *@
+        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+            <a class="page-link" href="@Url.Action("QuanLyNguoiDung", "Admin", new { page = currentPage - 1 })">
+                <i class="fa fa-chevron-left"></i> Trước
+            </a>
+        </li>
+
+        @{
+            int startPage = Math.Max(1, currentPage - 2);
+            int endPage = Math.Min(totalPages, currentPage + 2);
+
+            if (endPage - startPage < 4)
+            {
+                if (startPage == 1)
+                {
+                    endPage = Math.Min(totalPages, startPage + 4);
+                }
+                else if (endPage == totalPages)
+                {
+                    startPage = Math.Max(1, endPage - 4);
+                }
+            }
         }
-    </tbody>
-</table>
+
+        @* Trang đầu tiên *@
+        @if (startPage > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" href="@Url.Action("QuanLyNguoiDung", "Admin", new { page = 1 })">1</a>
+            </li>
+            if (startPage > 2)
+            {
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            }
+        }
+
+        @* Các trang trong khoảng *@
+        @for (int i = startPage; i <= endPage; i++)
+        {
+            <li class="page-item @(currentPage == i ? "active" : "")">
+                <a class="page-link" href="@Url.Action("QuanLyNguoiDung", "Admin", new { page = i })">@i</a>
+            </li>
+        }
+
+        @* Trang cuối cùng *@
+        @if (endPage < totalPages)
+        {
+            if (endPage < totalPages - 1)
+            {
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            }
+            <li class="page-item">
+                <a class="page-link" href="@Url.Action("QuanLyNguoiDung", "Admin", new { page = totalPages })">@totalPages</a>
+            </li>
+        }
+
+        @* Nút Sau *@
+        <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+            <a class="page-link" href="@Url.Action("QuanLyNguoiDung", "Admin", new { page = currentPage + 1 })">
+                Sau <i class="fa fa-chevron-right"></i>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<style>
+    /* Pagination Styles */
+    .pagination {
+        display: inline-flex;
+        padding-left: 0;
+        margin: 20px 0;
+        border-radius: 4px;
+        list-style: none;
+    }
+
+        .pagination .page-item {
+            display: inline;
+        }
+
+        .pagination .page-link {
+            position: relative;
+            display: block;
+            padding: 10px 16px;
+            margin-left: -1px;
+            line-height: 1.42857143;
+            color: #667eea;
+            text-decoration: none;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .pagination .page-item:first-child .page-link {
+            margin-left: 0;
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+
+        .pagination .page-item:last-child .page-link {
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+
+        .pagination .page-link:hover,
+        .pagination .page-link:focus {
+            z-index: 2;
+            color: #fff;
+            background-color: #764ba2;
+            border-color: #764ba2;
+        }
+
+        .pagination .page-item.active .page-link {
+            z-index: 3;
+            color: #fff;
+            cursor: default;
+            background-color: #667eea;
+            border-color: #667eea;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #999;
+            cursor: not-allowed;
+            background-color: #fff;
+            border-color: #ddd;
+            pointer-events: none;
+        }
+
+    .table-responsive {
+        margin-bottom: 20px;
+    }
+
+    .table tbody tr {
+        transition: background-color 0.2s ease;
+    }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+</style>
