@@ -302,7 +302,7 @@ body {
     width: 100%;
     background: #fff;
     border-radius: 12px;
-    overflow: hidden;
+    overflow: visible !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     border-collapse: separate;
     border-spacing: 0;
