@@ -1,0 +1,66 @@
+﻿@model QLKAHYTOON.Models.admin
+@{
+    ViewBag.Title = "Sửa Thông Tin Admin";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Sửa Thông Tin Admin</h2>
+<hr />
+
+@using (Html.BeginForm("SuaAdmin", "Admin", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.MaAdmin)
+
+        <div class="form-group">
+            <label class="control-label col-md-2">Mã Admin</label>
+            <div class="col-md-10">
+                <input type="text" class="form-control" value="@Model.MaAdmin" readonly
+                       style="background-color: #eee; font-weight: bold;" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">Tên Đăng Nhập</label>
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.TenDangNhap, new { htmlAttributes = new { @class = "form-control", @required = "required" } })
+                @Html.ValidationMessageFor(model => model.TenDangNhap, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">Họ Tên</label>
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.HoTen, new { htmlAttributes = new { @class = "form-control", @required = "required" } })
+                @Html.ValidationMessageFor(model => model.HoTen, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">Email</label>
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control", @type = "email", @required = "required" } })
+                @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">Mật Khẩu Mới</label>
+            <div class="col-md-10">
+                @Html.PasswordFor(model => model.MatKhau, new { htmlAttributes = new { @class = "form-control", @placeholder = "Để trống nếu không đổi mật khẩu" } })
+                @Html.ValidationMessageFor(model => model.MatKhau, "", new { @class = "text-danger" })
+                <p class="help-block">Chỉ nhập mật khẩu mới nếu muốn thay đổi. Để trống để giữ nguyên mật khẩu cũ.</p>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Cập Nhật" class="btn btn-warning" />
+                <a href="@Url.Action("QuanLyAdmin", "Admin")" class="btn btn-default">Quay lại</a>
+            </div>
+        </div>
+    </div>
+}

@@ -223,6 +223,7 @@
     <Content Include="Views\Home\TimKiem.cshtml" />
     <Content Include="Views\BinhLuan\BinhLuanTruyen.cshtml" />
     <Content Include="Views\BinhLuan\_CommentItem.cshtml" />
+    <Content Include="Views\Admin\SuaAdmin.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Anh\" />
