@@ -2,6 +2,7 @@
 @{
     ViewBag.Title = "Quản Lý Truyện";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var tongSoTruyen = ViewBag.TongSoTruyen ?? 0;
 }
 
 <h2>Quản Lý Truyện</h2>
@@ -10,79 +11,124 @@
     <a href="@Url.Action("ThemTruyen", "Admin")" class="btn btn-success">
         <i class="fa fa-plus"></i> Thêm Truyện Mới
     </a>
+    <span class="text-muted" style="margin-left: 20px;">
+        <i class="fa fa-book"></i> Tổng số: <strong id="totalCount">@tongSoTruyen</strong> truyện
+    </span>
 </p>
 
 @if (TempData["UploadSuccess"] != null)
 {
-    <div class="alert alert-success">
+    <div class="alert alert-success alert-dismissible fade in">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
         <i class="fa fa-check-circle"></i> @TempData["UploadSuccess"]
     </div>
 }
 
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger">
+    <div class="alert alert-danger alert-dismissible fade in">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
         <i class="fa fa-exclamation-circle"></i> @TempData["Error"]
     </div>
 }
 
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Ảnh Bìa</th>
-            <th>Tên Truyện</th>
-            <th>Tác Giả</th>
-            <th>Trạng Thái</th>
-            <th style="width: 300px;">Chức năng</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+<!-- Loading Spinner -->
+<div id="loadingSpinner" style="display: none; text-align: center; padding: 30px;">
+    <i class="fa fa-spinner fa-spin fa-3x text-primary"></i>
+    <p class="text-muted" style="margin-top: 10px;">Đang tải dữ liệu...</p>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-striped" id="truyenTable">
+        <thead>
             <tr>
-                <td>
-                    <img src="@Url.Content(item.AnhTruyen)" alt="@item.TenTruyen"
-                         style="width: 60px; height: 90px; object-fit: cover; border-radius: 4px;" />
-                </td>
-                <td>
-                    <strong>@Html.DisplayFor(modelItem => item.TenTruyen)</strong>
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TacGia)
-                </td>
-                <td>
-                    @if (item.TrangThai == "Đang cập nhật")
-                    {
-                        <span class="label" style="background: #3498db; color: white;">@item.TrangThai</span>
-                    }
-                    else if (item.TrangThai == "Hoàn thành")
-                    {
-                        <span class="label" style="background: #2ecc71; color: white;">@item.TrangThai</span>
-                    }
-                    else
-                    {
-                        <span class="label" style="background: #95a5a6; color: white;">@item.TrangThai</span>
-                    }
-                </td>
-                <td>
-                    @Html.ActionLink("Thêm Chương", "ThemChuong", "Admin",
-                             new { maTruyen = item.MaTruyen.Trim() },
-                             new { @class = "btn btn-primary btn-sm" })
-
-                    @Html.ActionLink("Sửa", "SuaTruyen", "Admin",
-                             new { maTruyen = item.MaTruyen.Trim() },
-                             new { @class = "btn btn-warning btn-sm" })
-
-                    <a href="@Url.Action("XoaTruyen", "Admin", new { maTruyen = item.MaTruyen.Trim() })"
-                       class="btn btn-danger btn-sm"
-                       onclick="return confirm('Bạn có chắc chắn muốn xóa truyện này? Tất cả chương và dữ liệu liên quan sẽ bị xóa!');">
-                        Xóa
-                    </a>
-                </td>
+                <th style="width: 80px;">Ảnh Bìa</th>
+                <th>Tên Truyện</th>
+                <th>Tác Giả</th>
+                <th style="width: 200px;">Thể Loại</th>
+                <th style="width: 120px;">Trạng Thái</th>
+                <th style="width: 300px;">Chức năng</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody id="truyenTableBody">
+            @{
+                var truyenTheLoaiDict = ViewBag.TruyenTheLoaiDict as Dictionary<string, List<string>>;
+            }
+
+            @foreach (var item in Model)
+            {
+                // Lấy danh sách thể loại từ Dictionary
+                var theLoaiNames = truyenTheLoaiDict != null && truyenTheLoaiDict.ContainsKey(item.MaTruyen)
+                    ? truyenTheLoaiDict[item.MaTruyen]
+                    : new List<string>();
+
+                <tr>
+                    <td>
+                        <img src="@Url.Content(item.AnhTruyen)" alt="@item.TenTruyen"
+                             style="width: 60px; height: 90px; object-fit: cover; border-radius: 4px;" />
+                    </td>
+                    <td>
+                        <strong>@Html.DisplayFor(modelItem => item.TenTruyen)</strong>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TacGia)
+                    </td>
+                    <td>
+                        @if (theLoaiNames != null && theLoaiNames.Any())
+                        {
+                            <div class="theloai-badges">
+                                @foreach (var tenTheLoai in theLoaiNames)
+                                {
+                                    <span class="badge badge-theloai">@tenTheLoai</span>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <span class="text-muted"><i>Chưa có thể loại</i></span>
+                        }
+                    </td>
+                    <td>
+                        @if (item.TrangThai == "Đang cập nhật")
+                        {
+                            <span class="label label-info">@item.TrangThai</span>
+                        }
+                        else if (item.TrangThai == "Hoàn thành")
+                        {
+                            <span class="label label-success">@item.TrangThai</span>
+                        }
+                        else
+                        {
+                            <span class="label label-default">@item.TrangThai</span>
+                        }
+                    </td>
+                    <td>
+                        @Html.ActionLink("Thêm Chương", "ThemChuong", "Admin",
+                                      new { maTruyen = item.MaTruyen.Trim() },
+                                      new { @class = "btn btn-primary btn-sm" })
+
+                        @Html.ActionLink("Sửa", "SuaTruyen", "Admin",
+                                      new { maTruyen = item.MaTruyen.Trim() },
+                                      new { @class = "btn btn-warning btn-sm" })
+
+                        <a href="@Url.Action("XoaTruyen", "Admin", new { maTruyen = item.MaTruyen.Trim() })"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Bạn có chắc chắn muốn xóa truyện này? Tất cả chương và dữ liệu liên quan sẽ bị xóa!');">
+                            Xóa
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+<div class="text-center" id="paginationContainer">
+    <ul class="pagination" id="pagination">
+        <!-- Pagination sẽ được tạo bằng JavaScript -->
+    </ul>
+</div>
 
 <style>
     .label {
@@ -92,4 +138,245 @@
         font-weight: 600;
         display: inline-block;
     }
+
+    .label-info {
+        background: #3498db;
+        color: white;
+    }
+
+    .label-success {
+        background: #2ecc71;
+        color: white;
+    }
+
+    .label-default {
+        background: #95a5a6;
+        color: white;
+    }
+
+    .theloai-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .badge-theloai {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 500;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+        .badge-theloai:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+        }
+
+    .btn-group-vertical .btn {
+        margin-bottom: 3px;
+        width: 100%;
+        margin: 20px 0;
+    }
+
+    .pagination > li > a,
+    .pagination > li > span {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+
+    .pagination > .active > a,
+    .pagination > .active > span {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+
+    .pagination > li > a:hover {
+        background-color: #764ba2;
+        border-color: #764ba2;
+        color: white;
+    }
+
+    .table-responsive {
+        margin-bottom: 20px;
+    }
+
+    #truyenTable tbody tr {
+        transition: background-color 0.2s ease;
+    }
+
+        #truyenTable tbody tr:hover {
+            background-color: #f8f9fa;
+        }
 </style>
+
+@section scripts {
+    <script type="text/javascript">
+    var currentPage = 1;
+    var totalPages = Math.ceil(@tongSoTruyen / 8);
+    var urlThemChuong = '@Url.Action("ThemChuong", "Admin")';
+    var urlSuaTruyen = '@Url.Action("SuaTruyen", "Admin")';
+    var urlXoaTruyen = '@Url.Action("XoaTruyen", "Admin")';
+
+    $(document).ready(function() {
+        // Khởi tạo pagination
+        updatePagination(currentPage, totalPages);
+    });
+
+    // Load truyện theo trang
+    function loadTruyen(page) {
+        // Hiển thị loading
+        $('#loadingSpinner').show();
+        $('#truyenTableBody').hide();
+
+        $.ajax({
+            url: '@Url.Action("GetTruyenByPage", "Admin")',
+            type: 'GET',
+            data: { page: page, pageSize: 8 },
+            success: function(response) {
+                if (response.success) {
+                    currentPage = response.currentPage;
+                    totalPages = response.totalPages;
+
+                    // Cập nhật table
+                    renderTruyenTable(response.data);
+
+                    // Cập nhật pagination
+                    updatePagination(currentPage, totalPages);
+
+                    // Cập nhật tổng số
+                    $('#totalCount').text(response.totalItems);
+                } else {
+                    alert('Lỗi: ' + response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                alert('Có lỗi xảy ra khi tải dữ liệu: ' + error);
+            },
+            complete: function() {
+                // Ẩn loading
+                $('#loadingSpinner').hide();
+                $('#truyenTableBody').show();
+
+                // Scroll to top
+                $('html, body').animate({
+                    scrollTop: $('#truyenTable').offset().top - 100
+                }, 300);
+            }
+        });
+    }
+
+    // Render bảng truyện
+    function renderTruyenTable(data) {
+        var html = '';
+
+        if (data.length === 0) {
+            html = '<tr><td colspan="6" class="text-center text-muted"><i>Không có truyện nào</i></td></tr>';
+        } else {
+            data.forEach(function(item) {
+                html += '<tr>';
+
+                // Ảnh bìa
+                html += '<td><img src="' + item.anhTruyen + '" alt="' + item.tenTruyen + '" ' +
+                        'style="width: 60px; height: 90px; object-fit: cover; border-radius: 4px;" /></td>';
+
+                // Tên truyện
+                html += '<td><strong>' + item.tenTruyen + '</strong></td>';
+
+                // Tác giả
+                html += '<td>' + item.tacGia + '</td>';
+
+                // Thể loại
+                html += '<td>';
+                if (item.theLoai && item.theLoai.length > 0) {
+                    html += '<div class="theloai-badges">';
+                    item.theLoai.forEach(function(tl) {
+                        html += '<span class="badge badge-theloai">' + tl + '</span>';
+                    });
+                    html += '</div>';
+                } else {
+                    html += '<span class="text-muted"><i>Chưa có thể loại</i></span>';
+                }
+                html += '</td>';
+
+                // Trạng thái
+                html += '<td>';
+                if (item.trangThai === 'Đang cập nhật') {
+                    html += '<span class="label label-info">' + item.trangThai + '</span>';
+                } else if (item.trangThai === 'Hoàn thành') {
+                    html += '<span class="label label-success">' + item.trangThai + '</span>';
+                } else {
+                    html += '<span class="label label-default">' + item.trangThai + '</span>';
+                }
+                html += '</td>';
+
+                // Chức năng
+                html += '<td>';
+                html += '<a href="' + urlThemChuong + '?maTruyen=' + item.maTruyen + '" ' +
+                        'class="btn btn-primary btn-sm">Thêm Chương</a> ';
+                html += '<a href="' + urlSuaTruyen + '?maTruyen=' + item.maTruyen + '" ' +
+                        'class="btn btn-warning btn-sm">Sửa</a> ';
+                html += '<a href="' + urlXoaTruyen + '?maTruyen=' + item.maTruyen + '" ' +
+                        'class="btn btn-danger btn-sm" ' +
+                        'onclick="return confirm(\'Bạn có chắc chắn muốn xóa truyện này?\');">Xóa</a>';
+                html += '</td>';
+
+                html += '</tr>';
+            });
+        }
+
+        $('#truyenTableBody').html(html);
+    }
+
+    // Cập nhật pagination
+    function updatePagination(current, total) {
+        var html = '';
+
+        // Nút Previous
+        if (current > 1) {
+            html += '<li><a href="#" onclick="loadTruyen(' + (current - 1) + '); return false;">&laquo; Trước</a></li>';
+        } else {
+            html += '<li class="disabled"><span>&laquo; Trước</span></li>';
+        }
+
+        // Số trang
+        var startPage = Math.max(1, current - 2);
+        var endPage = Math.min(total, current + 2);
+
+        if (startPage > 1) {
+            html += '<li><a href="#" onclick="loadTruyen(1); return false;">1</a></li>';
+            if (startPage > 2) {
+                html += '<li class="disabled"><span>...</span></li>';
+            }
+        }
+
+        for (var i = startPage; i <= endPage; i++) {
+            if (i === current) {
+                html += '<li class="active"><span>' + i + '</span></li>';
+            } else {
+                html += '<li><a href="#" onclick="loadTruyen(' + i + '); return false;">' + i + '</a></li>';
+            }
+        }
+
+        if (endPage < total) {
+            if (endPage < total - 1) {
+                html += '<li class="disabled"><span>...</span></li>';
+            }
+            html += '<li><a href="#" onclick="loadTruyen(' + total + '); return false;">' + total + '</a></li>';
+        }
+
+        // Nút Next
+        if (current < total) {
+            html += '<li><a href="#" onclick="loadTruyen(' + (current + 1) + '); return false;">Sau &raquo;</a></li>';
+        } else {
+            html += '<li class="disabled"><span>Sau &raquo;</span></li>';
+        }
+
+        $('#pagination').html(html);
+    }
+    </script>
+}

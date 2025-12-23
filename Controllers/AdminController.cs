@@ -121,13 +121,139 @@ namespace QLKAHYTOON.Controllers
         }
 
         // GET: Admin/QuanLyTruyen
+        // Thay thế action QuanLyTruyen trong AdminController.cs
+
+        // GET: Admin/QuanLyTruyen
         public ActionResult QuanLyTruyen()
         {
             if (!IsAdminLoggedIn()) return RedirectToAction("Login", "Admin");
-            var danhSachTruyen = db.thongtintruyens.OrderByDescending(t => t.NgayDang).ToList();
+
+            // Lấy 8 truyện đầu tiên (DISTINCT theo MaTruyen)
+            var danhSachTruyen = db.thongtintruyens
+                .GroupBy(t => t.MaTruyen)
+                .Select(g => g.FirstOrDefault())
+                .OrderByDescending(t => t.NgayDang)
+                .Take(8)
+                .ToList();
+
+            // Lấy tất cả thể loại để tra cứu
+            var allTheLoai = db.theloais.ToList();
+
+            // Tạo Dictionary để lưu danh sách thể loại cho mỗi truyện
+            var truyenTheLoaiDict = new Dictionary<string, List<string>>();
+
+            foreach (var truyen in danhSachTruyen)
+            {
+                var danhSachTenTheLoai = new List<string>();
+
+                // Kiểm tra MaTheLoai có dạng "TL01, TL02" hay không
+                if (!string.IsNullOrEmpty(truyen.MaTheLoai))
+                {
+                    var cacMaTheLoai = truyen.MaTheLoai.Split(',');
+
+                    foreach (var ma in cacMaTheLoai)
+                    {
+                        var maClean = ma.Trim();
+                        var theLoaiObj = allTheLoai.FirstOrDefault(x => x.MaTheLoai.Trim() == maClean);
+
+                        if (theLoaiObj != null)
+                        {
+                            danhSachTenTheLoai.Add(theLoaiObj.TenTheLoai.Trim());
+                        }
+                    }
+                }
+
+                truyenTheLoaiDict[truyen.MaTruyen.Trim()] = danhSachTenTheLoai;
+            }
+
+            ViewBag.TruyenTheLoaiDict = truyenTheLoaiDict;
+
+            // Đếm số truyện DISTINCT
+            var tongSoTruyen = db.thongtintruyens
+                .GroupBy(t => t.MaTruyen)
+                .Count();
+
+            ViewBag.TongSoTruyen = tongSoTruyen;
+
             return View(danhSachTruyen);
         }
 
+        // AJAX: Lấy danh sách truyện theo trang
+        [HttpGet]
+        public JsonResult GetTruyenByPage(int page = 1, int pageSize = 8)
+        {
+            if (!IsAdminLoggedIn())
+            {
+                return Json(new { success = false, message = "Chưa đăng nhập" }, JsonRequestBehavior.AllowGet);
+            }
+
+            try
+            {
+                int skip = (page - 1) * pageSize;
+
+                // Lấy danh sách truyện DISTINCT
+                var danhSachTruyen = db.thongtintruyens
+                    .GroupBy(t => t.MaTruyen)
+                    .Select(g => g.FirstOrDefault())
+                    .OrderByDescending(t => t.NgayDang)
+                    .Skip(skip)
+                    .Take(pageSize)
+                    .ToList();
+
+                // Lấy tất cả thể loại
+                var allTheLoai = db.theloais.ToList();
+
+                // Tạo dữ liệu trả về với thể loại
+                var result = danhSachTruyen.Select(t => {
+                    var danhSachTenTheLoai = new List<string>();
+
+                    if (!string.IsNullOrEmpty(t.MaTheLoai))
+                    {
+                        var cacMaTheLoai = t.MaTheLoai.Split(',');
+
+                        foreach (var ma in cacMaTheLoai)
+                        {
+                            var maClean = ma.Trim();
+                            var theLoaiObj = allTheLoai.FirstOrDefault(x => x.MaTheLoai.Trim() == maClean);
+
+                            if (theLoaiObj != null)
+                            {
+                                danhSachTenTheLoai.Add(theLoaiObj.TenTheLoai.Trim());
+                            }
+                        }
+                    }
+
+                    return new
+                    {
+                        maTruyen = t.MaTruyen.Trim(),
+                        tenTruyen = t.TenTruyen.Trim(),
+                        tacGia = t.TacGia.Trim(),
+                        anhTruyen = t.AnhTruyen,
+                        trangThai = t.TrangThai.Trim(),
+                        theLoai = danhSachTenTheLoai
+                    };
+                }).ToList();
+
+                int tongSoTruyen = db.thongtintruyens
+                    .GroupBy(t => t.MaTruyen)
+                    .Count();
+                int tongSoTrang = (int)Math.Ceiling((double)tongSoTruyen / pageSize);
+
+                return Json(new
+                {
+                    success = true,
+                    data = result,
+                    currentPage = page,
+                    totalPages = tongSoTrang,
+                    totalItems = tongSoTruyen
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        
         // GET: Admin/ThemTruyen
         public ActionResult ThemTruyen()
         {

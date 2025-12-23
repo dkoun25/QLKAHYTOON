@@ -45,7 +45,7 @@ namespace QLKAHYTOON.Controllers
             return PartialView("BinhLuanTruyen", listBinhLuan);
         }
 
-        // 2. THÊM BÌNH LUẬN (AJAX)
+        // 2. THÊM BÌNH LUẬN (AJAX) - CẬP NHẬT KIỂM TRA REAL-TIME
         [HttpPost]
         public ActionResult PostBinhLuan(string maTruyen, string maChuong, string noiDung, string maBinhLuanCha)
         {
@@ -57,15 +57,37 @@ namespace QLKAHYTOON.Controllers
                 return Json(new { success = false, msg = "Bạn cần đăng nhập để bình luận!" });
             }
 
-            // KIỂM TRA TÀI KHOẢN BỊ KHÓA - Trả về JSON thay vì Redirect
-            if (user.VaiTro == "Blocked")
+            // KIỂM TRA TRẠNG THÁI TÀI KHOẢN REAL-TIME TỪ DATABASE
+            var userFromDb = db.nguoidungs.SingleOrDefault(u => u.MaNguoiDung == user.MaNguoiDung);
+
+            if (userFromDb == null)
             {
+                // Xóa session nếu user không tồn tại
+                Session["User"] = null;
                 return Json(new
                 {
                     success = false,
-                    msg = "Tài khoản của bạn đã bị khóa. Bạn không thể bình luận!"
+                    msg = "Tài khoản không tồn tại!",
+                    needReload = true // Báo cho client reload trang
                 });
             }
+
+            // Kiểm tra trạng thái khóa từ database
+            if (userFromDb.VaiTro == "Blocked")
+            {
+                // Cập nhật session
+                Session["User"] = userFromDb;
+
+                return Json(new
+                {
+                    success = false,
+                    msg = "Tài khoản của bạn đã bị khóa. Bạn không thể bình luận!",
+                    isBlocked = true
+                });
+            }
+
+            // Cập nhật session với dữ liệu mới nhất từ DB
+            Session["User"] = userFromDb;
 
             // Kiểm tra nội dung
             if (string.IsNullOrEmpty(noiDung) || string.IsNullOrWhiteSpace(noiDung))
@@ -79,7 +101,7 @@ namespace QLKAHYTOON.Controllers
                 bl.MaBinhLuan = Guid.NewGuid().ToString();
                 bl.MaTruyen = maTruyen;
                 bl.MaChuong = string.IsNullOrEmpty(maChuong) ? null : maChuong;
-                bl.MaNguoiDung = user.MaNguoiDung;
+                bl.MaNguoiDung = userFromDb.MaNguoiDung;
                 bl.NoiDung = noiDung.Trim();
                 bl.NgayDang = DateTime.Now;
                 bl.MaBinhLuanCha = string.IsNullOrEmpty(maBinhLuanCha) ? null : maBinhLuanCha;
@@ -96,7 +118,7 @@ namespace QLKAHYTOON.Controllers
             }
         }
 
-        // 3. LIKE BÌNH LUẬN
+        // 3. LIKE BÌNH LUẬN - CẬP NHẬT KIỂM TRA REAL-TIME
         [HttpPost]
         public ActionResult LikeBinhLuan(string maBinhLuan)
         {
@@ -108,15 +130,34 @@ namespace QLKAHYTOON.Controllers
                 return Json(new { success = false, msg = "Bạn cần đăng nhập để thích bình luận!" });
             }
 
-            // Kiểm tra tài khoản bị khóa
-            if (user.VaiTro == "Blocked")
+            // KIỂM TRA TRẠNG THÁI TÀI KHOẢN REAL-TIME
+            var userFromDb = db.nguoidungs.SingleOrDefault(u => u.MaNguoiDung == user.MaNguoiDung);
+
+            if (userFromDb == null)
             {
+                Session["User"] = null;
                 return Json(new
                 {
                     success = false,
-                    msg = "Tài khoản của bạn đã bị khóa!"
+                    msg = "Tài khoản không tồn tại!",
+                    needReload = true
                 });
             }
+
+            // Kiểm tra tài khoản bị khóa
+            if (userFromDb.VaiTro == "Blocked")
+            {
+                Session["User"] = userFromDb;
+                return Json(new
+                {
+                    success = false,
+                    msg = "Tài khoản của bạn đã bị khóa!",
+                    isBlocked = true
+                });
+            }
+
+            // Cập nhật session
+            Session["User"] = userFromDb;
 
             try
             {
@@ -135,7 +176,7 @@ namespace QLKAHYTOON.Controllers
             }
         }
 
-        // 4. XÓA BÌNH LUẬN
+        // 4. XÓA BÌNH LUẬN - CẬP NHẬT KIỂM TRA REAL-TIME
         [HttpPost]
         public ActionResult XoaBinhLuan(string maBinhLuan)
         {
@@ -145,6 +186,34 @@ namespace QLKAHYTOON.Controllers
             {
                 return Json(new { success = false, msg = "Bạn cần đăng nhập!" });
             }
+
+            // KIỂM TRA TRẠNG THÁI TÀI KHOẢN REAL-TIME
+            var userFromDb = db.nguoidungs.SingleOrDefault(u => u.MaNguoiDung == user.MaNguoiDung);
+
+            if (userFromDb == null)
+            {
+                Session["User"] = null;
+                return Json(new
+                {
+                    success = false,
+                    msg = "Tài khoản không tồn tại!",
+                    needReload = true
+                });
+            }
+
+            if (userFromDb.VaiTro == "Blocked")
+            {
+                Session["User"] = userFromDb;
+                return Json(new
+                {
+                    success = false,
+                    msg = "Tài khoản của bạn đã bị khóa!",
+                    isBlocked = true
+                });
+            }
+
+            // Cập nhật session
+            Session["User"] = userFromDb;
 
             try
             {
@@ -156,7 +225,7 @@ namespace QLKAHYTOON.Controllers
                 }
 
                 // Kiểm tra quyền: chỉ cho phép xóa bình luận của chính mình
-                if (bl.MaNguoiDung != user.MaNguoiDung)
+                if (bl.MaNguoiDung != userFromDb.MaNguoiDung)
                 {
                     return Json(new { success = false, msg = "Bạn không có quyền xóa bình luận này!" });
                 }
