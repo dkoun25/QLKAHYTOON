@@ -1,13 +1,30 @@
 ﻿@model IEnumerable<QLKAHYTOON.Models.thongtintruyen>
 @{
     ViewBag.Title = "Quản Lý Truyện";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml"; // Dùng layout Admin
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
 <h2>Quản Lý Truyện</h2>
 
 <p>
-    <a href="@Url.Action("ThemTruyen", "Admin")" class="btn btn-success">Thêm Truyện Mới</a></p>
+    <a href="@Url.Action("ThemTruyen", "Admin")" class="btn btn-success">
+        <i class="fa fa-plus"></i> Thêm Truyện Mới
+    </a>
+</p>
+
+@if (TempData["UploadSuccess"] != null)
+{
+    <div class="alert alert-success">
+        <i class="fa fa-check-circle"></i> @TempData["UploadSuccess"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        <i class="fa fa-exclamation-circle"></i> @TempData["Error"]
+    </div>
+}
 
 <table class="table table-bordered table-striped">
     <thead>
@@ -16,7 +33,7 @@
             <th>Tên Truyện</th>
             <th>Tác Giả</th>
             <th>Trạng Thái</th>
-            <th style="width: 250px;">Chức năng</th>
+            <th style="width: 300px;">Chức năng</th>
         </tr>
     </thead>
     <tbody>
@@ -24,26 +41,55 @@
         {
             <tr>
                 <td>
-                    <img src="@Url.Content(item.AnhTruyen)" alt="@item.TenTruyen" style="width: 60px; height: 90px; object-fit: cover;" />
+                    <img src="@Url.Content(item.AnhTruyen)" alt="@item.TenTruyen"
+                         style="width: 60px; height: 90px; object-fit: cover; border-radius: 4px;" />
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.TenTruyen)
+                    <strong>@Html.DisplayFor(modelItem => item.TenTruyen)</strong>
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.TacGia)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.TrangThai)
+                    @if (item.TrangThai == "Đang cập nhật")
+                    {
+                        <span class="label" style="background: #3498db; color: white;">@item.TrangThai</span>
+                    }
+                    else if (item.TrangThai == "Hoàn thành")
+                    {
+                        <span class="label" style="background: #2ecc71; color: white;">@item.TrangThai</span>
+                    }
+                    else
+                    {
+                        <span class="label" style="background: #95a5a6; color: white;">@item.TrangThai</span>
+                    }
                 </td>
                 <td>
                     @Html.ActionLink("Thêm Chương", "ThemChuong", "Admin",
-                        new { maTruyen = item.MaTruyen.Trim() },
-                        new { @class = "btn btn-primary btn-sm" })
+                             new { maTruyen = item.MaTruyen.Trim() },
+                             new { @class = "btn btn-primary btn-sm" })
 
-                    <a href="#" class="btn btn-warning btn-sm">Sửa</a>
-                    <a href="#" class="btn btn-danger btn-sm">Xóa</a>
+                    @Html.ActionLink("Sửa", "SuaTruyen", "Admin",
+                             new { maTruyen = item.MaTruyen.Trim() },
+                             new { @class = "btn btn-warning btn-sm" })
+
+                    <a href="@Url.Action("XoaTruyen", "Admin", new { maTruyen = item.MaTruyen.Trim() })"
+                       class="btn btn-danger btn-sm"
+                       onclick="return confirm('Bạn có chắc chắn muốn xóa truyện này? Tất cả chương và dữ liệu liên quan sẽ bị xóa!');">
+                        Xóa
+                    </a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
+<style>
+    .label {
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-block;
+    }
+</style>

@@ -50,12 +50,25 @@ namespace QLKAHYTOON.Controllers
         public ActionResult PostBinhLuan(string maTruyen, string maChuong, string noiDung, string maBinhLuanCha)
         {
             var user = Session["User"] as nguoidung;
+
+            // Kiểm tra đăng nhập
             if (user == null)
             {
                 return Json(new { success = false, msg = "Bạn cần đăng nhập để bình luận!" });
             }
 
-            if (string.IsNullOrEmpty(noiDung))
+            // KIỂM TRA TÀI KHOẢN BỊ KHÓA - Trả về JSON thay vì Redirect
+            if (user.VaiTro == "Blocked")
+            {
+                return Json(new
+                {
+                    success = false,
+                    msg = "Tài khoản của bạn đã bị khóa. Bạn không thể bình luận!"
+                });
+            }
+
+            // Kiểm tra nội dung
+            if (string.IsNullOrEmpty(noiDung) || string.IsNullOrWhiteSpace(noiDung))
             {
                 return Json(new { success = false, msg = "Nội dung không được để trống." });
             }
@@ -67,7 +80,7 @@ namespace QLKAHYTOON.Controllers
                 bl.MaTruyen = maTruyen;
                 bl.MaChuong = string.IsNullOrEmpty(maChuong) ? null : maChuong;
                 bl.MaNguoiDung = user.MaNguoiDung;
-                bl.NoiDung = noiDung;
+                bl.NoiDung = noiDung.Trim();
                 bl.NgayDang = DateTime.Now;
                 bl.MaBinhLuanCha = string.IsNullOrEmpty(maBinhLuanCha) ? null : maBinhLuanCha;
                 bl.LuotLike = 0;
@@ -75,7 +88,7 @@ namespace QLKAHYTOON.Controllers
                 db.binhluans.InsertOnSubmit(bl);
                 db.SubmitChanges();
 
-                return Json(new { success = true });
+                return Json(new { success = true, msg = "Bình luận thành công!" });
             }
             catch (Exception ex)
             {
@@ -87,14 +100,39 @@ namespace QLKAHYTOON.Controllers
         [HttpPost]
         public ActionResult LikeBinhLuan(string maBinhLuan)
         {
-            var bl = db.binhluans.SingleOrDefault(x => x.MaBinhLuan == maBinhLuan);
-            if (bl != null)
+            var user = Session["User"] as nguoidung;
+
+            // Kiểm tra đăng nhập
+            if (user == null)
             {
-                bl.LuotLike = (bl.LuotLike ?? 0) + 1;
-                db.SubmitChanges();
-                return Json(new { success = true, likes = bl.LuotLike });
+                return Json(new { success = false, msg = "Bạn cần đăng nhập để thích bình luận!" });
             }
-            return Json(new { success = false });
+
+            // Kiểm tra tài khoản bị khóa
+            if (user.VaiTro == "Blocked")
+            {
+                return Json(new
+                {
+                    success = false,
+                    msg = "Tài khoản của bạn đã bị khóa!"
+                });
+            }
+
+            try
+            {
+                var bl = db.binhluans.SingleOrDefault(x => x.MaBinhLuan == maBinhLuan);
+                if (bl != null)
+                {
+                    bl.LuotLike = (bl.LuotLike ?? 0) + 1;
+                    db.SubmitChanges();
+                    return Json(new { success = true, likes = bl.LuotLike });
+                }
+                return Json(new { success = false, msg = "Không tìm thấy bình luận!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, msg = "Có lỗi xảy ra: " + ex.Message });
+            }
         }
 
         // 4. XÓA BÌNH LUẬN
@@ -102,6 +140,7 @@ namespace QLKAHYTOON.Controllers
         public ActionResult XoaBinhLuan(string maBinhLuan)
         {
             var user = Session["User"] as nguoidung;
+
             if (user == null)
             {
                 return Json(new { success = false, msg = "Bạn cần đăng nhập!" });

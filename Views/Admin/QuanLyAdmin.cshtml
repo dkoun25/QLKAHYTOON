@@ -1,5 +1,8 @@
 ﻿@model IEnumerable<QLKAHYTOON.Models.admin>
-@{ ViewBag.Title = "Quản Lý Admin"; Layout = "~/Views/Shared/_AdminLayout.cshtml"; }
+@{
+    ViewBag.Title = "Quản Lý Admin";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
 
 <h2>Danh Sách Quản Trị Viên</h2>
 
@@ -11,12 +14,22 @@
         <input type="password" name="matKhau" class="form-control" placeholder="Mật khẩu" required />
         <input type="text" name="hoTen" class="form-control" placeholder="Họ tên" required />
         <input type="email" name="email" class="form-control" placeholder="Email" required />
-        <button type="submit" class="btn btn-success">Thêm</button>
+        <button type="submit" class="btn btn-success">
+            <i class="fa fa-plus"></i> Thêm
+        </button>
     }
     @if (TempData["Error"] != null)
-    {<p class="text-danger mt-2">@TempData["Error"]</p>}
+    {
+        <p class="text-danger mt-2">
+            <i class="fa fa-exclamation-circle"></i> @TempData["Error"]
+        </p>
+    }
     @if (TempData["Success"] != null)
-    {<p class="text-success mt-2">@TempData["Success"]</p>}
+    {
+        <p class="text-success mt-2">
+            <i class="fa fa-check-circle"></i> @TempData["Success"]
+        </p>
+    }
 </div>
 
 <table class="table table-bordered">
@@ -26,7 +39,7 @@
             <th>Tên Đăng Nhập</th>
             <th>Họ Tên</th>
             <th>Email</th>
-            <th>Chức năng</th>
+            <th style="width: 200px;">Chức năng</th>
         </tr>
     </thead>
     <tbody>
@@ -34,12 +47,19 @@
         {
             <tr>
                 <td>@item.MaAdmin</td>
-                <td>@item.TenDangNhap</td>
+                <td><strong>@item.TenDangNhap</strong></td>
                 <td>@item.HoTen</td>
                 <td>@item.Email</td>
                 <td>
+                    <a href="@Url.Action("SuaAdmin", "Admin", new { id = item.MaAdmin })"
+                       class="btn btn-warning btn-sm">
+                        <i class="fa fa-edit"></i> Sửa
+                    </a>
                     <a href="@Url.Action("XoaAdmin", "Admin", new { id = item.MaAdmin })"
-                       class="btn btn-danger btn-sm" onclick="return confirm('Xóa admin này?');">Xóa</a>
+                       class="btn btn-danger btn-sm"
+                       onclick="return confirm('Xóa admin này?');">
+                        <i class="fa fa-trash"></i> Xóa
+                    </a>
                 </td>
             </tr>
         }
