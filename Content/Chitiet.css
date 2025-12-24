@@ -243,12 +243,12 @@ body {
     .rating-info .avg-rating {
         font-size: 20px;
         font-weight: bold;
-        color: #fff;
+        color: #ddd;
     }
 
     .rating-info .total-ratings {
         font-size: 14px;
-        color: #888;
+        color: #ddd;
     }
 
 /* Processing State */

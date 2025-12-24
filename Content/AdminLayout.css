@@ -599,7 +599,158 @@ body {
     margin-left: 16.66%;
 }
 
-/* ===== RESPONSIVE ===== */
+
+/* ===== RESPONSIVE NÂNG CAO ===== */
+
+/* Large devices (desktops, 1200px and up) */
+@media (min-width: 1200px) {
+    .col-lg-2 {
+        width: 16.66%;
+    }
+
+    .col-lg-3 {
+        width: 25%;
+    }
+
+    .col-lg-4 {
+        width: 33.33%;
+    }
+
+    .col-lg-6 {
+        width: 50%;
+    }
+
+    .col-lg-8 {
+        width: 66.66%;
+    }
+
+    .col-lg-10 {
+        width: 83.33%;
+    }
+
+    .col-lg-12 {
+        width: 100%;
+    }
+}
+
+/* Medium devices (tablets, 992px to 1199px) */
+@media (max-width: 1199px) and (min-width: 992px) {
+    .col-md-2, .col-md-4, .col-md-6, .col-md-10 {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .dashboard-stats {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    .stat-card-value {
+        font-size: 28px;
+    }
+
+    .chart-canvas {
+        height: 300px;
+    }
+
+    .chart-small {
+        height: 220px;
+    }
+}
+
+/* Small devices (landscape phones, 768px to 991px) */
+@media (max-width: 991px) {
+    .dashboard-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .chart-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .table thead th,
+    .table tbody td {
+        padding: 12px 16px;
+        font-size: 13px;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+
+    h2 {
+        font-size: 24px;
+    }
+}
+
+/* Extra small devices (portrait phones, less than 576px) */
+@media (max-width: 575px) {
+    #page-content-wrapper {
+        padding: 15px 10px;
+    }
+
+    .stat-card {
+        padding: 20px;
+    }
+
+    .stat-card-value {
+        font-size: 26px;
+    }
+
+    .stat-card-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    .chart-container,
+    .panel,
+    .well {
+        padding: 16px;
+    }
+
+    .chart-canvas {
+        height: 250px;
+    }
+
+    .chart-small {
+        height: 200px;
+    }
+
+    .form-control {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+
+    .btn {
+        padding: 10px 16px;
+        font-size: 14px;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .table {
+        font-size: 12px;
+    }
+
+        .table thead th,
+        .table tbody td {
+            padding: 10px 12px;
+        }
+
+    .sidebar-nav > .sidebar-brand {
+        font-size: 18px;
+        height: 60px;
+        line-height: 60px;
+    }
+
+    .sidebar-nav li a {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+}
+
+/* Sidebar toggle trên mobile */
 @media (max-width: 768px) {
     #wrapper {
         padding-left: 0;
@@ -617,16 +768,17 @@ body {
         margin-left: 0;
     }
 
-    #page-content-wrapper {
-        padding: 20px 15px;
+    #wrapper.toggled #page-content-wrapper {
+        padding-left: 15px;
     }
 
-    .dashboard-stats {
-        grid-template-columns: 1fr;
+    .chart-header {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
-    .chart-grid {
-        grid-template-columns: 1fr;
+    .chart-title {
+        margin-bottom: 8px;
     }
 
     .col-md-2, .col-md-4, .col-md-6, .col-md-10 {
@@ -691,4 +843,44 @@ p {
 img {
     max-width: 100%;
     height: auto;
+}
+/* ===== MENU TOGGLE BUTTON ===== */
+.menu-toggle-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+    transition: all 0.3s ease;
+}
+
+    .menu-toggle-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+#wrapper.toggled .menu-toggle-btn {
+    left: 20px; /* Vẫn giữ vị trí khi sidebar ẩn */
+}
+
+/* Ẩn nút toggle khi sidebar đang mở trên desktop */
+@media (min-width: 992px) {
+    .menu-toggle-btn {
+        display: none;
+    }
+}
+
+/* Đảm bảo nội dung không bị che khi sidebar mở trên mobile */
+#wrapper.toggled #page-content-wrapper {
+    padding-left: 30px !important;
 }
