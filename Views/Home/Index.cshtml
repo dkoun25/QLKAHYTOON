@@ -181,19 +181,50 @@
     </section>
 
     <section class="recommend-slider mt-4">
-        <h3 class="section-title">TRUYỆN ĐỀ CỬ</h3>
-        <div class="row row-cols-2 row-cols-md-5 g-3">
-            @foreach (var truyen in Model.TruyenDeCu.Take(5))
-            {
-                <div class="col">
+        <div class="recommend-header">
+            <h3 class="section-title">TRUYỆN ĐỀ CỬ</h3>
+            <div class="recommend-controls">
+                <button class="recommend-control-btn" id="prevRecommend">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="recommend-control-btn" id="nextRecommend">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="recommend-slider-container">
+            <div class="recommend-slider-track" id="recommendTrack">
+                @foreach (var truyen in Model.TruyenDeCu)
+                {
                     <div class="recommend-card">
                         <a href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })">
-                            <img src="@truyen.AnhTruyen" alt="@truyen.TenTruyen">
+                            <div class="manga-image">
+                                <img src="@truyen.AnhTruyen" alt="@truyen.TenTruyen" loading="lazy">
+                            </div>
                         </a>
-                        <a href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })" class="comic-title">@truyen.TenTruyen</a>
+                        <div class="recommend-info">
+                            <a href="@Url.Action("ChiTiet", "Truyen", new { id = truyen.MaTruyen.Trim() })" class="recommend-title">
+                                @truyen.TenTruyen
+                            </a>
+                            @if (truyen.SoChuongMoiNhat != null && truyen.MaChuongMoiNhat != null)
+                            {
+                                <a href="@Url.Action("DocTruyen", "Truyen", new { id = truyen.MaChuongMoiNhat.Trim() })" class="recommend-chapter">
+                                    <i class="fas fa-book-open"></i>
+                                    <span>Chương @truyen.SoChuongMoiNhat</span>
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="recommend-chapter-placeholder">
+                                    <i class="fas fa-clock"></i>
+                                    <span>Đang cập nhật</span>
+                                </span>
+                            }
+                        </div>
                     </div>
-                </div>
-            }
+                }
+            </div>
         </div>
     </section>
 
@@ -448,5 +479,138 @@
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const track = document.getElementById('recommendTrack');
+    const prevBtn = document.getElementById('prevRecommend');
+    const nextBtn = document.getElementById('nextRecommend');
+    
+    if (!track || !prevBtn || !nextBtn) return;
+    
+    const cards = track.querySelectorAll('.recommend-card');
+    const totalCards = cards.length;
+    
+    if (totalCards === 0) return;
+    
+    // Tính số card hiển thị dựa trên viewport
+    function getVisibleCards() {
+        const containerWidth = track.parentElement.offsetWidth;
+        const cardWidth = cards[0].offsetWidth;
+        const gap = 20;
+        return Math.floor((containerWidth + gap) / (cardWidth + gap));
+    }
+    
+    let currentIndex = 0;
+    let visibleCards = getVisibleCards();
+    let autoSlideInterval;
+    let maxIndex = 0;
+    
+    // Tính maxIndex
+    function updateMaxIndex() {
+        visibleCards = getVisibleCards();
+        maxIndex = Math.max(0, totalCards - visibleCards);
+        
+        // Đảm bảo currentIndex không vượt quá maxIndex
+        if (currentIndex > maxIndex) {
+            currentIndex = maxIndex;
+        }
+        
+        // Ẩn/hiện nút điều khiển nếu không đủ truyện để scroll
+        if (totalCards <= visibleCards) {
+            prevBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+        } else {
+            prevBtn.style.display = 'flex';
+            nextBtn.style.display = 'flex';
+        }
+    }
+    
+    // Update visible cards on resize
+    window.addEventListener('resize', function() {
+        updateMaxIndex();
+        updateSlider(false);
+    });
+    
+    function updateSlider(animate = true) {
+        if (!animate) {
+            track.style.transition = 'none';
+        } else {
+            track.style.transition = 'transform 0.5s ease';
+        }
+        
+        const cardWidth = cards[0].offsetWidth;
+        const gap = 20;
+        const offset = currentIndex * (cardWidth + gap);
+        track.style.transform = `translateX(-${offset}px)`;
+        
+        // Cập nhật trạng thái nút
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex >= maxIndex;
+        
+        if (!animate) {
+            setTimeout(() => {
+                track.style.transition = 'transform 0.5s ease';
+            }, 50);
+        }
+    }
+    
+    function nextSlide() {
+        if (currentIndex < maxIndex) {
+            currentIndex++;
+        } else {
+            // Khi đến cuối, chuyển về đầu
+            currentIndex = 0;
+        }
+        
+        updateSlider();
+    }
+    
+    function prevSlide() {
+        if (currentIndex > 0) {
+            currentIndex--;
+        } else {
+            // Khi ở đầu, chuyển về cuối
+            currentIndex = maxIndex;
+        }
+        
+        updateSlider();
+    }
+    
+    // Auto slide every 3 seconds
+    function startAutoSlide() {
+        if (totalCards > visibleCards) {
+            autoSlideInterval = setInterval(nextSlide, 3000);
+        }
+    }
+    
+    function stopAutoSlide() {
+        clearInterval(autoSlideInterval);
+    }
+    
+    // Event listeners
+    nextBtn.addEventListener('click', function() {
+        stopAutoSlide();
+        nextSlide();
+        startAutoSlide();
+    });
+    
+    prevBtn.addEventListener('click', function() {
+        stopAutoSlide();
+        prevSlide();
+        startAutoSlide();
+    });
+    
+    // Pause on hover
+    track.addEventListener('mouseenter', stopAutoSlide);
+    track.addEventListener('mouseleave', startAutoSlide);
+    
+    // Initial setup
+    updateMaxIndex();
+    updateSlider(false);
+    
+    // Start auto slide
+    startAutoSlide();
+});
+</script>
 
 @* Ghi chú: Cần Bootstrap 5 JS để Slider và Tabs hoạt động *@

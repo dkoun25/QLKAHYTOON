@@ -558,7 +558,7 @@
             formData.append('file', file);
 
             $.ajax({
-                url: '@Url.Action("UploadAvatar", "Users")',
+                url: '@Url.Action("UploadAvatar", "Users")',  // ✅ Sửa từ "User" → "Users"
                 type: 'POST',
                 data: formData,
                 processData: false,
@@ -589,7 +589,7 @@
             }
 
             $.ajax({
-                url: '@Url.Action("CapNhatThongTin", "User")',
+                url: '@Url.Action("CapNhatThongTin", "Users")',  // ✅ Sửa từ "User" → "Users"
                 type: 'POST',
                 data: {
                     hoTen: hoTen,
@@ -632,7 +632,7 @@
             }
 
             $.ajax({
-                url: '@Url.Action("DoiMatKhau", "User")',
+                url: '@Url.Action("DoiMatKhau", "Users")',  // ✅ Sửa từ "User" → "Users"
                 type: 'POST',
                 data: {
                     matKhauCu: matKhauCu,

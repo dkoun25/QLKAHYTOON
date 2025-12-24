@@ -38,14 +38,24 @@ namespace QLKAHYTOON.Controllers
                 }).ToList();
 
                 // --- Lấy Truyện Đề Cử ---
-                viewModel.TruyenDeCu = db.sp_GetTruyenDeCu().Select(t => new TruyenCardViewModel
-                {
-                    MaTruyen = t.MaTruyen,
-                    TenTruyen = t.TenTruyen,
-                    AnhTruyen = t.AnhTruyen,
-                    TacGia = t.TacGia,
-                    TenTheLoai = t.TenTheLoai,
-                    MoTa = t.MoTa
+                var truyenDeCuData = db.sp_GetTruyenDeCu().ToList();
+                viewModel.TruyenDeCu = truyenDeCuData.Select(t => {
+                    var latestChapter = db.chuongs
+                        .Where(c => c.MaTruyen == t.MaTruyen)
+                        .OrderByDescending(c => c.SoChuong)
+                        .FirstOrDefault();
+
+                    return new TruyenCardViewModel
+                    {
+                        MaTruyen = t.MaTruyen,
+                        TenTruyen = t.TenTruyen,
+                        AnhTruyen = t.AnhTruyen,
+                        TacGia = t.TacGia,
+                        TenTheLoai = t.TenTheLoai,
+                        MoTa = t.MoTa,
+                        SoChuongMoiNhat = latestChapter?.SoChuong,
+                        MaChuongMoiNhat = latestChapter?.MaChuong
+                    };
                 }).ToList();
 
                 // --- Lấy Truyện Mới Cập Nhật CÓ PHÂN TRANG ---

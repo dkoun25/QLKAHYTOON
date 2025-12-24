@@ -122,36 +122,177 @@ background-color: rgba(0, 0, 0, 0.4);
 /* -----------------------------------
 2. SLIDER ĐỀ CỬ (5 CỘT)
 ----------------------------------- */
-.recommend-slider {
-margin-bottom: 30px;
+.recommend-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
 }
+
+.recommend-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.recommend-control-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #333;
+    border: 1px solid #444;
+    color: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.recommend-control-btn:hover {
+    background: #e50914;
+    border-color: #e50914;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.recommend-control-btn:active {
+    transform: scale(0.95);
+}
+
+.recommend-control-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background: #222;
+}
+
+.recommend-control-btn:disabled:hover {
+    background: #222;
+    transform: none;
+}
+
+/* Recommend Slider Container */
+.recommend-slider-container {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+
+.recommend-slider-track {
+    display: flex;
+    gap: 20px;
+    transition: transform 0.5s ease;
+    width: max-content;
+}
+
+/* Recommend Card - Giống TruyenTheoDoi */
 .recommend-card {
-background-color: transparent;
-border: none;
-color: #fff;
-text-align: center;
+    width: 180px;
+    min-width: 180px;
+    flex-shrink: 0;
+    background: #1a1a1a;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid #2a2a2a;
 }
-.recommend-card img {
-height: 250px;
-object-fit: cover;
-border-radius: 5px;
-margin-bottom: 10px;
-width: 100%;
+
+.recommend-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(229, 9, 20, 0.3);
+    border-color: #e50914;
 }
-.recommend-card .comic-title {
-font-size: 1rem;
-font-weight: 500;
-text-decoration: none;
-color: #e0e0e0;
-display: block;
-width: 100%;
-white-space: nowrap;
-overflow: hidden;
-text-overflow: ellipsis;
+
+.recommend-card .manga-image {
+    position: relative;
+    padding-top: 140%;
+    overflow: hidden;
+    background: #0a0a0a;
 }
-.recommend-card .comic-title:hover {
-color: #e50914;
+
+.recommend-card .manga-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
 }
+
+.recommend-card:hover .manga-image img {
+    transform: scale(1.05);
+}
+
+.recommend-info {
+    padding: 12px;
+    background: #1a1a1a;
+}
+
+.recommend-title {
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 40px;
+    line-height: 1.4;
+    text-decoration: none;
+}
+
+.recommend-title:hover {
+    color: #e50914;
+}
+
+.recommend-chapter {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    background: rgba(229, 9, 20, 0.15);
+    border: 1px solid rgba(229, 9, 20, 0.4);
+    color: #e50914;
+    width: 100%;
+    justify-content: center;
+}
+
+.recommend-chapter:hover {
+    background: rgba(229, 9, 20, 0.25);
+    color: #ff1a1f;
+    border-color: #e50914;
+}
+
+.recommend-chapter i {
+    font-size: 10px;
+}
+
+.recommend-chapter-placeholder {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    background: rgba(102, 102, 102, 0.15);
+    border: 1px solid rgba(102, 102, 102, 0.4);
+    color: #999;
+    width: 100%;
+    justify-content: center;
+}
+
+.recommend-chapter-placeholder i {
+    font-size: 10px;
+}
+
 /* -----------------------------------
 3. KHU VỰC THỂ LOẠI (NÚT)
 ----------------------------------- */
@@ -373,4 +514,66 @@ color: #fff;
 background-color: #1a1a1a;
 border-color: #2a2a2a;
 color: #666;
+}
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .recommend-card {
+        width: 170px;
+        min-width: 170px;
+    }
+}
+
+@media (max-width: 992px) {
+    .recommend-card {
+        width: 160px;
+        min-width: 160px;
+    }
+}
+
+@media (max-width: 768px) {
+    .recommend-card {
+        width: 150px;
+        min-width: 150px;
+    }
+    
+    .recommend-slider-track {
+        gap: 15px;
+    }
+    
+    .recommend-control-btn {
+        width: 35px;
+        height: 35px;
+    }
+}
+
+@media (max-width: 480px) {
+    .recommend-card {
+        width: 140px;
+        min-width: 140px;
+    }
+    
+    .recommend-slider-track {
+        gap: 12px;
+    }
+    
+    .recommend-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .recommend-controls {
+        align-self: flex-end;
+    }
+    
+    .recommend-title {
+        font-size: 13px;
+        min-height: 36px;
+    }
+    
+    .recommend-chapter,
+    .recommend-chapter-placeholder {
+        font-size: 11px;
+        padding: 6px 8px;
+    }
 }
