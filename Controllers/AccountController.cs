@@ -1,9 +1,8 @@
 ﻿using QLKAHYTOON.Models;
 using QLKAHYTOON.Models.ViewModels;
+using QLKAHYTOON.Helpers;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace QLKAHYTOON.Controllers
@@ -16,39 +15,53 @@ namespace QLKAHYTOON.Controllers
             return View();
         }
 
-        // POST: Account/Register (Chỉ đăng ký NGUOIDUNG)
+        // POST: Account/Register - Với mã hóa mật khẩu
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Register(RegisterViewModel model)
         {
             if (ModelState.IsValid)
             {
+                // Kiểm tra tên đăng nhập đã tồn tại
                 if (db.nguoidungs.Any(u => u.TenDangNhap == model.TenDangNhap))
                 {
                     ModelState.AddModelError("", "Tên đăng nhập đã tồn tại.");
                     return View(model);
                 }
+
+                // Kiểm tra email đã tồn tại
                 if (db.nguoidungs.Any(u => u.Email == model.Email))
                 {
                     ModelState.AddModelError("", "Email đã được sử dụng.");
                     return View(model);
                 }
 
-                var newUser = new nguoidung
+                try
                 {
-                    MaNguoiDung = "ND" + Guid.NewGuid().ToString().Substring(0, 5).ToUpper(),
-                    HoTen = model.HoTen,
-                    Email = model.Email,
-                    TenDangNhap = model.TenDangNhap,
-                    MatKhau = model.MatKhau, // !!! NHỚ MÃ HÓA MẬT KHẨU !!!
-                    VaiTro = "user",
-                    NgayDangKy = System.DateTime.Now
-                };
+                    // MÃ HÓA MẬT KHẨU
+                    string hashedPassword = PasswordHelper.HashPassword(model.MatKhau);
 
-                db.nguoidungs.InsertOnSubmit(newUser);
-                db.SubmitChanges();
+                    var newUser = new nguoidung
+                    {
+                        MaNguoiDung = "ND" + Guid.NewGuid().ToString().Substring(0, 5).ToUpper(),
+                        HoTen = model.HoTen,
+                        Email = model.Email,
+                        TenDangNhap = model.TenDangNhap,
+                        MatKhau = hashedPassword, // Lưu mật khẩu đã hash
+                        VaiTro = "user",
+                        NgayDangKy = DateTime.Now
+                    };
 
-                return RedirectToAction("Login", "Account");
+                    db.nguoidungs.InsertOnSubmit(newUser);
+                    db.SubmitChanges();
+
+                    TempData["RegisterSuccess"] = "Đăng ký thành công! Vui lòng đăng nhập.";
+                    return RedirectToAction("Login", "Account");
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Có lỗi xảy ra: " + ex.Message);
+                }
             }
             return View(model);
         }
@@ -59,25 +72,41 @@ namespace QLKAHYTOON.Controllers
             return View();
         }
 
-        // POST: Account/Login (Chỉ đăng nhập NGUOIDUNG)
+        // POST: Account/Login - Với xác thực mật khẩu hash
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Login(LoginViewModel model)
         {
             if (ModelState.IsValid)
             {
-                // Tạm thời chưa mã hóa
-                var user = db.nguoidungs.SingleOrDefault(u => u.TenDangNhap == model.TenDangNhap && u.MatKhau == model.MatKhau);
+                // Tìm user theo tên đăng nhập
+                var user = db.nguoidungs.SingleOrDefault(u => u.TenDangNhap == model.TenDangNhap);
 
                 if (user != null)
                 {
-                    Session["User"] = user; // Lưu session cho NguoiDung
-                    return RedirectToAction("Index", "Home");
+                    // Xác thực mật khẩu đã hash
+                    if (PasswordHelper.VerifyPassword(model.MatKhau, user.MatKhau))
+                    {
+                        Session["User"] = user;
+                        return RedirectToAction("Index", "Home");
+                    }
                 }
-                else
+
+                // Nếu không phải user, kiểm tra admin
+                var admin = db.admins.SingleOrDefault(a => a.TenDangNhap == model.TenDangNhap);
+
+                if (admin != null)
                 {
-                    ModelState.AddModelError("", "Tên đăng nhập hoặc mật khẩu không đúng.");
+                    // Xác thực mật khẩu admin
+                    if (PasswordHelper.VerifyPassword(model.MatKhau, admin.MatKhau))
+                    {
+                        Session["User"] = admin;
+                        Session["IsAdmin"] = true;
+                        return RedirectToAction("Index", "Home");
+                    }
                 }
+
+                ModelState.AddModelError("", "Tên đăng nhập hoặc mật khẩu không đúng.");
             }
             return View(model);
         }
@@ -85,7 +114,7 @@ namespace QLKAHYTOON.Controllers
         // GET: Account/Logout
         public ActionResult Logout()
         {
-            Session.Clear(); // Xóa tất cả session (cả User và Admin)
+            Session.Clear();
             return RedirectToAction("Index", "Home");
         }
     }

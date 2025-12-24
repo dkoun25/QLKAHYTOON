@@ -99,17 +99,95 @@
         }
 
         .current-chapter {
-            border: 1px solid orange !important; 
+            border: 1px solid orange !important;
             color: orange !important;
             background-color: rgba(255, 165, 0, 0.1) !important;
             font-weight: bold;
-            pointer-events: none; 
+            pointer-events: none;
         }
 
         /* Spacer để nội dung cuối không bị che */
         .spacer-bottom {
             height: 80px;
         }
+        .btn-report {
+        position: fixed;
+        bottom: 100px; /* Để không đè lên thanh nav sticky */
+        right: 20px;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+        cursor: pointer;
+        z-index: 999;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+    }
+
+    .btn-report:hover {
+        transform: translateY(-5px) scale(1.1);
+        box-shadow: 0 6px 20px rgba(220, 53, 69, 0.6);
+        background: linear-gradient(135deg, #c82333, #a71d2a);
+    }
+
+    .btn-report:active {
+        transform: translateY(-2px) scale(1.05);
+    }
+
+    /* Animation pulse */
+    @@keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+    }
+
+    .btn-report {
+        animation: pulse 2s infinite;
+    }
+
+    .btn-report:hover {
+        animation: none;
+    }
+
+    /* Modal styling */
+    .modal-content {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .modal-header {
+        border-bottom: none;
+    }
+
+    .modal-body .form-select,
+    .modal-body .form-control {
+        border-radius: 8px;
+    }
+
+    .modal-body .form-select:focus,
+    .modal-body .form-control:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+
+    @@media (max-width: 768px) {
+        .btn-report {
+            bottom: 80px;
+            right: 15px;
+            width: 48px;
+            height: 48px;
+            font-size: 18px;
+        }
+    }
     </style>
 }
 
@@ -282,6 +360,56 @@
             </div>
         </div>
     </div>
+    <button id="btnReport" class="btn-report" data-bs-toggle="modal" data-bs-target="#reportModal" title="Báo cáo vấn đề">
+        <i class="fa fa-flag"></i>
+    </button>
+
+    <!-- Modal báo cáo -->
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #dc3545; color: white;">
+                    <h5 class="modal-title">
+                        <i class="fa fa-flag"></i> Báo Cáo Vấn Đề
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted">Bạn đang báo cáo chương <strong>@Model.SoChuong</strong> của truyện <strong>@Model.thongtintruyen.TenTruyen</strong></p>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Loại vấn đề:</label>
+                        <select id="reportType" class="form-select">
+                            <option value="">-- Chọn loại vấn đề --</option>
+                            <option value="Ảnh lỗi">Ảnh bị lỗi/không hiển thị</option>
+                            <option value="Nội dung sai">Nội dung sai thứ tự</option>
+                            <option value="Vi phạm bản quyền">Vi phạm bản quyền</option>
+                            <option value="Nội dung không phù hợp">Nội dung không phù hợp</option>
+                            <option value="Khác">Vấn đề khác</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mô tả chi tiết:</label>
+                        <textarea id="reportContent" class="form-control" rows="4" placeholder="Vui lòng mô tả chi tiết vấn đề bạn gặp phải..."></textarea>
+                    </div>
+
+                    <div class="alert alert-info mb-0">
+                        <small>
+                            <i class="fa fa-info-circle"></i>
+                            Báo cáo của bạn sẽ được gửi đến Admin để xử lý. Cảm ơn bạn đã góp phần cải thiện chất lượng website!
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-danger" onclick="submitReport()">
+                        <i class="fa fa-paper-plane"></i> Gửi Báo Cáo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section scripts {
@@ -311,5 +439,47 @@
 
             lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
         }, false);
+        function submitReport() {
+        var reportType = $('#reportType').val();
+        var reportContent = $('#reportContent').val();
+
+        if (!reportType) {
+            alert('Vui lòng chọn loại vấn đề!');
+            return;
+        }
+
+        if (!reportContent || reportContent.trim() === '') {
+            alert('Vui lòng mô tả chi tiết vấn đề!');
+            return;
+        }
+
+        var maTruyen = $('#hdMaTruyen').val();
+        var maChuong = $('#hdMaChuong').val();
+        var noiDung = reportType + ': ' + reportContent;
+
+        $.ajax({
+            url: '@Url.Action("GuiBaoCao", "BaoCao")',
+            type: 'POST',
+            data: {
+                maTruyen: maTruyen,
+                maChuong: maChuong,
+                loaiBaoCao: reportType,
+                noiDung: noiDung
+            },
+            success: function(res) {
+                if (res.success) {
+                    alert('Gửi báo cáo thành công! Cảm ơn bạn đã đóng góp.');
+                    $('#reportModal').modal('hide');
+                    $('#reportType').val('');
+                    $('#reportContent').val('');
+                } else {
+                    alert(res.msg || 'Có lỗi xảy ra!');
+                }
+            },
+            error: function() {
+                alert('Lỗi kết nối server!');
+            }
+        });
+    }
     </script>
 }

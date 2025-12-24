@@ -203,7 +203,111 @@ namespace QLKAHYTOON.Controllers
                 soLuotTheoDoi = soLuotTheoDoi
             });
         }
+        [HttpPost]
+        public JsonResult RateTruyen(string maTruyen, int rating)
+        {
+            // Kiểm tra đăng nhập
+            var user = Session["User"] as nguoidung;
+            var admin = Session["User"] as admin;
 
+            if (user == null && admin == null)
+            {
+                return Json(new { success = false, msg = "Vui lòng đăng nhập để đánh giá!" });
+            }
+
+            // Kiểm tra rating hợp lệ
+            if (rating < 1 || rating > 5)
+            {
+                return Json(new { success = false, msg = "Đánh giá không hợp lệ!" });
+            }
+
+            try
+            {
+                string maNguoiDung = user != null ? user.MaNguoiDung : admin.MaAdmin;
+
+                // Kiểm tra đã đánh giá chưa
+                var existingRating = db.danhgias.SingleOrDefault(d =>
+                    d.MaTruyen == maTruyen && d.MaNguoiDung == maNguoiDung);
+
+                if (existingRating != null)
+                {
+                    // Cập nhật đánh giá cũ
+                    existingRating.SoSao = rating;
+                    existingRating.NgayDanhGia = DateTime.Now;
+                }
+                else
+                {
+                    // Tạo đánh giá mới
+                    var newRating = new danhgia
+                    {
+                        MaTruyen = maTruyen,
+                        MaNguoiDung = maNguoiDung,
+                        SoSao = rating,
+                        NgayDanhGia = DateTime.Now
+                    };
+                    db.danhgias.InsertOnSubmit(newRating);
+                }
+
+                db.SubmitChanges();
+
+                // Tính điểm trung bình
+                var allRatings = db.danhgias.Where(d => d.MaTruyen == maTruyen).ToList();
+                double avgRating = allRatings.Any() ?allRatings.Average(d => d.SoSao) : 0;
+                int totalRatings = allRatings.Count;
+
+                return Json(new
+                {
+                    success = true,
+                    avgRating = avgRating,
+                    totalRatings = totalRatings
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, msg = "Có lỗi xảy ra: " + ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public JsonResult GetRating(string maTruyen)
+        {
+            try
+            {
+                var allRatings = db.danhgias.Where(d => d.MaTruyen == maTruyen).ToList();
+
+                double avgRating = allRatings.Any() ? allRatings.Average(d => d.SoSao) : 0;
+                int totalRatings = allRatings.Count;
+                int userRating = 0;
+
+                // Lấy đánh giá của user hiện tại
+                var user = Session["User"] as nguoidung;
+                var admin = Session["User"] as admin;
+
+                if (user != null || admin != null)
+                {
+                    string maNguoiDung = user != null ? user.MaNguoiDung : admin.MaAdmin;
+                    var userRatingObj = db.danhgias.SingleOrDefault(d =>
+                        d.MaTruyen == maTruyen && d.MaNguoiDung == maNguoiDung);
+
+                    if (userRatingObj != null)
+                    {
+                        userRating = userRatingObj.SoSao;
+                    }
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    avgRating = avgRating,
+                    totalRatings = totalRatings,
+                    userRating = userRating
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, msg = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
 
 
     }

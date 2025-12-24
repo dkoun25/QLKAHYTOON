@@ -42,17 +42,6 @@
       <Association Name="thongtintruyen_chuong" Member="thongtintruyen" ThisKey="MaTruyen" OtherKey="MaTruyen" Type="thongtintruyen" IsForeignKey="true" />
     </Type>
   </Table>
-  <Table Name="dbo.danhgia" Member="danhgias">
-    <Type Name="danhgia">
-      <Column Name="MaNguoiDung" Type="System.String" DbType="NVarChar(50) NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
-      <Column Name="MaTruyen" Type="System.String" DbType="NVarChar(50) NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
-      <Column Name="SoSao" Type="System.Int32" DbType="Int" CanBeNull="true" />
-      <Column Name="BinhLuan" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
-      <Column Name="NgayBinhLuan" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
-      <Association Name="nguoidung_danhgia" Member="nguoidung" ThisKey="MaNguoiDung" OtherKey="MaNguoiDung" Type="nguoidung" IsForeignKey="true" />
-      <Association Name="thongtintruyen_danhgia" Member="thongtintruyen" ThisKey="MaTruyen" OtherKey="MaTruyen" Type="thongtintruyen" IsForeignKey="true" />
-    </Type>
-  </Table>
   <Table Name="dbo.lichsudoc" Member="lichsudocs">
     <Type Name="lichsudoc">
       <Column Name="MaLichSuDoc" Type="System.String" DbType="NVarChar(50) NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
@@ -80,10 +69,10 @@
       <Column Name="HoTen" Type="System.String" DbType="NVarChar(100)" CanBeNull="true" />
       <Column Name="SoDienThoai" Type="System.String" DbType="VarChar(20)" CanBeNull="true" />
       <Association Name="nguoidung_baocao" Member="baocaos" ThisKey="MaNguoiDung" OtherKey="MaNguoiDung" Type="baocao" />
-      <Association Name="nguoidung_danhgia" Member="danhgias" ThisKey="MaNguoiDung" OtherKey="MaNguoiDung" Type="danhgia" />
       <Association Name="nguoidung_lichsudoc" Member="lichsudocs" ThisKey="MaNguoiDung" OtherKey="MaNguoiDung" Type="lichsudoc" />
       <Association Name="nguoidung_truyenyeuthich" Member="truyenyeuthiches" ThisKey="MaNguoiDung" OtherKey="MaNguoiDung" Type="truyenyeuthich" />
       <Association Name="nguoidung_binhluan" Member="binhluans" ThisKey="MaNguoiDung" OtherKey="MaNguoiDung" Type="binhluan" />
+      <Association Name="nguoidung_danhgia" Member="danhgias" ThisKey="MaNguoiDung" OtherKey="MaNguoiDung" Type="danhgia" />
     </Type>
   </Table>
   <Table Name="dbo.theloai" Member="theloais">
@@ -133,10 +122,20 @@
       <Column Name="LuotThich" Type="System.Int32" DbType="Int" CanBeNull="true" />
       <Association Name="thongtintruyen_baocao" Member="baocaos" ThisKey="MaTruyen" OtherKey="MaTruyen" Type="baocao" />
       <Association Name="thongtintruyen_chuong" Member="chuongs" ThisKey="MaTruyen" OtherKey="MaTruyen" Type="chuong" />
-      <Association Name="thongtintruyen_danhgia" Member="danhgias" ThisKey="MaTruyen" OtherKey="MaTruyen" Type="danhgia" />
       <Association Name="thongtintruyen_lichsudoc" Member="lichsudocs" ThisKey="MaTruyen" OtherKey="MaTruyen" Type="lichsudoc" />
       <Association Name="thongtintruyen_truyenyeuthich" Member="truyenyeuthiches" ThisKey="MaTruyen" OtherKey="MaTruyen" Type="truyenyeuthich" />
       <Association Name="thongtintruyen_binhluan" Member="binhluans" ThisKey="MaTruyen" OtherKey="MaTruyen" Type="binhluan" />
+      <Association Name="thongtintruyen_danhgia" Member="danhgias" ThisKey="MaTruyen" OtherKey="MaTruyen" Type="danhgia" />
+    </Type>
+  </Table>
+  <Table Name="dbo.danhgia" Member="danhgias">
+    <Type Name="danhgia">
+      <Column Name="MaNguoiDung" Type="System.String" DbType="NVarChar(50) NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="MaTruyen" Type="System.String" DbType="NVarChar(50) NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="SoSao" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="NgayDanhGia" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="nguoidung_danhgia" Member="nguoidung" ThisKey="MaNguoiDung" OtherKey="MaNguoiDung" Type="nguoidung" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+      <Association Name="thongtintruyen_danhgia" Member="thongtintruyen" ThisKey="MaTruyen" OtherKey="MaTruyen" Type="thongtintruyen" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
     </Type>
   </Table>
   <Function Name="dbo.sp_GetTopTruyenByView" Method="sp_GetTopTruyenByView">

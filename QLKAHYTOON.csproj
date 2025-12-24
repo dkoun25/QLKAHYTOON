@@ -120,9 +120,11 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AdminController.cs" />
+    <Compile Include="Controllers\BaoCaoController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\BinhLuanController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\PasswordHelper.cs" />
     <Compile Include="Controllers\TruyenController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Global.asax.cs">
@@ -229,6 +231,7 @@
     <Folder Include="Anh\" />
     <Folder Include="App_Data\" />
     <Folder Include="SQL\" />
+    <Folder Include="Views\BaoCao\" />
     <Folder Include="Views\Base\" />
     <Folder Include="Views\User\" />
   </ItemGroup>

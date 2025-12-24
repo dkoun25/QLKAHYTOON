@@ -367,7 +367,7 @@ namespace QLKAHYTOON.Controllers
                 return new HttpStatusCodeResult(System.Net.HttpStatusCode.BadRequest);
             }
 
-            var truyen = db.thongtintruyens.SingleOrDefault(t => t.MaTruyen == maTruyen);
+            var truyen = db.thongtintruyens.FirstOrDefault(t => t.MaTruyen == maTruyen);
             if (truyen == null)
             {
                 return HttpNotFound();
@@ -377,17 +377,21 @@ namespace QLKAHYTOON.Controllers
             ViewBag.IsEdit = true;
             ViewBag.MaTruyenAuto = truyen.MaTruyen;
 
-            // Lấy danh sách thể loại đã chọn
-            var selectedGenres = db.thongtintruyens
-                .Where(ttl => ttl.MaTruyen == maTruyen)
-                .Select(ttl => ttl.MaTheLoai)
-                .ToList();
+            // Lấy danh sách thể loại đã chọn (tách từ chuỗi phân cách bởi dấu phẩy)
+            var selectedGenres = new List<string>();
+            if (!string.IsNullOrEmpty(truyen.MaTheLoai))
+            {
+                selectedGenres = truyen.MaTheLoai
+                    .Split(',')
+                    .Select(m => m.Trim())
+                    .ToList();
+            }
             ViewBag.SelectedGenres = selectedGenres;
 
             return View("ThemTruyen", truyen);
         }
 
-        // POST: Admin/SuaTruyen
+        // POST: Admin/SuaTruyen - FIXED VERSION (Lưu thể loại trong 1 record)
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ValidateInput(false)]
@@ -404,21 +408,15 @@ namespace QLKAHYTOON.Controllers
             {
                 try
                 {
-                    // Lấy TẤT CẢ các records của truyện này (vì có thể có nhiều records cho nhiều thể loại)
-                    var allTruyenRecords = db.thongtintruyens
-                        .Where(t => t.MaTruyen == model.MaTruyen)
-                        .ToList();
+                    // 1. Lấy record hiện tại
+                    var truyen = db.thongtintruyens.SingleOrDefault(t => t.MaTruyen == model.MaTruyen);
 
-                    if (allTruyenRecords == null || allTruyenRecords.Count == 0)
+                    if (truyen == null)
                     {
                         return HttpNotFound();
                     }
 
-                    // Lấy ảnh cũ từ record đầu tiên
-                    string anhCu = allTruyenRecords.First().AnhTruyen;
-
-                    // Xử lý upload ảnh mới (nếu có)
-                    string anhMoi = anhCu; // Mặc định giữ nguyên ảnh cũ
+                    // 2. Xử lý upload ảnh mới (nếu có)
                     if (fileAnh != null && fileAnh.ContentLength > 0)
                     {
                         string fileName = Path.GetFileName(fileAnh.FileName);
@@ -430,38 +428,31 @@ namespace QLKAHYTOON.Controllers
                             Directory.CreateDirectory(Server.MapPath("~/Anh/BiaTruyen/"));
                         }
                         fileAnh.SaveAs(path);
-                        anhMoi = "/Anh/BiaTruyen/" + newFileName;
+                        truyen.AnhTruyen = "/Anh/BiaTruyen/" + newFileName;
                     }
 
-                    // Xóa TẤT CẢ các records cũ của truyện này
-                    db.thongtintruyens.DeleteAllOnSubmit(allTruyenRecords);
+                    // 3. Cập nhật thông tin truyện
+                    truyen.TenTruyen = model.TenTruyen;
+                    truyen.TacGia = model.TacGia;
+                    truyen.TrangThai = model.TrangThai;
+                    truyen.Slug = model.Slug ?? "";
 
-                    // Tạo lại records mới với thể loại mới
-                    foreach (var maTheLoai in theloai)
-                    {
-                        var truyenMoi = new thongtintruyen
-                        {
-                            MaTruyen = model.MaTruyen,
-                            MaTheLoai = maTheLoai.Trim(),
-                            TenTruyen = model.TenTruyen,
-                            TacGia = model.TacGia,
-                            TrangThai = model.TrangThai,
-                            AnhTruyen = anhMoi, // Dùng ảnh mới hoặc ảnh cũ
-                            Slug = model.Slug ?? "",
-                            NgayDang = allTruyenRecords.First().NgayDang, // Giữ nguyên ngày đăng gốc
-                            LuotThich = allTruyenRecords.First().LuotThich, // Giữ nguyên lượt thích
-                            LuotXem = allTruyenRecords.First().LuotXem // Giữ nguyên lượt xem
-                        };
-                        db.thongtintruyens.InsertOnSubmit(truyenMoi);
-                    }
+                    // 4. Cập nhật danh sách thể loại (lưu dạng "TL01, TL02, TL03")
+                    truyen.MaTheLoai = string.Join(", ", theloai.Select(t => t.Trim()));
 
+                    // 5. Lưu thay đổi
                     db.SubmitChanges();
+
                     TempData["UploadSuccess"] = "Cập nhật truyện thành công!";
                     return RedirectToAction("QuanLyTruyen");
                 }
                 catch (Exception ex)
                 {
                     ModelState.AddModelError("", "Lỗi: " + ex.Message);
+                    if (ex.InnerException != null)
+                    {
+                        ModelState.AddModelError("", "Chi tiết: " + ex.InnerException.Message);
+                    }
                 }
             }
 

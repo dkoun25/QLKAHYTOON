@@ -49,6 +49,20 @@
             <li><strong><i class="fa fa-eye"></i> Lượt xem:</strong> @Model.lichsudocs.Count</li>
             <li><strong><i class="fa fa-heart text-danger"></i> Lượt thích:</strong> <span id="luotThichCount">@(Model.LuotThich ?? 0)</span></li>
             <li><strong><i class="fa fa-bookmark text-warning"></i> Lượt theo dõi:</strong> <span id="luotTheoDoiCount">@soLuotTheoDoi</span></li>
+            <li>
+                <strong><i class="fa fa-star text-warning"></i> Đánh giá:</strong>
+                <div class="rating-container d-inline-block">
+                    <div class="star-rating" data-ma-truyen="@Model.MaTruyen.Trim()">
+                        <i class="fa fa-star star" data-rating="1"></i>
+                        <i class="fa fa-star star" data-rating="2"></i>
+                        <i class="fa fa-star star" data-rating="3"></i>
+                        <i class="fa fa-star star" data-rating="4"></i>
+                        <i class="fa fa-star star" data-rating="5"></i>
+                    </div>
+                    <span class="ms-2 fw-bold" id="avgRating">0.0</span>
+                    <span class="text-muted">(<span id="totalRatings">0</span> đánh giá)</span>
+                </div>
+            </li>
         </ul>
 
         <div class="form-btn mt-3">
@@ -174,4 +188,106 @@
         color: white;
         border-color: #0d6efd;
     }
+    .star-rating {
+        display: inline-block;
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+        .star-rating .star {
+            color: #ddd;
+            transition: color 0.2s ease;
+        }
+
+            .star-rating .star.active,
+            .star-rating .star.hover {
+                color: #ffc107;
+            }
+
+            .star-rating .star:hover,
+            .star-rating .star:hover ~ .star {
+                color: #ffc107;
+            }
+
+    .rating-container {
+        vertical-align: middle;
+    }
 </style>
+<script>
+    $(document).ready(function() {
+        loadRating();
+
+        // Hover effect
+        $('.star').on('mouseenter', function() {
+            var rating = $(this).data('rating');
+            highlightStars(rating);
+        });
+
+        $('.star-rating').on('mouseleave', function() {
+            var currentRating = $(this).data('user-rating') || 0;
+            highlightStars(currentRating);
+        });
+
+        // Click to rate
+        $('.star').on('click', function() {
+            var rating = $(this).data('rating');
+            var maTruyen = $('.star-rating').data('ma-truyen');
+
+            $.ajax({
+                url: '@Url.Action("RateTruyen", "Truyen")',
+                type: 'POST',
+                data: {
+                    maTruyen: maTruyen,
+                    rating: rating
+                },
+                success: function(res) {
+                    if (res.success) {
+                        $('.star-rating').data('user-rating', rating);
+                        highlightStars(rating);
+                        $('#avgRating').text(res.avgRating.toFixed(1));
+                        $('#totalRatings').text(res.totalRatings);
+
+                        // Hiển thị thông báo
+                        alert('Cảm ơn bạn đã đánh giá ' + rating + ' sao!');
+                    } else {
+                        alert(res.msg || 'Có lỗi xảy ra!');
+                    }
+                },
+                error: function() {
+                    alert('Lỗi kết nối server!');
+                }
+            });
+        });
+    });
+
+    function highlightStars(rating) {
+        $('.star').each(function() {
+            if ($(this).data('rating') <= rating) {
+                $(this).addClass('active');
+            } else {
+                $(this).removeClass('active');
+            }
+        });
+    }
+
+    function loadRating() {
+        var maTruyen = $('.star-rating').data('ma-truyen');
+
+        $.ajax({
+            url: '@Url.Action("GetRating", "Truyen")',
+            type: 'GET',
+            data: { maTruyen: maTruyen },
+            success: function(res) {
+                if (res.success) {
+                    $('#avgRating').text(res.avgRating.toFixed(1));
+                    $('#totalRatings').text(res.totalRatings);
+
+                    if (res.userRating > 0) {
+                        $('.star-rating').data('user-rating', res.userRating);
+                        highlightStars(res.userRating);
+                    }
+                }
+            }
+        });
+    }
+</script>
