@@ -5,25 +5,58 @@
 }
 
 <style>
+    /* Background đen cho toàn bộ trang */
+    body {
+        background-color: #0a0a0a !important;
+    }
+
     .settings-container {
         max-width: 900px;
         margin: 30px auto;
         padding: 20px;
+        background-color: #0a0a0a;
     }
 
     .settings-header {
         text-align: center;
         margin-bottom: 40px;
         color: #fff;
+        border-bottom: 2px solid #333;
+        padding-bottom: 20px;
     }
 
+        .settings-header h2 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+            .settings-header h2 i {
+                color: #e50914;
+                margin-right: 10px;
+            }
+
+        .settings-header p {
+            color: #888;
+            font-size: 14px;
+            margin: 0;
+        }
+
     .settings-card {
-        background: #2d2d2d;
-        border-radius: 15px;
+        background: #1a1a1a;
+        border-radius: 12px;
         padding: 30px;
         margin-bottom: 30px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        border: 1px solid #2a2a2a;
+        transition: all 0.3s ease;
     }
+
+        .settings-card:hover {
+            border-color: #333;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+        }
 
     .avatar-section {
         text-align: center;
@@ -41,13 +74,13 @@
         height: 150px;
         border-radius: 50%;
         object-fit: cover;
-        border: 4px solid #444;
+        border: 4px solid #2a2a2a;
         transition: all 0.3s ease;
         cursor: pointer;
     }
 
         .avatar-preview:hover {
-            border-color: #2196F3;
+            border-color: #e50914;
             transform: scale(1.05);
         }
 
@@ -58,7 +91,7 @@
         width: 150px;
         height: 150px;
         border-radius: 50%;
-        background: rgba(0,0,0,0.7);
+        background: rgba(229, 9, 20, 0.8);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -79,10 +112,16 @@
     .section-title {
         color: #fff;
         font-size: 20px;
+        font-weight: 600;
         margin-bottom: 20px;
         padding-bottom: 10px;
-        border-bottom: 2px solid #444;
+        border-bottom: 2px solid #333;
     }
+
+        .section-title i {
+            color: #e50914;
+            margin-right: 10px;
+        }
 
     .form-group {
         margin-bottom: 20px;
@@ -93,68 +132,332 @@
         font-weight: 500;
         margin-bottom: 8px;
         display: block;
+        font-size: 14px;
     }
 
     .form-control {
-        background: #1a1a1a;
-        border: 1px solid #444;
+        background: #0a0a0a;
+        border: 1px solid #2a2a2a;
         color: #fff;
         padding: 12px 15px;
         border-radius: 8px;
         transition: all 0.3s ease;
+        width: 100%;
     }
 
         .form-control:focus {
-            background: #222;
-            border-color: #2196F3;
-            box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
+            background: #111;
+            border-color: #e50914;
+            box-shadow: 0 0 0 0.2rem rgba(229, 9, 20, 0.25);
             color: #fff;
+            outline: none;
         }
 
+        .form-control:disabled {
+            background: #0a0a0a;
+            color: #555;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+    .text-muted {
+        color: #666 !important;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    small.text-muted {
+        display: block;
+        margin-top: 5px;
+    }
+
     .btn-save {
-        background: linear-gradient(135deg, #2196F3, #1976D2);
+        background: linear-gradient(135deg, #e50914, #b20710);
         color: white;
         border: none;
         padding: 12px 30px;
         border-radius: 8px;
         font-weight: 600;
         transition: all 0.3s ease;
+        cursor: pointer;
     }
 
         .btn-save:hover {
+            background: linear-gradient(135deg, #f40612, #c90811);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+            box-shadow: 0 6px 20px rgba(229, 9, 20, 0.4);
+            color: white;
+        }
+
+        .btn-save i {
+            margin-right: 8px;
         }
 
     .btn-change-password {
-        background: linear-gradient(135deg, #FF9800, #F57C00);
+        background: linear-gradient(135deg, #666, #444);
         color: white;
         border: none;
         padding: 12px 30px;
         border-radius: 8px;
         font-weight: 600;
         transition: all 0.3s ease;
+        cursor: pointer;
     }
 
         .btn-change-password:hover {
+            background: linear-gradient(135deg, #777, #555);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+            box-shadow: 0 6px 20px rgba(102, 102, 102, 0.4);
+            color: white;
+        }
+
+        .btn-change-password i {
+            margin-right: 8px;
         }
 
     .alert {
         border-radius: 8px;
         border: none;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+        font-size: 14px;
     }
+
+    .alert-success {
+        background: rgba(76, 175, 80, 0.15);
+        border: 1px solid rgba(76, 175, 80, 0.4);
+        color: #4CAF50;
+    }
+
+    .alert-danger {
+        background: rgba(229, 9, 20, 0.15);
+        border: 1px solid rgba(229, 9, 20, 0.4);
+        color: #e50914;
+    }
+
+    .alert i {
+        margin-right: 8px;
+    }
+
+    .btn-close {
+        background: transparent;
+        border: none;
+        color: inherit;
+        opacity: 0.5;
+        cursor: pointer;
+        float: right;
+        font-size: 20px;
+        line-height: 1;
+        padding: 0;
+        margin-left: 10px;
+    }
+
+        .btn-close:hover {
+            opacity: 1;
+        }
 
     #fileUpload {
         display: none;
+    }
+
+    /* Responsive Design */
+
+    /* Tablet (768px - 1024px) */
+    @@media (max-width: 1024px) {
+        .settings-container {
+            max-width: 800px;
+            padding: 20px 15px;
+        }
+
+        .settings-card {
+            padding: 25px;
+        }
+    }
+
+    /* Tablet nhỏ (600px - 768px) */
+    @@media (max-width: 768px) {
+        .settings-container {
+            padding: 15px 10px;
+            margin: 20px auto;
+        }
+
+        .settings-header h2 {
+            font-size: 24px;
+        }
+
+        .settings-header p {
+            font-size: 13px;
+        }
+
+        .settings-card {
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .avatar-preview,
+        .avatar-overlay {
+            width: 120px;
+            height: 120px;
+        }
+
+            .avatar-overlay i {
+                font-size: 24px;
+            }
+
+        .section-title {
+            font-size: 18px;
+        }
+
+        .form-control {
+            padding: 10px 12px;
+            font-size: 14px;
+        }
+
+        .btn-save,
+        .btn-change-password {
+            padding: 10px 24px;
+            font-size: 14px;
+        }
+    }
+
+    /* Mobile (480px - 600px) */
+    @@media (max-width: 600px) {
+        .settings-container {
+            padding: 10px 8px;
+            margin: 15px auto;
+        }
+
+        .settings-header {
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+        }
+
+            .settings-header h2 {
+                font-size: 22px;
+            }
+
+        .settings-card {
+            padding: 18px;
+            border-radius: 10px;
+        }
+
+        .avatar-section {
+            margin-bottom: 30px;
+        }
+
+        .avatar-preview,
+        .avatar-overlay {
+            width: 100px;
+            height: 100px;
+        }
+
+            .avatar-overlay i {
+                font-size: 22px;
+            }
+
+        .section-title {
+            font-size: 17px;
+        }
+
+        .form-label {
+            font-size: 13px;
+        }
+
+        .text-muted {
+            font-size: 11px;
+        }
+    }
+
+    /* Mobile nhỏ (< 480px) */
+    @@media (max-width: 480px) {
+        .settings-container {
+            padding: 8px 5px;
+            margin: 10px auto;
+        }
+
+        .settings-header h2 {
+            font-size: 20px;
+        }
+
+        .settings-header p {
+            font-size: 12px;
+        }
+
+        .settings-card {
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .avatar-preview,
+        .avatar-overlay {
+            width: 90px;
+            height: 90px;
+            border-width: 3px;
+        }
+
+            .avatar-overlay i {
+                font-size: 20px;
+            }
+
+        .section-title {
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-control {
+            padding: 10px;
+            font-size: 13px;
+        }
+
+        .btn-save,
+        .btn-change-password {
+            width: 100%;
+            padding: 10px 20px;
+            font-size: 13px;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            font-size: 13px;
+        }
+    }
+
+    /* Mobile rất nhỏ (< 360px) */
+    @@media (max-width: 360px) {
+        .settings-header h2 {
+            font-size: 18px;
+        }
+
+        .avatar-preview,
+        .avatar-overlay {
+            width: 80px;
+            height: 80px;
+        }
+
+        .section-title {
+            font-size: 15px;
+        }
+
+        .form-control {
+            font-size: 12px;
+        }
+
+        .btn-save,
+        .btn-change-password {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
     }
 </style>
 
 <div class="container settings-container">
     <div class="settings-header">
         <h2><i class="fas fa-cog"></i> Cài đặt tài khoản</h2>
-        <p class="text-muted">Quản lý thông tin cá nhân và bảo mật</p>
+        <p>Quản lý thông tin cá nhân và bảo mật</p>
     </div>
 
     <!-- AVATAR SECTION -->
@@ -358,7 +661,7 @@
 
             var html = '<div class="alert ' + alertClass + ' alert-dismissible fade show" role="alert">' +
                        '<i class="fas ' + icon + '"></i> ' + message +
-                       '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+                       '<button type="button" class="btn-close" data-bs-dismiss="alert">×</button>' +
                        '</div>';
 
             $('#' + elementId).html(html);

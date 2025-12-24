@@ -2,13 +2,20 @@
    CHITIET.CSS - COMPLETE STYLING FOR MANGA DETAIL PAGE
    ============================================================ */
 
+/* Background đen cho toàn bộ trang */
+body {
+    background-color: #0a0a0a !important;
+    color: #e0e0e0 !important;
+}
+
 /* Comic Info Container */
 .comic-info-container {
-    background: #fff;
+    background: #1a1a1a;
     padding: 30px;
     border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     margin-bottom: 30px;
+    border: 1px solid #2a2a2a;
 }
 
 /* Image Wrapper */
@@ -16,6 +23,7 @@
     position: relative;
     overflow: hidden;
     border-radius: 8px;
+    border: 2px solid #2a2a2a;
 }
 
     .anhtruyen .img-wrapper img {
@@ -32,21 +40,22 @@
 .comic-title {
     font-size: 32px;
     font-weight: bold;
-    color: #333;
+    color: #fff;
     margin-bottom: 20px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 /* Comic Meta List */
 .comic-meta {
     font-size: 15px;
     line-height: 2;
+    color: #ccc;
 }
 
     .comic-meta li {
         margin-bottom: 10px;
         padding: 5px 0;
-        border-bottom: 1px dashed #eee;
+        border-bottom: 1px dashed #333;
     }
 
         .comic-meta li:last-child {
@@ -54,7 +63,7 @@
         }
 
     .comic-meta strong {
-        color: #555;
+        color: #999;
         margin-right: 8px;
     }
 
@@ -64,6 +73,15 @@
     padding: 5px 10px;
     margin-right: 5px;
     font-weight: normal;
+    background-color: #2a2a2a;
+    color: #ccc;
+    border: 1px solid #333;
+}
+
+.badge-primary {
+    background-color: #e50914 !important;
+    color: #fff !important;
+    border-color: #e50914 !important;
 }
 
 /* Form Buttons */
@@ -82,47 +100,87 @@
 
         .form-btn .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 8px rgba(229, 9, 20, 0.4);
         }
 
     .form-btn .btn-danger {
-        background: linear-gradient(135deg, #dc3545, #c82333);
+        background: linear-gradient(135deg, #e50914, #b20710);
         border: none;
+        color: #fff;
     }
 
-    .form-btn .btn-outline-success:hover {
-        background-color: #28a745;
+    .form-btn .btn-outline-success {
         border-color: #28a745;
-        color: white;
+        color: #28a745;
+        background: transparent;
     }
 
-    .form-btn .btn-outline-primary:hover {
-        background-color: #007bff;
-        border-color: #007bff;
-        color: white;
+        .form-btn .btn-outline-success:hover {
+            background-color: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+
+    .form-btn .btn-outline-primary {
+        border-color: #e50914;
+        color: #e50914;
+        background: transparent;
     }
+
+        .form-btn .btn-outline-primary:hover {
+            background-color: #e50914;
+            border-color: #e50914;
+            color: white;
+        }
 
     .form-btn .btn.active {
-        background-color: #0d6efd;
+        background-color: #e50914;
         color: white;
-        border-color: #0d6efd;
+        border-color: #e50914;
     }
 
 /* Chapter List */
 .chapter-list {
     max-height: 500px;
     overflow-y: auto;
+    background: #0a0a0a;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 10px;
 }
+
+    .chapter-list::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .chapter-list::-webkit-scrollbar-track {
+        background: #1a1a1a;
+        border-radius: 4px;
+    }
+
+    .chapter-list::-webkit-scrollbar-thumb {
+        background: #e50914;
+        border-radius: 4px;
+    }
+
+        .chapter-list::-webkit-scrollbar-thumb:hover {
+            background: #f40612;
+        }
 
     .chapter-list .list-group-item {
         transition: all 0.2s ease;
         border-left: 3px solid transparent;
+        background-color: #1a1a1a;
+        border: 1px solid #2a2a2a;
+        color: #ccc;
+        margin-bottom: 5px;
     }
 
         .chapter-list .list-group-item:hover {
-            background-color: #f8f9fa;
-            border-left-color: #007bff;
+            background-color: #252525;
+            border-left-color: #e50914;
             padding-left: 20px;
+            color: #fff;
         }
 
 /* ============================================================
@@ -149,10 +207,10 @@
 
     /* Individual Star */
     .star-rating .star {
-        color: #ddd;
+        color: #333;
         transition: all 0.2s ease;
         cursor: pointer;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         display: inline-block;
     }
 
@@ -185,12 +243,12 @@
     .rating-info .avg-rating {
         font-size: 20px;
         font-weight: bold;
-        color: #333;
+        color: #fff;
     }
 
     .rating-info .total-ratings {
         font-size: 14px;
-        color: #666;
+        color: #888;
     }
 
 /* Processing State */
@@ -213,7 +271,7 @@
    DEBUG INFO (Hidden by default)
    ============================================================ */
 .debug-info {
-    background: #fff3cd;
+    background: rgba(255, 243, 205, 0.1);
     border: 1px solid #ffc107;
     border-radius: 5px;
     padding: 10px 15px;
@@ -225,19 +283,32 @@
 }
 
     .debug-info strong {
-        color: #856404;
+        color: #ffc107;
     }
 
     .debug-info span {
-        color: #333;
+        color: #ccc;
     }
 
 /* ============================================================
    RESPONSIVE DESIGN
    ============================================================ */
+
+/* Tablet (768px - 1024px) */
+@media (max-width: 1024px) {
+    .comic-info-container {
+        padding: 25px;
+    }
+
+    .comic-title {
+        font-size: 28px;
+    }
+}
+
+/* Tablet nhỏ (600px - 768px) */
 @media (max-width: 768px) {
     .comic-info-container {
-        padding: 15px;
+        padding: 20px;
     }
 
     .comic-title {
@@ -254,6 +325,7 @@
 
         .form-btn .btn {
             width: 100%;
+            font-size: 15px;
         }
 
     .star-rating {
@@ -267,6 +339,99 @@
     .star-rating-wrapper {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .chapter-list {
+        max-height: 400px;
+    }
+}
+
+/* Mobile (480px - 600px) */
+@media (max-width: 600px) {
+    .comic-info-container {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .comic-title {
+        font-size: 22px;
+    }
+
+    .comic-meta {
+        font-size: 13px;
+        line-height: 1.8;
+    }
+
+    .badge {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+
+    .star-rating {
+        font-size: 22px;
+    }
+
+    .rating-info .avg-rating {
+        font-size: 16px;
+    }
+
+    .rating-info .total-ratings {
+        font-size: 12px;
+    }
+}
+
+/* Mobile nhỏ (< 480px) */
+@media (max-width: 480px) {
+    .comic-info-container {
+        padding: 12px;
+        border-radius: 8px;
+    }
+
+    .comic-title {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+
+    .comic-meta {
+        font-size: 12px;
+    }
+
+    .form-btn .btn {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+
+    .star-rating {
+        font-size: 20px;
+        gap: 3px;
+    }
+
+    .chapter-list {
+        max-height: 300px;
+    }
+
+        .chapter-list .list-group-item {
+            font-size: 13px;
+            padding: 8px 10px;
+        }
+}
+
+/* Mobile rất nhỏ (< 360px) */
+@media (max-width: 360px) {
+    .comic-title {
+        font-size: 18px;
+    }
+
+    .comic-meta {
+        font-size: 11px;
+    }
+
+    .star-rating {
+        font-size: 18px;
+    }
+
+    .rating-info .avg-rating {
+        font-size: 14px;
     }
 }
 

@@ -1,4 +1,8 @@
-﻿/* NAVBAR BACKGROUND */
+﻿/* ========================================
+   NAVBAR STYLING - DARK THEME
+   ======================================== */
+
+/* NAVBAR BACKGROUND */
 .kahy-navbar {
     background-color: #5f27a2 !important;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
@@ -48,7 +52,7 @@
 
 /* ========== SEARCH CONTAINER ========== */
 .search-container {
-    width: 60%; /* Rộng hơn - 60% chiều rộng */
+    width: 60%;
     max-width: 600px;
     position: relative;
 }
@@ -142,7 +146,7 @@
 }
 
 .search-results {
-    max-height: 320px; /* Hiển thị ~3 items, có scroll nếu nhiều hơn */
+    max-height: 320px;
     overflow-y: auto;
 }
 
@@ -276,6 +280,7 @@
         color: #5f27a2 !important;
     }
 
+/* User Dropdown */
 .user-dropdown {
     background-color: #2d2d2d;
     border: 1px solid #444;
@@ -283,30 +288,30 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
-.user-dropdown .dropdown-item {
-    color: #ccc;
-    padding: 10px 20px;
-    transition: all 0.3s ease;
-}
+    .user-dropdown .dropdown-item {
+        color: #ccc;
+        padding: 10px 20px;
+        transition: all 0.3s ease;
+    }
 
-.user-dropdown .dropdown-item:hover {
-    background-color: #3d3d3d;
-    color: #fff;
-}
+        .user-dropdown .dropdown-item:hover {
+            background-color: #3d3d3d;
+            color: #fff;
+        }
 
-.user-dropdown .dropdown-item i {
-    width: 20px;
-    margin-right: 10px;
-}
+        .user-dropdown .dropdown-item i {
+            width: 20px;
+            margin-right: 10px;
+        }
 
-.user-dropdown .dropdown-divider {
-    border-color: #444;
-}
+    .user-dropdown .dropdown-divider {
+        border-color: #444;
+    }
 
-.user-dropdown .dropdown-item.text-danger:hover {
-    background-color: #dc3545;
-    color: #fff !important;
-}
+    .user-dropdown .dropdown-item.text-danger:hover {
+        background-color: #dc3545;
+        color: #fff !important;
+    }
 
 .user-avatar-nav {
     width: 35px;
@@ -317,23 +322,136 @@
     transition: all 0.3s ease;
 }
 
-.user-avatar-nav:hover {
-    border-color: #2196F3;
-    transform: scale(1.1);
+    .user-avatar-nav:hover {
+        border-color: #2196F3;
+        transform: scale(1.1);
+    }
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+/* Desktop lớn (> 1200px) */
+@media (min-width: 1200px) {
+    .search-container {
+        width: 50%;
+    }
 }
-/* ========== RESPONSIVE ========== */
+
+/* Laptop và Desktop nhỏ (992px - 1199px) */
+@media (max-width: 1199px) {
+    .search-container {
+        width: 55%;
+    }
+
+    .kahy-navbar .navbar-brand img {
+        height: 60px;
+    }
+}
+
+/* Tablet lớn (768px - 991px) */
 @media (max-width: 991px) {
     .search-container {
         width: 100%;
         max-width: none;
         margin: 15px 0;
     }
+
+    .kahy-navbar .navbar-brand {
+        font-size: 1.3rem;
+    }
+
+        .kahy-navbar .navbar-brand img {
+            height: 55px;
+        }
+
+    .kahy-navbar .nav-link {
+        margin: 5px 0;
+        padding: 8px 12px;
+    }
+
+    .search-wrapper {
+        padding: 6px 12px;
+    }
+
+    .btn-search-submit {
+        padding: 6px 16px;
+        font-size: 14px;
+    }
 }
 
-@media (max-width: 576px) {
+/* Tablet nhỏ (600px - 767px) */
+@media (max-width: 767px) {
+    .kahy-navbar {
+        padding: 8px 0;
+    }
+
+        .kahy-navbar .navbar-brand img {
+            height: 50px;
+        }
+
+        .kahy-navbar .navbar-brand {
+            font-size: 1.2rem;
+            margin-right: 15px;
+        }
+
+    .search-icon {
+        font-size: 14px;
+        padding: 0 8px;
+    }
+
+    .search-input {
+        font-size: 14px;
+        padding: 6px 8px;
+    }
+
+    .btn-search-submit {
+        padding: 6px 14px;
+        font-size: 13px;
+    }
+
+    .search-dropdown {
+        border-radius: 12px;
+    }
+
+    .search-results {
+        max-height: 280px;
+    }
+}
+
+/* Mobile (480px - 599px) */
+@media (max-width: 599px) {
+    .kahy-navbar .navbar-brand img {
+        height: 45px;
+    }
+
+    .kahy-navbar .navbar-brand {
+        font-size: 1.1rem;
+    }
+
+    .search-wrapper {
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+
+    .search-input {
+        font-size: 13px;
+        padding: 6px;
+    }
+
+    .btn-search-submit {
+        padding: 5px 12px;
+        font-size: 12px;
+    }
+
+    .search-item {
+        padding: 10px 12px;
+    }
+
     .search-item-image {
         width: 50px;
         height: 70px;
+        margin-right: 10px;
     }
 
     .search-item-title {
@@ -342,5 +460,118 @@
 
     .search-item-chapter {
         font-size: 12px;
+    }
+
+    .search-results {
+        max-height: 240px;
+    }
+
+    .user-dropdown {
+        min-width: 200px;
+    }
+
+        .user-dropdown .dropdown-item {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+}
+
+/* Mobile nhỏ (< 480px) */
+@media (max-width: 480px) {
+    .kahy-navbar {
+        padding: 6px 0;
+    }
+
+        .kahy-navbar .navbar-brand img {
+            height: 40px;
+        }
+
+        .kahy-navbar .navbar-brand {
+            font-size: 1rem;
+            margin-right: 10px;
+        }
+
+    .search-container {
+        margin: 10px 0;
+    }
+
+    .search-wrapper {
+        padding: 4px 8px;
+    }
+
+    .search-icon {
+        font-size: 13px;
+        padding: 0 6px;
+    }
+
+    .search-input {
+        font-size: 12px;
+        padding: 5px;
+    }
+
+    .btn-search-submit {
+        padding: 5px 10px;
+        font-size: 11px;
+    }
+
+    .search-item {
+        padding: 8px 10px;
+    }
+
+    .search-item-image {
+        width: 45px;
+        height: 65px;
+        margin-right: 8px;
+    }
+
+    .search-item-title {
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+
+    .search-item-chapter {
+        font-size: 11px;
+    }
+
+    .search-results {
+        max-height: 200px;
+    }
+
+    .user-avatar-nav {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+/* Mobile rất nhỏ (< 360px) */
+@media (max-width: 360px) {
+    .kahy-navbar .navbar-brand img {
+        height: 35px;
+    }
+
+    .kahy-navbar .navbar-brand {
+        font-size: 0.9rem;
+    }
+
+    .search-input {
+        font-size: 11px;
+    }
+
+    .btn-search-submit {
+        padding: 4px 8px;
+        font-size: 10px;
+    }
+
+    .search-item-image {
+        width: 40px;
+        height: 60px;
+    }
+
+    .search-item-title {
+        font-size: 12px;
+    }
+
+    .search-item-chapter {
+        font-size: 10px;
     }
 }
