@@ -215,17 +215,35 @@ namespace QLKAHYTOON.Controllers
                 return Json(new { success = false, msg = "Vui lòng đăng nhập để đánh giá!" });
             }
 
-            // Kiểm tra rating hợp lệ
+            // Kiểm tra rating hợp lệ (1-5 sao)
             if (rating < 1 || rating > 5)
             {
                 return Json(new { success = false, msg = "Đánh giá không hợp lệ!" });
+            }
+
+            // ⭐ KIỂM TRA USER BLOCKED (nếu không phải admin)
+            bool isAdmin = Session["IsAdmin"] != null && (bool)Session["IsAdmin"];
+            if (!isAdmin && user != null)
+            {
+                var userFromDb = db.nguoidungs.SingleOrDefault(u => u.MaNguoiDung == user.MaNguoiDung);
+                if (userFromDb == null)
+                {
+                    Session["User"] = null;
+                    return Json(new { success = false, msg = "Tài khoản không tồn tại!", needReload = true });
+                }
+                if (userFromDb.VaiTro == "Blocked")
+                {
+                    Session["User"] = userFromDb;
+                    return Json(new { success = false, msg = "Tài khoản của bạn đã bị khóa!", isBlocked = true });
+                }
+                Session["User"] = userFromDb;
             }
 
             try
             {
                 string maNguoiDung = user != null ? user.MaNguoiDung : admin.MaAdmin;
 
-                // Kiểm tra đã đánh giá chưa
+                // Kiểm tra đã đánh giá chưa (dựa vào composite primary key)
                 var existingRating = db.danhgias.SingleOrDefault(d =>
                     d.MaTruyen == maTruyen && d.MaNguoiDung == maNguoiDung);
 
@@ -252,14 +270,15 @@ namespace QLKAHYTOON.Controllers
 
                 // Tính điểm trung bình
                 var allRatings = db.danhgias.Where(d => d.MaTruyen == maTruyen).ToList();
-                double avgRating = allRatings.Any() ?allRatings.Average(d => d.SoSao) : 0;
+                double avgRating = allRatings.Any() ? allRatings.Average(d => (double)d.SoSao) : 0;
                 int totalRatings = allRatings.Count;
 
                 return Json(new
                 {
                     success = true,
                     avgRating = avgRating,
-                    totalRatings = totalRatings
+                    totalRatings = totalRatings,
+                    msg = "Đánh giá thành công!"
                 });
             }
             catch (Exception ex)
@@ -275,9 +294,14 @@ namespace QLKAHYTOON.Controllers
             {
                 var allRatings = db.danhgias.Where(d => d.MaTruyen == maTruyen).ToList();
 
-                double avgRating = allRatings.Any() ? allRatings.Average(d => d.SoSao) : 0;
+                double avgRating = 0;
                 int totalRatings = allRatings.Count;
                 int userRating = 0;
+
+                if (totalRatings > 0)
+                {
+                    avgRating = allRatings.Average(d => (double)d.SoSao);
+                }
 
                 // Lấy đánh giá của user hiện tại
                 var user = Session["User"] as nguoidung;

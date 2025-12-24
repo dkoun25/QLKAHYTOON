@@ -5,6 +5,7 @@
     var danhSachTheLoai = ViewBag.DanhSachTheLoai as List<QLKAHYTOON.Models.theloai>;
     var soLuotTheoDoi = ViewBag.SoLuotTheoDoi ?? 0;
     var daTheoDoi = ViewBag.DaTheoDoi ?? false;
+    var isLoggedIn = Session["User"] != null;
 }
 
 @section Styles {
@@ -52,7 +53,7 @@
             <li>
                 <strong><i class="fa fa-star text-warning"></i> Đánh giá:</strong>
                 <div class="rating-container d-inline-block">
-                    <div class="star-rating" data-ma-truyen="@Model.MaTruyen.Trim()">
+                    <div class="star-rating" data-ma-truyen="@Model.MaTruyen.Trim()" data-logged-in="@isLoggedIn.ToString().ToLower()">
                         <i class="fa fa-star star" data-rating="1"></i>
                         <i class="fa fa-star star" data-rating="2"></i>
                         <i class="fa fa-star star" data-rating="3"></i>
@@ -121,6 +122,43 @@
     @Html.Action("ListBinhLuan", "BinhLuan", new { maTruyen = Model.MaTruyen, isDetail = true })
 </div>
 
+<style>
+    .btn.active {
+        background-color: #0d6efd;
+        color: white;
+        border-color: #0d6efd;
+    }
+
+    .star-rating {
+        display: inline-block;
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+        .star-rating .star {
+            color: #ddd;
+            transition: color 0.2s ease;
+            cursor: pointer;
+        }
+
+            .star-rating .star.active {
+                color: #ffc107;
+            }
+
+            .star-rating .star.hover {
+                color: #ffdb4d;
+            }
+
+    .rating-container {
+        vertical-align: middle;
+    }
+
+    /* Hiệu ứng khi không đăng nhập */
+    .star-rating.not-logged-in .star {
+        cursor: pointer;
+    }
+</style>
+
 <script>
     function thichTruyen() {
         var maTruyen = document.getElementById('hdMaTruyen').value;
@@ -131,14 +169,9 @@
             data: { maTruyen: maTruyen },
             success: function(res) {
                 if (res.success) {
-                    // Cập nhật số lượt thích
                     $('#luotThichCount').text(res.luotThich);
-
-                    // Đổi màu nút
                     $('#btnThich').removeClass('btn-outline-success').addClass('btn-success');
                     $('#btnThichText').text('Đã thích');
-
-                    // Disable nút sau khi thích
                     $('#btnThich').prop('disabled', true);
                 } else {
                     alert(res.msg || 'Có lỗi xảy ra!');
@@ -159,15 +192,12 @@
             data: { maTruyen: maTruyen },
             success: function(res) {
                 if (res.success) {
-                    // Cập nhật số lượt theo dõi
                     $('#luotTheoDoiCount').text(res.soLuotTheoDoi);
 
                     if (res.daTheoDoi) {
-                        // Đã theo dõi
                         $('#btnTheoDoi').addClass('active');
                         $('#btnTheoDoiText').text('Đã theo dõi');
                     } else {
-                        // Bỏ theo dõi
                         $('#btnTheoDoi').removeClass('active');
                         $('#btnTheoDoiText').text('Theo dõi');
                     }
@@ -180,58 +210,43 @@
             }
         });
     }
-</script>
 
-<style>
-    .btn.active {
-        background-color: #0d6efd;
-        color: white;
-        border-color: #0d6efd;
-    }
-    .star-rating {
-        display: inline-block;
-        font-size: 24px;
-        cursor: pointer;
-    }
-
-        .star-rating .star {
-            color: #ddd;
-            transition: color 0.2s ease;
-        }
-
-            .star-rating .star.active,
-            .star-rating .star.hover {
-                color: #ffc107;
-            }
-
-            .star-rating .star:hover,
-            .star-rating .star:hover ~ .star {
-                color: #ffc107;
-            }
-
-    .rating-container {
-        vertical-align: middle;
-    }
-</style>
-<script>
+    // ============================================================
+    // XỬ LÝ ĐÁNH GIÁ SAO
+    // ============================================================
     $(document).ready(function() {
+        var isLoggedIn = $('.star-rating').data('logged-in');
+
+        // Load rating hiện tại
         loadRating();
 
-        // Hover effect
+        // Hover effect - Hiển thị preview khi di chuột
         $('.star').on('mouseenter', function() {
             var rating = $(this).data('rating');
-            highlightStars(rating);
+            highlightStarsHover(rating);
         });
 
+        // Khi chuột rời khỏi vùng rating, hiển thị lại rating thực tế
         $('.star-rating').on('mouseleave', function() {
             var currentRating = $(this).data('user-rating') || 0;
             highlightStars(currentRating);
         });
 
-        // Click to rate
+        // Click để đánh giá
         $('.star').on('click', function() {
+            // KIỂM TRA ĐĂNG NHẬP NGAY KHI CLICK
+            if (!isLoggedIn) {
+                if (confirm('Bạn cần đăng nhập để đánh giá truyện.\n\nBạn có muốn chuyển đến trang đăng nhập không?')) {
+                    window.location.href = '@Url.Action("Login", "Account")';
+                }
+                return;
+            }
+
             var rating = $(this).data('rating');
             var maTruyen = $('.star-rating').data('ma-truyen');
+
+            // Disable các sao trong khi đang xử lý
+            $('.star').css('pointer-events', 'none');
 
             $.ajax({
                 url: '@Url.Action("RateTruyen", "Truyen")',
@@ -241,35 +256,62 @@
                     rating: rating
                 },
                 success: function(res) {
+                    $('.star').css('pointer-events', 'auto');
+
                     if (res.success) {
+                        // Lưu rating của user
                         $('.star-rating').data('user-rating', rating);
                         highlightStars(rating);
+
+                        // Cập nhật điểm trung bình và tổng số đánh giá
                         $('#avgRating').text(res.avgRating.toFixed(1));
                         $('#totalRatings').text(res.totalRatings);
 
-                        // Hiển thị thông báo
-                        alert('Cảm ơn bạn đã đánh giá ' + rating + ' sao!');
+                        // Hiển thị thông báo thành công
+                        alert('✨ Cảm ơn bạn đã đánh giá ' + rating + ' sao cho truyện này!');
                     } else {
                         alert(res.msg || 'Có lỗi xảy ra!');
+
+                        // Nếu lỗi do chưa đăng nhập
+                        if (res.msg && res.msg.includes('đăng nhập')) {
+                            if (confirm('Chuyển đến trang đăng nhập?')) {
+                                window.location.href = '@Url.Action("Login", "Account")';
+                            }
+                        }
                     }
                 },
-                error: function() {
+                error: function(xhr, status, error) {
+                    $('.star').css('pointer-events', 'auto');
+                    console.error('Error:', error);
                     alert('Lỗi kết nối server!');
                 }
             });
         });
     });
 
+    // Highlight stars (vĩnh viễn - cho rating thực tế của user)
     function highlightStars(rating) {
         $('.star').each(function() {
             if ($(this).data('rating') <= rating) {
-                $(this).addClass('active');
+                $(this).addClass('active').removeClass('hover');
             } else {
-                $(this).removeClass('active');
+                $(this).removeClass('active hover');
             }
         });
     }
 
+    // Highlight stars on hover (tạm thời - preview khi di chuột)
+    function highlightStarsHover(rating) {
+        $('.star').each(function() {
+            if ($(this).data('rating') <= rating) {
+                $(this).addClass('hover');
+            } else {
+                $(this).removeClass('hover');
+            }
+        });
+    }
+
+    // Load rating từ server
     function loadRating() {
         var maTruyen = $('.star-rating').data('ma-truyen');
 
@@ -279,14 +321,19 @@
             data: { maTruyen: maTruyen },
             success: function(res) {
                 if (res.success) {
+                    // Cập nhật điểm trung bình và tổng số đánh giá
                     $('#avgRating').text(res.avgRating.toFixed(1));
                     $('#totalRatings').text(res.totalRatings);
 
+                    // Nếu user đã đánh giá, hiển thị rating của họ
                     if (res.userRating > 0) {
                         $('.star-rating').data('user-rating', res.userRating);
                         highlightStars(res.userRating);
                     }
                 }
+            },
+            error: function(xhr, status, error) {
+                console.error('Load rating error:', error);
             }
         });
     }

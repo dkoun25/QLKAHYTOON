@@ -13,19 +13,21 @@
 
 @section Styles {
     <style>
+        /* NAVBAR CỐ ĐỊNH */
         .navbar, .navbar-fixed-top, .kahy-navbar {
-            position: absolute !important; /* Dính chặt vào đầu trang web, không chạy theo chuột */
+            position: absolute !important;
             top: 0;
             left: 0;
             width: 100%;
             z-index: 10;
         }
+
         body, .body-content {
-            padding-top: 60px !important; /* Tùy chỉnh số này nếu navbar của bạn cao hơn */
+            padding-top: 60px !important;
             background-color: #1a1a1a;
         }
 
-        /* 2. CSS CHO TRANG ĐỌC */
+        /* CONTAINER ĐỌC TRUYỆN */
         .reading-container {
             max-width: 800px;
             margin: 0 auto;
@@ -34,14 +36,14 @@
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
-            .reading-container img {
-                width: 100%;
-                height: auto;
-                display: block;
-                margin: 0;
-            }
+        .reading-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            margin: 0;
+        }
 
-        /* Nút điều hướng TĨNH (Đầu/Cuối trang) */
+        /* THANH ĐIỀU HƯỚNG TĨNH (Đầu/Cuối trang) */
         .static-nav {
             padding: 20px 0;
             display: flex;
@@ -50,38 +52,35 @@
             background-color: #1a1a1a;
         }
 
-        /* 3. THANH ĐIỀU HƯỚNG TRƯỢT (STICKY BOTTOM) */
+        /* THANH ĐIỀU HƯỚNG TRƯỢT (STICKY BOTTOM) */
         .bottom-nav {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            background-color: rgba(30, 30, 30, 0.95); /* Màu tối mờ */
+            background-color: rgba(30, 30, 30, 0.95);
             border-top: 1px solid #444;
             backdrop-filter: blur(5px);
             padding: 10px 0;
             z-index: 1000;
             transition: transform 0.3s ease-in-out;
-            /* Dùng Flexbox để dàn hàng ngang các nút */
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 8px; /* Khoảng cách giữa các nút nhỏ hơn để chứa nhiều nút */
+            gap: 8px;
         }
 
-            /* Ẩn thanh này đi */
-            .bottom-nav.hidden {
-                transform: translateY(100%);
-            }
+        .bottom-nav.hidden {
+            transform: translateY(100%);
+        }
 
-            /* Style chung cho các nút trong thanh sticky */
-            .bottom-nav .btn {
-                border-radius: 5px;
-                padding: 5px 10px;
-                font-size: 14px;
-            }
+        .bottom-nav .btn {
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
 
-        /* Nút tròn cho Home, Lên đầu trang */
+        /* NÚT TRÒN (Home, Lên đầu trang) */
         .btn-icon-only {
             width: 38px;
             height: 38px;
@@ -92,7 +91,7 @@
             justify-content: center;
         }
 
-        /* CSS Modal Danh sách */
+        /* MODAL DANH SÁCH CHƯƠNG */
         .chapter-modal-body {
             max-height: 60vh;
             overflow-y: auto;
@@ -106,93 +105,93 @@
             pointer-events: none;
         }
 
-        /* Spacer để nội dung cuối không bị che */
+        /* SPACER ĐỂ NỘI DUNG CUỐI KHÔNG BỊ CHE */
         .spacer-bottom {
             height: 80px;
         }
+
+        /* NÚT BÁO CÁO - ĐÃ FIX */
         .btn-report {
-        position: fixed;
-        bottom: 100px; /* Để không đè lên thanh nav sticky */
-        right: 20px;
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #dc3545, #c82333);
-        color: white;
-        border: none;
-        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
-        cursor: pointer;
-        z-index: 999;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-    }
-
-    .btn-report:hover {
-        transform: translateY(-5px) scale(1.1);
-        box-shadow: 0 6px 20px rgba(220, 53, 69, 0.6);
-        background: linear-gradient(135deg, #c82333, #a71d2a);
-    }
-
-    .btn-report:active {
-        transform: translateY(-2px) scale(1.05);
-    }
-
-    /* Animation pulse */
-    @@keyframes pulse {
-        0%, 100% {
-            transform: scale(1);
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+            cursor: pointer;
+            z-index: 999;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
         }
-        50% {
-            transform: scale(1.05);
+
+        .btn-report:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.6);
+            background: linear-gradient(135deg, #c82333, #a71d2a);
         }
-    }
 
-    .btn-report {
-        animation: pulse 2s infinite;
-    }
+        .btn-report:active {
+            transform: translateY(-2px) scale(1.05);
+        }
 
-    .btn-report:hover {
-        animation: none;
-    }
+        /* ANIMATION PULSE */
+        @@keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
 
-    /* Modal styling */
-    .modal-content {
-        border-radius: 15px;
-        overflow: hidden;
-    }
-
-    .modal-header {
-        border-bottom: none;
-    }
-
-    .modal-body .form-select,
-    .modal-body .form-control {
-        border-radius: 8px;
-    }
-
-    .modal-body .form-select:focus,
-    .modal-body .form-control:focus {
-        border-color: #dc3545;
-        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-    }
-
-    @@media (max-width: 768px) {
         .btn-report {
-            bottom: 80px;
-            right: 15px;
-            width: 48px;
-            height: 48px;
-            font-size: 18px;
+            animation: pulse 2s infinite;
         }
-    }
+
+        .btn-report:hover {
+            animation: none;
+        }
+
+        /* MODAL STYLING */
+        .modal-content {
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            border-bottom: none;
+        }
+
+        .modal-body .form-select,
+        .modal-body .form-control {
+            border-radius: 8px;
+        }
+
+        .modal-body .form-select:focus,
+        .modal-body .form-control:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+
+        /* RESPONSIVE */
+        @@media (max-width: 768px) {
+            .btn-report {
+                bottom: 80px;
+                right: 15px;
+                width: 48px;
+                height: 48px;
+                font-size: 18px;
+            }
+        }
     </style>
 }
 
 <div class="container-fluid p-0">
 
+    <!-- TIÊU ĐỀ TRUYỆN -->
     <div class="container pt-4 pb-2 text-center text-white">
         <h4>
             <a href="@Url.Action("Chitiet", "Truyen", new { id = Model.MaTruyen.Trim() })" class="text-white text-decoration-none">
@@ -202,6 +201,7 @@
         <p class="text-secondary">Chương @Model.SoChuong: @Model.TenChuong</p>
     </div>
 
+    <!-- THANH ĐIỀU HƯỚNG TĨNH (ĐẦU TRANG) -->
     <div class="static-nav">
         @if (!string.IsNullOrEmpty(maChuongTruoc))
         {
@@ -230,15 +230,13 @@
         }
     </div>
 
+    <!-- CONTAINER ĐỌC TRUYỆN -->
     <div class="reading-container">
         @if (danhSachAnh != null && danhSachAnh.Count > 0)
         {
             foreach (var anh in danhSachAnh)
             {
-                <img class="lazyload"
-                     src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
-                     data-src="@Url.Content(anh.Trim())"
-                     alt="Trang truyện" />
+                <img src="@Url.Content(anh.Trim())" alt="Trang truyện" loading="lazy" />
             }
         }
         else
@@ -247,6 +245,7 @@
         }
     </div>
 
+    <!-- THANH ĐIỀU HƯỚNG TĨNH (CUỐI TRANG) -->
     <div class="static-nav">
         @if (!string.IsNullOrEmpty(maChuongTruoc))
         {
@@ -274,19 +273,20 @@
             <button class="btn btn-secondary" disabled>Sau</button>
         }
     </div>
+
+    <!-- PHẦN BÌNH LUẬN -->
     <div class="container mt-5" style="max-width: 800px;">
         <hr />
-
         <input type="hidden" id="hdMaTruyen" value="@Model.MaTruyen.Trim()" />
         <input type="hidden" id="hdMaChuong" value="@Model.MaChuong.Trim()" />
-
         @Html.Action("ListBinhLuan", "BinhLuan", new { maTruyen = Model.MaTruyen, isDetail = false })
     </div>
 
+    <!-- SPACER ĐỂ TRÁNH CHE NỘI DUNG -->
     <div class="spacer-bottom"></div>
 
+    <!-- THANH ĐIỀU HƯỚNG TRƯỢT (STICKY BOTTOM) -->
     <div id="stickyBottomNav" class="bottom-nav hidden">
-
         <a href="@Url.Action("Index", "Home")" class="btn btn-outline-light btn-icon-only" title="Về trang chủ">
             <i class="fa fa-home"></i>
         </a>
@@ -317,16 +317,18 @@
             <button class="btn btn-secondary" disabled><i class="fa fa-chevron-right"></i></button>
         }
 
-        <button class="btn btn-outline-danger btn-icon-only" title="Theo dõi truyện">
-            <i class="fa fa-heart"></i>
-        </button>
-
         <button onclick="scrollToTop()" class="btn btn-outline-info btn-icon-only" title="Lên đầu trang">
             <i class="fa fa-arrow-up"></i>
         </button>
     </div>
+
+    <!-- NÚT BÁO CÁO - ĐÃ FIX VỊ TRÍ -->
+    <button id="btnReport" class="btn-report" data-bs-toggle="modal" data-bs-target="#reportModal" title="Báo cáo vấn đề">
+        <i class="fa fa-flag"></i>
+    </button>
 </div>
 
+<!-- MODAL DANH SÁCH CHƯƠNG -->
 <div class="modal fade" id="chapterListModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content" style="background-color: #333; color: #fff;">
@@ -340,18 +342,16 @@
                     {
                         foreach (var item in listChuong)
                         {
-                            // So sánh Mã chương hiện tại vs Mã trong list
-                            // Dùng Trim() để cắt khoảng trắng thừa nếu có
                             bool isActive = item.MaChuong.Trim() == Model.MaChuong.Trim();
                             <a href="@Url.Action("DocTruyen", "Truyen", new { id = item.MaChuong.Trim() })"
                                class="list-group-item list-group-item-action @(isActive ? "current-chapter" : "")"
                                style="background-color: #333; color: #ccc; border-bottom: 1px solid #444;">
-
                                 <div class="d-flex justify-content-between">
                                     <span>Chương @item.SoChuong: @item.TenChuong</span>
                                     @if (isActive)
                                     {
-                                        <i class="fa fa-check text-warning"></i>}
+                                        <i class="fa fa-check text-warning"></i>
+                                    }
                                 </div>
                             </a>
                         }
@@ -360,53 +360,50 @@
             </div>
         </div>
     </div>
-    <button id="btnReport" class="btn-report" data-bs-toggle="modal" data-bs-target="#reportModal" title="Báo cáo vấn đề">
-        <i class="fa fa-flag"></i>
-    </button>
+</div>
 
-    <!-- Modal báo cáo -->
-    <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header" style="background-color: #dc3545; color: white;">
-                    <h5 class="modal-title">
-                        <i class="fa fa-flag"></i> Báo Cáo Vấn Đề
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-- MODAL BÁO CÁO -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #dc3545; color: white;">
+                <h5 class="modal-title">
+                    <i class="fa fa-flag"></i> Báo Cáo Vấn Đề
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">Bạn đang báo cáo chương <strong>@Model.SoChuong</strong> của truyện <strong>@Model.thongtintruyen.TenTruyen</strong></p>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Loại vấn đề:</label>
+                    <select id="reportType" class="form-select">
+                        <option value="">-- Chọn loại vấn đề --</option>
+                        <option value="Ảnh lỗi">Ảnh bị lỗi/không hiển thị</option>
+                        <option value="Nội dung sai">Nội dung sai thứ tự</option>
+                        <option value="Vi phạm bản quyền">Vi phạm bản quyền</option>
+                        <option value="Nội dung không phù hợp">Nội dung không phù hợp</option>
+                        <option value="Khác">Vấn đề khác</option>
+                    </select>
                 </div>
-                <div class="modal-body">
-                    <p class="text-muted">Bạn đang báo cáo chương <strong>@Model.SoChuong</strong> của truyện <strong>@Model.thongtintruyen.TenTruyen</strong></p>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Loại vấn đề:</label>
-                        <select id="reportType" class="form-select">
-                            <option value="">-- Chọn loại vấn đề --</option>
-                            <option value="Ảnh lỗi">Ảnh bị lỗi/không hiển thị</option>
-                            <option value="Nội dung sai">Nội dung sai thứ tự</option>
-                            <option value="Vi phạm bản quyền">Vi phạm bản quyền</option>
-                            <option value="Nội dung không phù hợp">Nội dung không phù hợp</option>
-                            <option value="Khác">Vấn đề khác</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Mô tả chi tiết:</label>
-                        <textarea id="reportContent" class="form-control" rows="4" placeholder="Vui lòng mô tả chi tiết vấn đề bạn gặp phải..."></textarea>
-                    </div>
-
-                    <div class="alert alert-info mb-0">
-                        <small>
-                            <i class="fa fa-info-circle"></i>
-                            Báo cáo của bạn sẽ được gửi đến Admin để xử lý. Cảm ơn bạn đã góp phần cải thiện chất lượng website!
-                        </small>
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Mô tả chi tiết:</label>
+                    <textarea id="reportContent" class="form-control" rows="4" placeholder="Vui lòng mô tả chi tiết vấn đề bạn gặp phải..."></textarea>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button type="button" class="btn btn-danger" onclick="submitReport()">
-                        <i class="fa fa-paper-plane"></i> Gửi Báo Cáo
-                    </button>
+
+                <div class="alert alert-info mb-0">
+                    <small>
+                        <i class="fa fa-info-circle"></i>
+                        Báo cáo của bạn sẽ được gửi đến Admin để xử lý. Cảm ơn bạn đã góp phần cải thiện chất lượng website!
+                    </small>
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-danger" onclick="submitReport()">
+                    <i class="fa fa-paper-plane"></i> Gửi Báo Cáo
+                </button>
             </div>
         </div>
     </div>
@@ -414,72 +411,88 @@
 
 @section scripts {
     <script>
-        // 1. Hàm cuộn lên đầu trang
+        // ============================================================
+        // HÀM CUỘN LÊN ĐẦU TRANG
+        // ============================================================
         function scrollToTop() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // 2. Xử lý ẩn hiện thanh nav
+        // ============================================================
+        // XỬ LÝ ẨN HIỆN THANH NAV KHI CUỘN
+        // ============================================================
         let lastScrollTop = 0;
         const navBar = document.getElementById('stickyBottomNav');
 
         window.addEventListener("scroll", function () {
             let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
-            // Logic: Lăn xuống -> HIỆN. Lăn lên -> ẨN.
+            // Lăn xuống -> HIỆN thanh nav
             if (scrollTop > lastScrollTop) {
-                navBar.classList.remove('hidden'); // Hiện
-            } else {
-                navBar.classList.add('hidden'); // Ẩn
+                navBar.classList.remove('hidden');
             }
-            // Nếu ở sát đỉnh trang -> Luôn ẩn cho thoáng
+            // Lăn lên -> ẨN thanh nav
+            else {
+                navBar.classList.add('hidden');
+            }
+
+            // Nếu ở sát đỉnh trang -> Luôn ẩn
             if (scrollTop <= 100) {
                 navBar.classList.add('hidden');
             }
 
             lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
         }, false);
+
+        // ============================================================
+        // HÀM GỬI BÁO CÁO
+        // ============================================================
         function submitReport() {
-        var reportType = $('#reportType').val();
-        var reportContent = $('#reportContent').val();
+            var reportType = $('#reportType').val();
+            var reportContent = $('#reportContent').val();
 
-        if (!reportType) {
-            alert('Vui lòng chọn loại vấn đề!');
-            return;
-        }
-
-        if (!reportContent || reportContent.trim() === '') {
-            alert('Vui lòng mô tả chi tiết vấn đề!');
-            return;
-        }
-
-        var maTruyen = $('#hdMaTruyen').val();
-        var maChuong = $('#hdMaChuong').val();
-        var noiDung = reportType + ': ' + reportContent;
-
-        $.ajax({
-            url: '@Url.Action("GuiBaoCao", "BaoCao")',
-            type: 'POST',
-            data: {
-                maTruyen: maTruyen,
-                maChuong: maChuong,
-                loaiBaoCao: reportType,
-                noiDung: noiDung
-            },
-            success: function(res) {
-                if (res.success) {
-                    alert('Gửi báo cáo thành công! Cảm ơn bạn đã đóng góp.');
-                    $('#reportModal').modal('hide');
-                    $('#reportType').val('');
-                    $('#reportContent').val('');
-                } else {
-                    alert(res.msg || 'Có lỗi xảy ra!');
-                }
-            },
-            error: function() {
-                alert('Lỗi kết nối server!');
+            // Validate
+            if (!reportType) {
+                alert('⚠️ Vui lòng chọn loại vấn đề!');
+                return;
             }
-        });
-    }
+
+            if (!reportContent || reportContent.trim() === '') {
+                alert('⚠️ Vui lòng mô tả chi tiết vấn đề!');
+                return;
+            }
+
+            var maTruyen = $('#hdMaTruyen').val();
+            var maChuong = $('#hdMaChuong').val();
+            var noiDung = reportType + ': ' + reportContent;
+
+            // Gửi AJAX
+            $.ajax({
+                url: '@Url.Action("GuiBaoCao", "BaoCao")',
+                type: 'POST',
+                data: {
+                    maTruyen: maTruyen,
+                    maChuong: maChuong,
+                    maAdminxuly: null,
+                    loaiBaoCao: reportType,
+                    noiDung: noiDung
+                },
+                success: function(res) {
+                    if (res.success) {
+                        alert('✅ Gửi báo cáo thành công! Cảm ơn bạn đã đóng góp.');
+
+                        // Đóng modal và reset form
+                        $('#reportModal').modal('hide');
+                        $('#reportType').val('');
+                        $('#reportContent').val('');
+                    } else {
+                        alert('❌ ' + (res.msg || 'Có lỗi xảy ra!'));
+                    }
+                },
+                error: function() {
+                    alert('❌ Lỗi kết nối server!');
+                }
+            });
+        }
     </script>
 }
