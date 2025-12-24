@@ -1,18 +1,29 @@
 ﻿@model IEnumerable<QLKAHYTOON.Models.binhluan>
 @{
+    // ⭐ FIX: Check cả User và Admin
     var user = Session["User"] as QLKAHYTOON.Models.nguoidung;
-    ViewBag.User = user; // Truyền user xuống Partial View
+    var admin = Session["User"] as QLKAHYTOON.Models.admin;
+    bool isAdmin = Session["IsAdmin"] != null && (bool)Session["IsAdmin"];
+    bool isLoggedIn = (user != null || admin != null);
+
+    ViewBag.User = user;
+    ViewBag.Admin = admin;
+    ViewBag.IsAdmin = isAdmin;
 }
 
 <div class="comment-section mt-5 p-3 bg-light rounded">
     <h4 class="mb-4 text-primary fw-bold"><i class="fa-solid fa-comments"></i> BÌNH LUẬN</h4>
 
-    @if (user != null)
+    @* ⭐ FIX: Cho phép cả user và admin bình luận *@
+    @if (isLoggedIn)
     {
+        string displayName = isAdmin && admin != null ? admin.HoTen : (user != null ? user.HoTen : "");
+        string avatarUrl = isAdmin ? "/Anh/admin-avatar.png" : (user != null && !string.IsNullOrEmpty(user.Avatar) ? user.Avatar : "/Anh/avatar-default.png");
+
         <div class="d-flex mb-4">
-            <img src="@(user.Avatar ?? "/Anh/avatar-default.png")" class="rounded-circle me-3" style="width:50px; height:50px;">
+            <img src="@avatarUrl" class="rounded-circle me-3" style="width:50px; height:50px; object-fit:cover;">
             <div class="w-100">
-                <textarea id="txtMainComment" class="form-control" rows="2" placeholder="Viết bình luận..."></textarea>
+                <textarea id="txtMainComment" class="form-control" rows="2" placeholder="@displayName, viết bình luận..."></textarea>
                 <button class="btn btn-sm mt-2 text-white" style="background-color: #5f27a2;" onclick="submitComment(null)">Gửi bình luận</button>
             </div>
         </div>
@@ -114,13 +125,9 @@
             data: { maBinhLuan: id },
             success: function (res) {
                 if (res.success) {
-                    // Ẩn bình luận với animation
                     $('#cmt-' + id).fadeOut(300, function () {
                         $(this).remove();
                     });
-
-                    // Hoặc reload trang
-                    // location.reload();
                 } else {
                     alert("Lỗi: " + res.msg);
                 }

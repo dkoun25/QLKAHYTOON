@@ -1,29 +1,35 @@
 ﻿using QLKAHYTOON.Models;
 using System.Linq;
 using System.Web.Mvc;
-using System; // Cần cho Guid, DateTime
-using System.Collections.Generic; // Cần cho List
+using System;
+using System.Collections.Generic;
 
 namespace QLKAHYTOON.Controllers
 {
     public class TruyenController : BaseController
     {
+        // Helper method để log
+        private void LogDebug(string message)
+        {
+            System.Diagnostics.Debug.WriteLine($"[TruyenController] {DateTime.Now:HH:mm:ss} - {message}");
+        }
+
         // GET: Truyen/ChiTiet/MT_1
         public ActionResult ChiTiet(string id)
         {
+            LogDebug($"ChiTiet called with id: {id}");
+
             if (string.IsNullOrEmpty(id))
             {
                 return new HttpStatusCodeResult(System.Net.HttpStatusCode.BadRequest);
             }
 
-            // 1. Lấy thông tin truyện
             var truyen = db.thongtintruyens.SingleOrDefault(t => t.MaTruyen == id);
             if (truyen == null)
             {
                 return HttpNotFound();
             }
 
-            // 2. Danh sách thể loại (nhiều thể loại)
             var danhSachTheLoai = new List<theloai>();
             if (!string.IsNullOrEmpty(truyen.MaTheLoai))
             {
@@ -38,14 +44,12 @@ namespace QLKAHYTOON.Controllers
             }
             ViewBag.DanhSachTheLoai = danhSachTheLoai;
 
-            // 3. Danh sách chương
             var danhSachChuong = db.chuongs
                 .Where(c => c.MaTruyen == id)
                 .OrderBy(c => c.SoChuong)
                 .ToList();
             ViewBag.DanhSachChuong = danhSachChuong;
 
-            // 4. Bình luận + người dùng
             var danhSachBinhLuan = (from bl in db.binhluans
                                     join nd in db.nguoidungs on bl.MaNguoiDung equals nd.MaNguoiDung
                                     where bl.MaTruyen == id
@@ -59,12 +63,15 @@ namespace QLKAHYTOON.Controllers
                                     }).ToList();
             ViewBag.BinhLuan = danhSachBinhLuan;
 
-            // 5. Đếm lượt theo dõi
             var soLuotTheoDoi = db.truyenyeuthiches.Count(x => x.MaTruyen == id);
             ViewBag.SoLuotTheoDoi = soLuotTheoDoi;
 
-            // 6. Kiểm tra user đã theo dõi chưa
             var user = Session["User"] as nguoidung;
+            var admin = Session["User"] as admin;
+            bool isAdmin = Session["IsAdmin"] != null && (bool)Session["IsAdmin"];
+
+            LogDebug($"User: {(user != null ? user.MaNguoiDung : "null")}, Admin: {(admin != null ? admin.MaAdmin : "null")}, IsAdmin: {isAdmin}");
+
             if (user != null)
             {
                 var daTheoDoi = db.truyenyeuthiches
@@ -82,15 +89,19 @@ namespace QLKAHYTOON.Controllers
         // GET: Truyen/DocTruyen/C001
         public ActionResult DocTruyen(string id)
         {
+            LogDebug($"DocTruyen called with id: {id}");
+
             if (string.IsNullOrEmpty(id))
             {
                 return new HttpStatusCodeResult(System.Net.HttpStatusCode.BadRequest);
             }
+
             var chuong = db.chuongs.SingleOrDefault(c => c.MaChuong == id);
             if (chuong == null)
             {
                 return HttpNotFound();
             }
+
             if (!string.IsNullOrEmpty(chuong.AnhChuong))
             {
                 ViewBag.DanhSachAnh = chuong.AnhChuong.Split(';').ToList();
@@ -99,12 +110,11 @@ namespace QLKAHYTOON.Controllers
             {
                 ViewBag.DanhSachAnh = new List<string>();
             }
-            // --- Logic tìm chương trước/sau VÀ Lấy danh sách chương ---
+
             var cacChuong = db.chuongs.Where(c => c.MaTruyen == chuong.MaTruyen)
                                       .OrderBy(c => c.SoChuong)
                                       .ToList();
 
-            // Gửi danh sách này sang View để làm Modal chọn chương
             ViewBag.ListChuong = cacChuong;
 
             int index = cacChuong.FindIndex(c => c.MaChuong == id);
@@ -114,32 +124,55 @@ namespace QLKAHYTOON.Controllers
 
             if (index < cacChuong.Count - 1) ViewBag.MaChuongSau = cacChuong[index + 1].MaChuong.Trim();
             else ViewBag.MaChuongSau = null;
-            // ---------------------------------------------
 
             string maNguoiDung = "KHACH";
-            if (Session["User"] != null)
+
+            var user = Session["User"] as nguoidung;
+            var admin = Session["User"] as admin;
+            bool isAdmin = Session["IsAdmin"] != null && (bool)Session["IsAdmin"];
+
+            if (isAdmin && admin != null)
             {
-                var user = Session["User"] as nguoidung;
-                maNguoiDung = user.MaNguoiDung;
+                maNguoiDung = admin.MaAdmin;
+                LogDebug($"Admin reading: {maNguoiDung}");
             }
-            var lichSu = new lichsudoc
+            else if (user != null)
             {
-                MaLichSuDoc = "LS" + Guid.NewGuid().ToString().Substring(0, 8).ToUpper(),
-                MaNguoiDung = maNguoiDung,
-                MaTruyen = chuong.MaTruyen,
-                MaChuong = id,
-                ThoiGianDoc = DateTime.Now
-            };
-            db.lichsudocs.InsertOnSubmit(lichSu);
-            db.SubmitChanges();
+                maNguoiDung = user.MaNguoiDung;
+                LogDebug($"User reading: {maNguoiDung}");
+            }
+            else
+            {
+                LogDebug("Guest reading");
+            }
+
+            try
+            {
+                var lichSu = new lichsudoc
+                {
+                    MaLichSuDoc = "LS" + Guid.NewGuid().ToString().Substring(0, 8).ToUpper(),
+                    MaNguoiDung = maNguoiDung,
+                    MaTruyen = chuong.MaTruyen,
+                    MaChuong = id,
+                    ThoiGianDoc = DateTime.Now
+                };
+                db.lichsudocs.InsertOnSubmit(lichSu);
+                db.SubmitChanges();
+                LogDebug("Reading history saved successfully");
+            }
+            catch (Exception ex)
+            {
+                LogDebug($"Error saving reading history: {ex.Message}");
+            }
 
             return View(chuong);
         }
 
-        
         [HttpPost]
         public JsonResult ThichTruyen(string maTruyen)
         {
+            LogDebug($"ThichTruyen called with maTruyen: {maTruyen}");
+
             if (Session["User"] == null)
             {
                 return Json(new { success = false, msg = "Vui lòng đăng nhập!" });
@@ -151,7 +184,6 @@ namespace QLKAHYTOON.Controllers
                 return Json(new { success = false, msg = "Truyện không tồn tại!" });
             }
 
-            // Nếu null thì set = 0 trước
             if (truyen.LuotThich == null)
             {
                 truyen.LuotThich = 0;
@@ -160,22 +192,29 @@ namespace QLKAHYTOON.Controllers
             truyen.LuotThich += 1;
             db.SubmitChanges();
 
+            LogDebug($"Liked successfully. Total likes: {truyen.LuotThich}");
+
             return Json(new
             {
                 success = true,
                 luotThich = truyen.LuotThich
             });
         }
+
         [HttpPost]
         public JsonResult TheoDoiTruyen(string maTruyen)
         {
+            LogDebug($"TheoDoiTruyen called with maTruyen: {maTruyen}");
+
             var user = Session["User"] as nguoidung;
             if (user == null)
             {
                 return Json(new { success = false, msg = "Vui lòng đăng nhập!" });
             }
+
             var daTheoDoi = db.truyenyeuthiches
                 .SingleOrDefault(x => x.MaTruyen == maTruyen && x.MaNguoiDung == user.MaNguoiDung);
+
             bool trangThaiTheoDoi = false;
             if (daTheoDoi == null)
             {
@@ -194,8 +233,12 @@ namespace QLKAHYTOON.Controllers
                 db.truyenyeuthiches.DeleteOnSubmit(daTheoDoi);
                 trangThaiTheoDoi = false;
             }
+
             db.SubmitChanges();
             var soLuotTheoDoi = db.truyenyeuthiches.Count(x => x.MaTruyen == maTruyen);
+
+            LogDebug($"Follow toggled. Status: {trangThaiTheoDoi}, Total: {soLuotTheoDoi}");
+
             return Json(new
             {
                 success = true,
@@ -203,36 +246,45 @@ namespace QLKAHYTOON.Controllers
                 soLuotTheoDoi = soLuotTheoDoi
             });
         }
+
         [HttpPost]
         public JsonResult RateTruyen(string maTruyen, int rating)
         {
+            LogDebug($"RateTruyen called - maTruyen: {maTruyen}, rating: {rating}");
+
             // Kiểm tra đăng nhập
             var user = Session["User"] as nguoidung;
             var admin = Session["User"] as admin;
+            bool isAdmin = Session["IsAdmin"] != null && (bool)Session["IsAdmin"];
+
+            LogDebug($"Session check - User: {(user != null)}, Admin: {(admin != null)}, IsAdmin: {isAdmin}");
 
             if (user == null && admin == null)
             {
+                LogDebug("Not logged in - returning error");
                 return Json(new { success = false, msg = "Vui lòng đăng nhập để đánh giá!" });
             }
 
             // Kiểm tra rating hợp lệ (1-5 sao)
             if (rating < 1 || rating > 5)
             {
+                LogDebug($"Invalid rating: {rating}");
                 return Json(new { success = false, msg = "Đánh giá không hợp lệ!" });
             }
 
-            // ⭐ KIỂM TRA USER BLOCKED (nếu không phải admin)
-            bool isAdmin = Session["IsAdmin"] != null && (bool)Session["IsAdmin"];
+            // Kiểm tra user blocked (nếu không phải admin)
             if (!isAdmin && user != null)
             {
                 var userFromDb = db.nguoidungs.SingleOrDefault(u => u.MaNguoiDung == user.MaNguoiDung);
                 if (userFromDb == null)
                 {
+                    LogDebug("User not found in database");
                     Session["User"] = null;
                     return Json(new { success = false, msg = "Tài khoản không tồn tại!", needReload = true });
                 }
                 if (userFromDb.VaiTro == "Blocked")
                 {
+                    LogDebug("User is blocked");
                     Session["User"] = userFromDb;
                     return Json(new { success = false, msg = "Tài khoản của bạn đã bị khóa!", isBlocked = true });
                 }
@@ -242,20 +294,21 @@ namespace QLKAHYTOON.Controllers
             try
             {
                 string maNguoiDung = user != null ? user.MaNguoiDung : admin.MaAdmin;
+                LogDebug($"Processing rating for user: {maNguoiDung}");
 
-                // Kiểm tra đã đánh giá chưa (dựa vào composite primary key)
+                // Kiểm tra đã đánh giá chưa
                 var existingRating = db.danhgias.SingleOrDefault(d =>
                     d.MaTruyen == maTruyen && d.MaNguoiDung == maNguoiDung);
 
                 if (existingRating != null)
                 {
-                    // Cập nhật đánh giá cũ
+                    LogDebug($"Updating existing rating from {existingRating.SoSao} to {rating}");
                     existingRating.SoSao = rating;
                     existingRating.NgayDanhGia = DateTime.Now;
                 }
                 else
                 {
-                    // Tạo đánh giá mới
+                    LogDebug("Creating new rating");
                     var newRating = new danhgia
                     {
                         MaTruyen = maTruyen,
@@ -267,11 +320,14 @@ namespace QLKAHYTOON.Controllers
                 }
 
                 db.SubmitChanges();
+                LogDebug("Rating saved successfully");
 
                 // Tính điểm trung bình
                 var allRatings = db.danhgias.Where(d => d.MaTruyen == maTruyen).ToList();
                 double avgRating = allRatings.Any() ? allRatings.Average(d => (double)d.SoSao) : 0;
                 int totalRatings = allRatings.Count;
+
+                LogDebug($"Average rating: {avgRating:F2}, Total ratings: {totalRatings}");
 
                 return Json(new
                 {
@@ -283,6 +339,8 @@ namespace QLKAHYTOON.Controllers
             }
             catch (Exception ex)
             {
+                LogDebug($"Error in RateTruyen: {ex.Message}");
+                LogDebug($"Stack trace: {ex.StackTrace}");
                 return Json(new { success = false, msg = "Có lỗi xảy ra: " + ex.Message });
             }
         }
@@ -290,6 +348,8 @@ namespace QLKAHYTOON.Controllers
         [HttpGet]
         public JsonResult GetRating(string maTruyen)
         {
+            LogDebug($"GetRating called with maTruyen: {maTruyen}");
+
             try
             {
                 var allRatings = db.danhgias.Where(d => d.MaTruyen == maTruyen).ToList();
@@ -316,8 +376,11 @@ namespace QLKAHYTOON.Controllers
                     if (userRatingObj != null)
                     {
                         userRating = userRatingObj.SoSao;
+                        LogDebug($"User {maNguoiDung} has rated: {userRating} stars");
                     }
                 }
+
+                LogDebug($"GetRating result - Avg: {avgRating:F2}, Total: {totalRatings}, User: {userRating}");
 
                 return Json(new
                 {
@@ -329,10 +392,9 @@ namespace QLKAHYTOON.Controllers
             }
             catch (Exception ex)
             {
+                LogDebug($"Error in GetRating: {ex.Message}");
                 return Json(new { success = false, msg = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-
-
     }
 }

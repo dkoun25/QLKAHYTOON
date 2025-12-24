@@ -47,7 +47,7 @@ namespace QLKAHYTOON.Controllers
                         HoTen = model.HoTen,
                         Email = model.Email,
                         TenDangNhap = model.TenDangNhap,
-                        MatKhau = hashedPassword, // Lưu mật khẩu đã hash
+                        MatKhau = hashedPassword,
                         VaiTro = "user",
                         NgayDangKy = DateTime.Now
                     };
@@ -72,7 +72,7 @@ namespace QLKAHYTOON.Controllers
             return View();
         }
 
-        // POST: Account/Login - Với xác thực mật khẩu hash
+        // POST: Account/Login - FIXED: Admin login được nhận diện đầy đủ
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Login(LoginViewModel model)
@@ -88,6 +88,7 @@ namespace QLKAHYTOON.Controllers
                     if (PasswordHelper.VerifyPassword(model.MatKhau, user.MatKhau))
                     {
                         Session["User"] = user;
+                        Session["IsAdmin"] = false; // User thường
                         return RedirectToAction("Index", "Home");
                     }
                 }
@@ -100,6 +101,7 @@ namespace QLKAHYTOON.Controllers
                     // Xác thực mật khẩu admin
                     if (PasswordHelper.VerifyPassword(model.MatKhau, admin.MatKhau))
                     {
+                        // ⭐ FIX: Set Session["User"] = admin để admin được nhận diện
                         Session["User"] = admin;
                         Session["IsAdmin"] = true;
                         return RedirectToAction("Index", "Home");

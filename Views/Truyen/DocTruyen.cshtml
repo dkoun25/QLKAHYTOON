@@ -13,7 +13,6 @@
 
 @section Styles {
     <style>
-        /* NAVBAR CỐ ĐỊNH */
         .navbar, .navbar-fixed-top, .kahy-navbar {
             position: absolute !important;
             top: 0;
@@ -27,7 +26,6 @@
             background-color: #1a1a1a;
         }
 
-        /* CONTAINER ĐỌC TRUYỆN */
         .reading-container {
             max-width: 800px;
             margin: 0 auto;
@@ -41,9 +39,18 @@
             height: auto;
             display: block;
             margin: 0;
+            /* ⭐ FIX: Thêm để debug ảnh không load */
+            background-color: #333;
+            min-height: 500px;
+            object-fit: contain;
         }
 
-        /* THANH ĐIỀU HƯỚNG TĨNH (Đầu/Cuối trang) */
+        /* ⭐ Hiển thị lỗi nếu ảnh không load được */
+        .reading-container img[src=""],
+        .reading-container img:not([src]) {
+            content: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="500"><rect fill="%23333"/><text x="50%" y="50%" fill="%23999" text-anchor="middle">Ảnh không tải được</text></svg>');
+        }
+
         .static-nav {
             padding: 20px 0;
             display: flex;
@@ -52,7 +59,6 @@
             background-color: #1a1a1a;
         }
 
-        /* THANH ĐIỀU HƯỚNG TRƯỢT (STICKY BOTTOM) */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -80,7 +86,6 @@
             font-size: 14px;
         }
 
-        /* NÚT TRÒN (Home, Lên đầu trang) */
         .btn-icon-only {
             width: 38px;
             height: 38px;
@@ -91,7 +96,6 @@
             justify-content: center;
         }
 
-        /* MODAL DANH SÁCH CHƯƠNG */
         .chapter-modal-body {
             max-height: 60vh;
             overflow-y: auto;
@@ -105,12 +109,10 @@
             pointer-events: none;
         }
 
-        /* SPACER ĐỂ NỘI DUNG CUỐI KHÔNG BỊ CHE */
         .spacer-bottom {
             height: 80px;
         }
 
-        /* NÚT BÁO CÁO - ĐÃ FIX */
         .btn-report {
             position: fixed;
             bottom: 100px;
@@ -137,11 +139,6 @@
             background: linear-gradient(135deg, #c82333, #a71d2a);
         }
 
-        .btn-report:active {
-            transform: translateY(-2px) scale(1.05);
-        }
-
-        /* ANIMATION PULSE */
         @@keyframes pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
@@ -155,28 +152,6 @@
             animation: none;
         }
 
-        /* MODAL STYLING */
-        .modal-content {
-            border-radius: 15px;
-            overflow: hidden;
-        }
-
-        .modal-header {
-            border-bottom: none;
-        }
-
-        .modal-body .form-select,
-        .modal-body .form-control {
-            border-radius: 8px;
-        }
-
-        .modal-body .form-select:focus,
-        .modal-body .form-control:focus {
-            border-color: #dc3545;
-            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-        }
-
-        /* RESPONSIVE */
         @@media (max-width: 768px) {
             .btn-report {
                 bottom: 80px;
@@ -186,6 +161,7 @@
                 font-size: 18px;
             }
         }
+
     </style>
 }
 
@@ -234,14 +210,37 @@
     <div class="reading-container">
         @if (danhSachAnh != null && danhSachAnh.Count > 0)
         {
+            int imageIndex = 1;
             foreach (var anh in danhSachAnh)
             {
-                <img src="@Url.Content(anh.Trim())" alt="Trang truyện" loading="lazy" />
+                var cleanPath = anh.Trim();
+                // ⭐ FIX: Đảm bảo đường dẫn đúng format
+                if (!cleanPath.StartsWith("/"))
+                {
+                    cleanPath = "/" + cleanPath;
+                }
+
+                <div class="image-wrapper">
+                    <img src="@Url.Content(cleanPath)"
+                         alt="Trang @imageIndex"
+                         loading="lazy"
+                         onerror="this.style.border='2px solid red'; this.nextElementSibling.style.display='block';" />
+                    <div class="image-debug" style="display:none;">
+                        Không load được: @cleanPath
+                    </div>
+                </div>
+                imageIndex++;
             }
         }
         else
         {
-            <p class="text-white text-center p-5">Đang cập nhật nội dung...</p>
+            <p class="text-white text-center p-5">
+                Đang cập nhật nội dung...<br />
+                <small class="text-danger">
+                    Không có ảnh nào được tìm thấy.<br />
+                    AnhChuong: @(string.IsNullOrEmpty(Model.AnhChuong) ? "NULL/EMPTY" : Model.AnhChuong)
+                </small>
+            </p>
         }
     </div>
 
@@ -282,10 +281,9 @@
         @Html.Action("ListBinhLuan", "BinhLuan", new { maTruyen = Model.MaTruyen, isDetail = false })
     </div>
 
-    <!-- SPACER ĐỂ TRÁNH CHE NỘI DUNG -->
     <div class="spacer-bottom"></div>
 
-    <!-- THANH ĐIỀU HƯỚNG TRƯỢT (STICKY BOTTOM) -->
+    <!-- THANH ĐIỀU HƯỚNG TRƯỢT -->
     <div id="stickyBottomNav" class="bottom-nav hidden">
         <a href="@Url.Action("Index", "Home")" class="btn btn-outline-light btn-icon-only" title="Về trang chủ">
             <i class="fa fa-home"></i>
@@ -322,7 +320,7 @@
         </button>
     </div>
 
-    <!-- NÚT BÁO CÁO - ĐÃ FIX VỊ TRÍ -->
+    <!-- NÚT BÁO CÁO -->
     <button id="btnReport" class="btn-report" data-bs-toggle="modal" data-bs-target="#reportModal" title="Báo cáo vấn đề">
         <i class="fa fa-flag"></i>
     </button>
@@ -334,7 +332,7 @@
         <div class="modal-content" style="background-color: #333; color: #fff;">
             <div class="modal-header border-secondary">
                 <h5 class="modal-title">Danh sách chương</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body chapter-modal-body p-0">
                 <div class="list-group list-group-flush">
@@ -370,7 +368,7 @@
                 <h5 class="modal-title">
                     <i class="fa fa-flag"></i> Báo Cáo Vấn Đề
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <p class="text-muted">Bạn đang báo cáo chương <strong>@Model.SoChuong</strong> của truyện <strong>@Model.thongtintruyen.TenTruyen</strong></p>
@@ -395,7 +393,7 @@
                 <div class="alert alert-info mb-0">
                     <small>
                         <i class="fa fa-info-circle"></i>
-                        Báo cáo của bạn sẽ được gửi đến Admin để xử lý. Cảm ơn bạn đã góp phần cải thiện chất lượng website!
+                        Báo cáo của bạn sẽ được gửi đến Admin để xử lý.
                     </small>
                 </div>
             </div>
@@ -411,32 +409,22 @@
 
 @section scripts {
     <script>
-        // ============================================================
-        // HÀM CUỘN LÊN ĐẦU TRANG
-        // ============================================================
         function scrollToTop() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // ============================================================
-        // XỬ LÝ ẨN HIỆN THANH NAV KHI CUỘN
-        // ============================================================
         let lastScrollTop = 0;
         const navBar = document.getElementById('stickyBottomNav');
 
         window.addEventListener("scroll", function () {
             let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
-            // Lăn xuống -> HIỆN thanh nav
             if (scrollTop > lastScrollTop) {
                 navBar.classList.remove('hidden');
-            }
-            // Lăn lên -> ẨN thanh nav
-            else {
+            } else {
                 navBar.classList.add('hidden');
             }
 
-            // Nếu ở sát đỉnh trang -> Luôn ẩn
             if (scrollTop <= 100) {
                 navBar.classList.add('hidden');
             }
@@ -444,14 +432,10 @@
             lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
         }, false);
 
-        // ============================================================
-        // HÀM GỬI BÁO CÁO
-        // ============================================================
         function submitReport() {
             var reportType = $('#reportType').val();
             var reportContent = $('#reportContent').val();
 
-            // Validate
             if (!reportType) {
                 alert('⚠️ Vui lòng chọn loại vấn đề!');
                 return;
@@ -466,7 +450,6 @@
             var maChuong = $('#hdMaChuong').val();
             var noiDung = reportType + ': ' + reportContent;
 
-            // Gửi AJAX
             $.ajax({
                 url: '@Url.Action("GuiBaoCao", "BaoCao")',
                 type: 'POST',
@@ -480,8 +463,6 @@
                 success: function(res) {
                     if (res.success) {
                         alert('✅ Gửi báo cáo thành công! Cảm ơn bạn đã đóng góp.');
-
-                        // Đóng modal và reset form
                         $('#reportModal').modal('hide');
                         $('#reportType').val('');
                         $('#reportContent').val('');

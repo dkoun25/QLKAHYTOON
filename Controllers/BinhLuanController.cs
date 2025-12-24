@@ -7,12 +7,12 @@ namespace QLKAHYTOON.Controllers
 {
     public class BinhLuanController : BaseController
     {
-        // GET: BinhLuan
         public ActionResult Index()
         {
             return View();
         }
 
+        // ⭐ FIX: Pass ViewBag đầy đủ để Partial View nhận được
         public ActionResult ListBinhLuan(string maTruyen, bool isDetail)
         {
             var allComments = db.binhluans
@@ -34,6 +34,14 @@ namespace QLKAHYTOON.Controllers
                 ViewData["Replies_" + comment.MaBinhLuan] = replies;
             }
 
+            // ⭐ FIX: Pass thông tin user/admin qua ViewBag
+            var user = Session["User"] as nguoidung;
+            var admin = Session["User"] as admin;
+            bool isAdmin = Session["IsAdmin"] != null && (bool)Session["IsAdmin"];
+
+            ViewBag.User = user;
+            ViewBag.Admin = admin;
+            ViewBag.IsAdmin = isAdmin;
             ViewBag.IsDetail = isDetail;
             ViewBag.MaTruyen = maTruyen;
 
@@ -63,7 +71,7 @@ namespace QLKAHYTOON.Controllers
                 // Admin đang bình luận
                 maNguoiDung = admin.MaAdmin;
                 hoTen = admin.HoTen;
-                avatar = "/Anh/admin-avatar.png"; // Avatar mặc định cho admin
+                avatar = "/Anh/admin-avatar.png";
             }
             else if (user != null)
             {
@@ -118,7 +126,6 @@ namespace QLKAHYTOON.Controllers
             }
         }
 
-        // POST: Like bình luận
         [HttpPost]
         public ActionResult LikeBinhLuan(string maBinhLuan)
         {
@@ -130,7 +137,6 @@ namespace QLKAHYTOON.Controllers
                 return Json(new { success = false, msg = "Bạn cần đăng nhập để thích bình luận!" });
             }
 
-            // Admin không cần kiểm tra blocked
             if (user != null)
             {
                 var userFromDb = db.nguoidungs.SingleOrDefault(u => u.MaNguoiDung == user.MaNguoiDung);
@@ -167,7 +173,6 @@ namespace QLKAHYTOON.Controllers
             }
         }
 
-        // POST: Xóa bình luận
         [HttpPost]
         public ActionResult XoaBinhLuan(string maBinhLuan)
         {
@@ -180,7 +185,6 @@ namespace QLKAHYTOON.Controllers
                 return Json(new { success = false, msg = "Bạn cần đăng nhập!" });
             }
 
-            // Kiểm tra user blocked (nếu không phải admin)
             if (!isAdmin && user != null)
             {
                 var userFromDb = db.nguoidungs.SingleOrDefault(u => u.MaNguoiDung == user.MaNguoiDung);
@@ -209,15 +213,14 @@ namespace QLKAHYTOON.Controllers
                     return Json(new { success = false, msg = "Không tìm thấy bình luận!" });
                 }
 
-                // Admin có thể xóa mọi bình luận, User chỉ xóa của mình
                 bool canDelete = false;
                 if (isAdmin && admin != null)
                 {
-                    canDelete = true; // Admin xóa được mọi comment
+                    canDelete = true;
                 }
                 else if (user != null && bl.MaNguoiDung == user.MaNguoiDung)
                 {
-                    canDelete = true; // User xóa comment của mình
+                    canDelete = true;
                 }
 
                 if (!canDelete)
@@ -225,10 +228,7 @@ namespace QLKAHYTOON.Controllers
                     return Json(new { success = false, msg = "Bạn không có quyền xóa bình luận này!" });
                 }
 
-                // Xóa replies đệ quy
                 XoaRepliesRecursive(maBinhLuan);
-
-                // Xóa bình luận chính
                 db.binhluans.DeleteOnSubmit(bl);
                 db.SubmitChanges();
 

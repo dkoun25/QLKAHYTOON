@@ -1,83 +1,309 @@
-﻿/* Content/Chitiet.css */
-body{
-    padding-top: 20px;
+﻿/* ============================================================
+   CHITIET.CSS - COMPLETE STYLING FOR MANGA DETAIL PAGE
+   ============================================================ */
+
+/* Comic Info Container */
+.comic-info-container {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
 }
-/* 1. Xử lý ảnh bìa truyện */
+
+/* Image Wrapper */
 .anhtruyen .img-wrapper {
-    width: 100%;
-    height: 400px;
-    overflow: hidden; /* Cắt phần thừa */
-    border-radius: 8px; /* Bo góc nhẹ */
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2); /* Đổ bóng cho nổi */
-    border: 1px solid #ddd;
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
 }
 
-.anhtruyen img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center top; /* Ưu tiên lấy phần trên của ảnh (thường là mặt nhân vật) */
-    transition: transform 0.3s ease;
-}
+    .anhtruyen .img-wrapper img {
+        width: 100%;
+        height: auto;
+        transition: transform 0.3s ease;
+    }
 
-/* Hiệu ứng khi di chuột vào ảnh */
-.anhtruyen:hover img {
-    transform: scale(1.05);
-}
+    .anhtruyen .img-wrapper:hover img {
+        transform: scale(1.05);
+    }
 
-/* 2. Thông tin truyện */
+/* Comic Title */
 .comic-title {
-    color: #5f27a2; /* Tím chủ đạo */
+    font-size: 32px;
     font-weight: bold;
-    margin-top: 0;
-    margin-bottom: 20px;
-    text-transform: uppercase;
-}
-
-.comic-meta li {
-    margin-bottom: 10px;
-    font-size: 16px;
     color: #333;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.comic-meta i {
-    color: #5f27a2;
-    width: 20px;
-    text-align: center;
+/* Comic Meta List */
+.comic-meta {
+    font-size: 15px;
+    line-height: 2;
+}
+
+    .comic-meta li {
+        margin-bottom: 10px;
+        padding: 5px 0;
+        border-bottom: 1px dashed #eee;
+    }
+
+        .comic-meta li:last-child {
+            border-bottom: none;
+        }
+
+    .comic-meta strong {
+        color: #555;
+        margin-right: 8px;
+    }
+
+/* Badges */
+.badge {
+    font-size: 13px;
+    padding: 5px 10px;
     margin-right: 5px;
+    font-weight: normal;
 }
 
-/* 3. Nút bấm */
-.form-btn .btn {
-    margin-right: 10px;
-    border-radius: 30px; /* Nút bo tròn hiện đại */
-    padding-left: 20px;
-    padding-right: 20px;
-    font-family: var(--bs-body-font-family);
-    font-weight:bold;
+/* Form Buttons */
+.form-btn {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
-/* 4. Danh sách chương */
+    .form-btn .btn {
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+
+        .form-btn .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+    .form-btn .btn-danger {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        border: none;
+    }
+
+    .form-btn .btn-outline-success:hover {
+        background-color: #28a745;
+        border-color: #28a745;
+        color: white;
+    }
+
+    .form-btn .btn-outline-primary:hover {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: white;
+    }
+
+    .form-btn .btn.active {
+        background-color: #0d6efd;
+        color: white;
+        border-color: #0d6efd;
+    }
+
+/* Chapter List */
 .chapter-list {
-    max-height: 500px; /* Giới hạn chiều cao */
-    overflow-y: auto; /* Hiện thanh cuộn nếu danh sách dài */
+    max-height: 500px;
+    overflow-y: auto;
 }
 
-    /* Tùy chỉnh thanh cuộn cho đẹp (Chrome/Safari) */
-    .chapter-list::-webkit-scrollbar {
-        width: 6px;
+    .chapter-list .list-group-item {
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
     }
 
-    .chapter-list::-webkit-scrollbar-thumb {
-        background-color: #ccc;
-        border-radius: 3px;
-    }
+        .chapter-list .list-group-item:hover {
+            background-color: #f8f9fa;
+            border-left-color: #007bff;
+            padding-left: 20px;
+        }
 
-.list-group-item {
-    transition: background-color 0.2s;
+/* ============================================================
+   RATING SYSTEM STYLING
+   ============================================================ */
+
+/* Rating Container */
+.star-rating-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 0;
 }
 
-    .list-group-item:hover {
-        background-color: #f8f9fa;
-        color: #5f27a2; /* Chữ chuyển tím khi hover */
+/* Star Rating */
+.star-rating {
+    display: inline-flex;
+    gap: 5px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 28px;
+    padding: 5px;
+}
+
+    /* Individual Star */
+    .star-rating .star {
+        color: #ddd;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        display: inline-block;
     }
+
+        /* Star Hover Effect */
+        .star-rating .star:hover {
+            transform: scale(1.2);
+            filter: drop-shadow(0 0 5px rgba(255, 193, 7, 0.5));
+        }
+
+        /* Active Star (User's Rating) */
+        .star-rating .star.active {
+            color: #ffc107;
+            text-shadow: 0 2px 4px rgba(255, 193, 7, 0.5);
+        }
+
+        /* Hover Star (Preview) */
+        .star-rating .star.hover {
+            color: #ffdb4d;
+            text-shadow: 0 2px 4px rgba(255, 219, 77, 0.5);
+        }
+
+/* Rating Info */
+.rating-info {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.2;
+}
+
+    .rating-info .avg-rating {
+        font-size: 20px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .rating-info .total-ratings {
+        font-size: 14px;
+        color: #666;
+    }
+
+/* Processing State */
+.star-rating.processing .star {
+    pointer-events: none;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Not Logged In State */
+.star-rating.not-logged-in .star {
+    cursor: pointer;
+}
+
+    .star-rating.not-logged-in .star:hover {
+        color: #ffdb4d;
+    }
+
+/* ============================================================
+   DEBUG INFO (Hidden by default)
+   ============================================================ */
+.debug-info {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin: 15px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    display: none; /* Hidden by default */
+}
+
+    .debug-info strong {
+        color: #856404;
+    }
+
+    .debug-info span {
+        color: #333;
+    }
+
+/* ============================================================
+   RESPONSIVE DESIGN
+   ============================================================ */
+@media (max-width: 768px) {
+    .comic-info-container {
+        padding: 15px;
+    }
+
+    .comic-title {
+        font-size: 24px;
+    }
+
+    .comic-meta {
+        font-size: 14px;
+    }
+
+    .form-btn {
+        flex-direction: column;
+    }
+
+        .form-btn .btn {
+            width: 100%;
+        }
+
+    .star-rating {
+        font-size: 24px;
+    }
+
+    .rating-info .avg-rating {
+        font-size: 18px;
+    }
+
+    .star-rating-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes starPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.15);
+    }
+}
+
+.star-rating .star.active:hover {
+    animation: starPulse 0.5s ease-in-out;
+}
+
+/* Loading Animation */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.star-rating.loading::after {
+    content: "⏳";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    animation: spin 1s linear infinite;
+}

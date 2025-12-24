@@ -1,29 +1,29 @@
 ﻿@model QLKAHYTOON.Models.binhluan
 @{
     var user = ViewBag.User as QLKAHYTOON.Models.nguoidung;
-    var admin = ViewBag.User as QLKAHYTOON.Models.admin;
-    bool isAdmin = Session["IsAdmin"] != null && (bool)Session["IsAdmin"];
+    var admin = ViewBag.Admin as QLKAHYTOON.Models.admin;
+    bool isAdmin = ViewBag.IsAdmin != null && (bool)ViewBag.IsAdmin;
 
     var replies = ViewData["Replies_" + Model.MaBinhLuan] as List<QLKAHYTOON.Models.binhluan>;
 
-    // Kiểm tra xem người bình luận có phải admin không
+    // ⭐ FIX: Kiểm tra xem người bình luận có phải admin không
     bool isCommentByAdmin = Model.MaNguoiDung != null && Model.MaNguoiDung.StartsWith("AD");
 
-    // Lấy thông tin người bình luận
+    // ⭐ FIX: Lấy thông tin người bình luận (hỗ trợ cả admin)
     string commentAvatar = "/Anh/avatar-default.png";
     string commentName = "Người dùng";
 
     if (isCommentByAdmin)
     {
-        var adminInfo = ViewContext.Controller.ViewBag.db != null
-            ? ((QLKAHYTOON.Models.QLKAHYTOONDataContext)ViewContext.Controller.ViewBag.db).admins
-                .FirstOrDefault(a => a.MaAdmin == Model.MaNguoiDung)
-            : null;
-
-        if (adminInfo != null)
+        // Lấy thông tin admin từ database
+        using (var dbContext = new QLKAHYTOON.Models.QLKAHYTOONDataContext(System.Configuration.ConfigurationManager.ConnectionStrings["KAHYToonConnectionString"].ConnectionString))
         {
-            commentName = adminInfo.HoTen;
-            commentAvatar = "/Anh/admin-avatar.png";
+            var adminInfo = dbContext.admins.FirstOrDefault(a => a.MaAdmin == Model.MaNguoiDung);
+            if (adminInfo != null)
+            {
+                commentName = adminInfo.HoTen;
+                commentAvatar = "/Anh/admin-avatar.png";
+            }
         }
     }
     else if (Model.nguoidung != null)
@@ -62,7 +62,7 @@
             </button>
             <button class="btn-action me-3" onclick="toggleReplyBox('@Model.MaBinhLuan')">Trả lời</button>
 
-            @* User chỉ xóa comment của mình, Admin xóa được mọi comment *@
+            @* ⭐ FIX: User chỉ xóa comment của mình, Admin xóa được mọi comment *@
             @if ((user != null && user.MaNguoiDung == Model.MaNguoiDung) ||
                  (isAdmin && admin != null))
             {
@@ -72,12 +72,19 @@
             }
         </div>
 
+        @* ⭐ Reply box - Cho phép cả user và admin reply *@
         <div class="reply-box mt-2" id="reply-box-@Model.MaBinhLuan" style="display:none;">
             @if (user != null || admin != null)
             {
                 <div class="d-flex">
                     <textarea id="txtReply-@Model.MaBinhLuan" class="form-control sm-textarea me-2" rows="1" placeholder="Trả lời @commentName..."></textarea>
                     <button class="btn btn-sm btn-primary" onclick="submitComment('@Model.MaBinhLuan')">Gửi</button>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning alert-sm mb-0">
+                    <a href="/Account/Login">Đăng nhập</a> để trả lời
                 </div>
             }
         </div>
