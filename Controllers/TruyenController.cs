@@ -173,23 +173,51 @@ namespace QLKAHYTOON.Controllers
         {
             LogDebug($"ThichTruyen called with maTruyen: {maTruyen}");
 
-            if (Session["User"] == null)
+            // Kiểm tra đăng nhập
+            var user = Session["User"] as nguoidung;
+            var admin = Session["User"] as admin;
+
+            if (user == null && admin == null)
             {
-                return Json(new { success = false, msg = "Vui lòng đăng nhập!" });
+                return Json(new { success = false, msg = "Vui lòng đăng nhập để thích truyện!" });
             }
 
+            // Lấy mã người dùng
+            string maNguoiDung = user != null ? user.MaNguoiDung : admin.MaAdmin;
+
+            // Kiểm tra truyện có tồn tại không
             var truyen = db.thongtintruyens.SingleOrDefault(t => t.MaTruyen == maTruyen);
             if (truyen == null)
             {
                 return Json(new { success = false, msg = "Truyện không tồn tại!" });
             }
 
+            // Kiểm tra đã thích chưa (dựa vào bảng truyenyeuthich hoặc tạo bảng luotthich riêng)
+            // Tạm thời dùng bảng truyenyeuthich để check (nếu follow rồi thì không cho thích thêm)
+            var daThich = db.truyenyeuthiches
+                .Any(x => x.MaTruyen == maTruyen && x.MaNguoiDung == maNguoiDung);
+
+            if (daThich)
+            {
+                return Json(new { success = false, msg = "Bạn đã thích truyện này rồi!", alreadyLiked = true });
+            }
+
+            // Tăng lượt thích
             if (truyen.LuotThich == null)
             {
                 truyen.LuotThich = 0;
             }
-
             truyen.LuotThich += 1;
+
+            // Thêm vào bảng theo dõi (nếu chưa có)
+            var theoDoiMoi = new truyenyeuthich
+            {
+                MaNguoiDung = maNguoiDung,
+                MaTruyen = maTruyen,
+                NgayThem = DateTime.Now
+            };
+            db.truyenyeuthiches.InsertOnSubmit(theoDoiMoi);
+
             db.SubmitChanges();
 
             LogDebug($"Liked successfully. Total likes: {truyen.LuotThich}");
@@ -197,8 +225,29 @@ namespace QLKAHYTOON.Controllers
             return Json(new
             {
                 success = true,
-                luotThich = truyen.LuotThich
+                luotThich = truyen.LuotThich,
+                msg = "Đã thích truyện thành công!"
             });
+        }
+
+        // THÊM method mới để check đã thích chưa
+        [HttpGet]
+        public JsonResult CheckDaThich(string maTruyen)
+        {
+            var user = Session["User"] as nguoidung;
+            var admin = Session["User"] as admin;
+
+            if (user == null && admin == null)
+            {
+                return Json(new { daThich = false }, JsonRequestBehavior.AllowGet);
+            }
+
+            string maNguoiDung = user != null ? user.MaNguoiDung : admin.MaAdmin;
+
+            var daThich = db.truyenyeuthiches
+                .Any(x => x.MaTruyen == maTruyen && x.MaNguoiDung == maNguoiDung);
+
+            return Json(new { daThich = daThich }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]

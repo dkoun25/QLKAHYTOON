@@ -62,7 +62,6 @@
                         bool isAdmin = Session["IsAdmin"] != null && (bool)Session["IsAdmin"];
                     }
 
-                    @* ⭐ FIX: Hiển thị tên cho cả User và Admin *@
                     @if (isAdmin && admin != null)
                     {
                         <li class="nav-item">
@@ -76,11 +75,37 @@
                     }
                     else if (user != null)
                     {
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("Profile", "User")">Xin chào, @user.HoTen</a>
-                        </li>
-                        <li class="nav-item">
-                            @Html.ActionLink("Đăng Xuất", "Logout", "Account", null, new { @class = "nav-link" })
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="@(string.IsNullOrEmpty(user.Avatar) ? "/Anh/Avatar/default-avatar.png" : user.Avatar)"
+                                     alt="Avatar"
+                                     class="user-avatar-nav me-2">
+                                <span>Xin chào, @user.HoTen</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end user-dropdown" aria-labelledby="userDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="@Url.Action("TruyenTheoDoi", "Users")">
+                                        <i class="fas fa-bookmark text-primary"></i> Truyện theo dõi
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="@Url.Action("LichSuDoc", "Users")">
+                                        <i class="fas fa-history text-success"></i> Lịch sử đọc
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="@Url.Action("CaiDatTaiKhoan", "Users")">
+                                        <i class="fas fa-cog text-warning"></i> Cài đặt tài khoản
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="@Url.Action("Logout", "Account")">
+                                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                     }
                     else

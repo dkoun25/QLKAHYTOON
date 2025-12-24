@@ -120,13 +120,14 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AdminController.cs" />
+    <Compile Include="Controllers\AuthorizeUserAttribute.cs" />
     <Compile Include="Controllers\BaoCaoController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\BinhLuanController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\PasswordHelper.cs" />
     <Compile Include="Controllers\TruyenController.cs" />
-    <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -142,6 +143,7 @@
     </Compile>
     <Compile Include="Models\ViewModels\RegisterViewModel.cs" />
     <Compile Include="Models\ViewModels\TruyenCardViewModel.cs" />
+    <Compile Include="Models\ViewModels\UserViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -226,6 +228,9 @@
     <Content Include="Views\BinhLuan\BinhLuanTruyen.cshtml" />
     <Content Include="Views\BinhLuan\_CommentItem.cshtml" />
     <Content Include="Views\Admin\SuaAdmin.cshtml" />
+    <Content Include="Views\Users\LichSuDoc.cshtml" />
+    <Content Include="Views\Users\TruyenTheoDoi.cshtml" />
+    <Content Include="Views\Users\CaiDatTaiKhoan.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Anh\" />
@@ -233,7 +238,6 @@
     <Folder Include="SQL\" />
     <Folder Include="Views\BaoCao\" />
     <Folder Include="Views\Base\" />
-    <Folder Include="Views\User\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

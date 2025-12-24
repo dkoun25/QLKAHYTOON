@@ -8,7 +8,7 @@ namespace QLKAHYTOON.Controllers
     public class BaoCaoController : BaseController
     {
         [HttpPost]
-        public JsonResult GuiBaoCao(string maTruyen, string maChuong,string maAdminxuly, string loaiBaoCao, string noiDung)
+        public JsonResult GuiBaoCao(string maTruyen, string maChuong, string maAdminxuly, string loaiBaoCao, string noiDung)
         {
             // Kiểm tra đăng nhập
             var user = Session["User"] as nguoidung;
@@ -33,7 +33,7 @@ namespace QLKAHYTOON.Controllers
                 {
                     MaBaoCao = "BC" + Guid.NewGuid().ToString().Substring(0, 8).ToUpper(),
                     MaNguoiDung = maNguoiDung,
-                    MaAdminXuLy = maAdminxuly,
+                    MaAdminXuLy = null, // ⭐ Để NULL vì chưa có admin xử lý
                     MaTruyen = maTruyen,
                     MaChuong = string.IsNullOrEmpty(maChuong) ? null : maChuong,
                     NoiDungBaoCao = noiDung.Trim(),

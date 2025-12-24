@@ -211,6 +211,8 @@
     @Html.Action("ListBinhLuan", "BinhLuan", new { maTruyen = Model.MaTruyen, isDetail = true })
 </div>
 
+<!-- THAY THẾ phần scripts trong ChiTiet.cshtml -->
+
 @section scripts {
     <script>
     // ============================================================
@@ -223,230 +225,69 @@
         isProcessing: false
     };
 
+    var likeSystem = {
+        daThich: false,
+        isProcessing: false
+    };
+
     // ============================================================
     // DOCUMENT READY
     // ============================================================
     $(document).ready(function() {
-        console.log('=== RATING SYSTEM INITIALIZING ===');
+        console.log('=== PAGE INITIALIZING ===');
 
         // Initialize rating system
         initRatingSystem();
-
-        // Load current ratings
         loadRating();
 
-        console.log('=== RATING SYSTEM INITIALIZED ===');
+        // Initialize like system
+        checkDaThich();
+
+        console.log('=== PAGE INITIALIZED ===');
     });
 
     // ============================================================
-    // INITIALIZE RATING SYSTEM
+    // CHECK ĐÃ THÍCH CHƯA
     // ============================================================
-    function initRatingSystem() {
-        var $starRating = $('#starRating');
-        var $stars = $('.star');
-
-        // Get data from element
-        ratingSystem.isLoggedIn = $starRating.data('logged-in') === true || $starRating.data('logged-in') === 'true';
-        ratingSystem.maTruyen = $starRating.data('ma-truyen');
-
-        console.log('Rating System Config:', {
-            isLoggedIn: ratingSystem.isLoggedIn,
-            maTruyen: ratingSystem.maTruyen
-        });
-
-        // Update debug info
-        updateDebugInfo('Initialized');
-
-        // Event: Mouse enter on star
-        $stars.on('mouseenter', function() {
-            if (ratingSystem.isProcessing) return;
-
-            var rating = $(this).data('rating');
-            highlightStarsHover(rating);
-        });
-
-        // Event: Mouse leave from rating container
-        $starRating.on('mouseleave', function() {
-            if (ratingSystem.isProcessing) return;
-
-            highlightStars(ratingSystem.currentUserRating);
-        });
-
-        // Event: Click on star
-        $stars.on('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            if (ratingSystem.isProcessing) {
-                console.log('Rating is processing, please wait...');
-                return;
-            }
-
-            var rating = $(this).data('rating');
-            console.log('Star clicked:', rating);
-
-            handleStarClick(rating);
-        });
-    }
-
-    // ============================================================
-    // HANDLE STAR CLICK
-    // ============================================================
-    function handleStarClick(rating) {
-        console.log('handleStarClick called with rating:', rating);
-        updateDebugInfo('Star clicked: ' + rating);
-
-        // Check if logged in
-        if (!ratingSystem.isLoggedIn) {
-            console.log('User not logged in');
-            updateDebugInfo('Not logged in');
-
-            if (confirm('Bạn cần đăng nhập để đánh giá truyện.\n\nBạn có muốn chuyển đến trang đăng nhập không?')) {
-                window.location.href = '@Url.Action("Login", "Account")';
-            }
-            return;
-        }
-
-        // Start processing
-        ratingSystem.isProcessing = true;
-        $('.star').css('pointer-events', 'none').css('opacity', '0.6');
-        updateDebugInfo('Sending rating...');
-
-        // Send AJAX request
-        $.ajax({
-            url: '@Url.Action("RateTruyen", "Truyen")',
-            type: 'POST',
-            data: {
-                maTruyen: ratingSystem.maTruyen,
-                rating: rating
-            },
-            success: function(res) {
-                console.log('Rating response:', res);
-                updateDebugInfo('Response received');
-
-                ratingSystem.isProcessing = false;
-                $('.star').css('pointer-events', 'auto').css('opacity', '1');
-
-                if (res.success) {
-                    // Update UI
-                    ratingSystem.currentUserRating = rating;
-                    highlightStars(rating);
-
-                    $('#avgRating').text(res.avgRating.toFixed(1));
-                    $('#totalRatings').text(res.totalRatings);
-
-                    updateDebugInfo('Rating saved: ' + rating + ' stars');
-
-                    // Show success message
-                    alert('✨ Cảm ơn bạn đã đánh giá ' + rating + ' sao cho truyện này!');
-                } else {
-                    console.error('Rating failed:', res.msg);
-                    updateDebugInfo('Error: ' + res.msg);
-                    alert('❌ ' + (res.msg || 'Có lỗi xảy ra!'));
-
-                    // Check if need to login
-                    if (res.msg && res.msg.includes('đăng nhập')) {
-                        if (confirm('Chuyển đến trang đăng nhập?')) {
-                            window.location.href = '@Url.Action("Login", "Account")';
-                        }
-                    }
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('AJAX Error:', {
-                    status: status,
-                    error: error,
-                    response: xhr.responseText
-                });
-
-                ratingSystem.isProcessing = false;
-                $('.star').css('pointer-events', 'auto').css('opacity', '1');
-
-                updateDebugInfo('AJAX Error: ' + error);
-                alert('❌ Lỗi kết nối server!\n\nChi tiết: ' + error);
-            }
-        });
-    }
-
-    // ============================================================
-    // LOAD RATING FROM SERVER
-    // ============================================================
-    function loadRating() {
-        console.log('Loading rating for:', ratingSystem.maTruyen);
-        updateDebugInfo('Loading rating...');
+    function checkDaThich() {
+        var maTruyen = $('#hdMaTruyen').val();
 
         $.ajax({
-            url: '@Url.Action("GetRating", "Truyen")',
+            url: '@Url.Action("CheckDaThich", "Truyen")',
             type: 'GET',
-            data: { maTruyen: ratingSystem.maTruyen },
+            data: { maTruyen: maTruyen },
             success: function(res) {
-                console.log('Load rating response:', res);
+                likeSystem.daThich = res.daThich;
 
-                if (res.success) {
-                    // Update average rating and total
-                    $('#avgRating').text(res.avgRating.toFixed(1));
-                    $('#totalRatings').text(res.totalRatings);
-
-                    // Update user's rating if exists
-                    if (res.userRating > 0) {
-                        ratingSystem.currentUserRating = res.userRating;
-                        highlightStars(res.userRating);
-                        console.log('User has rated:', res.userRating, 'stars');
-                        updateDebugInfo('Loaded - User rated: ' + res.userRating);
-                    } else {
-                        updateDebugInfo('Loaded - No user rating');
-                    }
-                } else {
-                    console.error('Load rating failed:', res.msg);
-                    updateDebugInfo('Load error: ' + res.msg);
+                if (res.daThich) {
+                    $('#btnThich').removeClass('btn-outline-success').addClass('btn-success');
+                    $('#btnThichText').text('Đã thích');
+                    $('#btnThich').prop('disabled', true);
                 }
             },
             error: function(xhr, status, error) {
-                console.error('Load rating error:', error);
-                updateDebugInfo('Load error: ' + error);
+                console.error('Check like error:', error);
             }
         });
-    }
-
-    // ============================================================
-    // HIGHLIGHT STARS (PERMANENT - USER RATING)
-    // ============================================================
-    function highlightStars(rating) {
-        $('.star').each(function() {
-            var starRating = $(this).data('rating');
-            if (starRating <= rating) {
-                $(this).addClass('active').removeClass('hover');
-            } else {
-                $(this).removeClass('active hover');
-            }
-        });
-    }
-
-    // ============================================================
-    // HIGHLIGHT STARS HOVER (TEMPORARY - PREVIEW)
-    // ============================================================
-    function highlightStarsHover(rating) {
-        $('.star').each(function() {
-            var starRating = $(this).data('rating');
-            if (starRating <= rating) {
-                $(this).addClass('hover');
-            } else {
-                $(this).removeClass('hover');
-            }
-        });
-    }
-
-    // ============================================================
-    // UPDATE DEBUG INFO
-    // ============================================================
-    function updateDebugInfo(action) {
-        $('#debugLastAction').text(action + ' (' + new Date().toLocaleTimeString() + ')');
     }
 
     // ============================================================
     // THÍCH TRUYỆN
     // ============================================================
     function thichTruyen() {
+        if (likeSystem.isProcessing) {
+            console.log('Like is processing...');
+            return;
+        }
+
+        if (likeSystem.daThich) {
+            alert('Bạn đã thích truyện này rồi!');
+            return;
+        }
+
+        likeSystem.isProcessing = true;
+        $('#btnThich').prop('disabled', true);
+
         var maTruyen = $('#hdMaTruyen').val();
 
         $.ajax({
@@ -454,17 +295,39 @@
             type: 'POST',
             data: { maTruyen: maTruyen },
             success: function(res) {
+                likeSystem.isProcessing = false;
+
                 if (res.success) {
+                    likeSystem.daThich = true;
                     $('#luotThichCount').text(res.luotThich);
                     $('#btnThich').removeClass('btn-outline-success').addClass('btn-success');
                     $('#btnThichText').text('Đã thích');
                     $('#btnThich').prop('disabled', true);
+                    alert('✅ ' + (res.msg || 'Đã thích truyện thành công!'));
                 } else {
-                    alert(res.msg || 'Có lỗi xảy ra!');
+                    $('#btnThich').prop('disabled', false);
+                    
+                    if (res.alreadyLiked) {
+                        likeSystem.daThich = true;
+                        $('#btnThich').removeClass('btn-outline-success').addClass('btn-success');
+                        $('#btnThichText').text('Đã thích');
+                        $('#btnThich').prop('disabled', true);
+                    }
+                    
+                    alert('❌ ' + (res.msg || 'Có lỗi xảy ra!'));
+
+                    // Check if need login
+                    if (res.msg && res.msg.includes('đăng nhập')) {
+                        if (confirm('Chuyển đến trang đăng nhập?')) {
+                            window.location.href = '@Url.Action("Login", "Account")';
+                        }
+                    }
                 }
             },
             error: function() {
-                alert('Lỗi kết nối server!');
+                likeSystem.isProcessing = false;
+                $('#btnThich').prop('disabled', false);
+                alert('❌ Lỗi kết nối server!');
             }
         });
     }
@@ -491,18 +354,207 @@
                         $('#btnTheoDoiText').text('Theo dõi');
                     }
                 } else {
-                    alert(res.msg || 'Có lỗi xảy ra!');
+                    alert('❌ ' + (res.msg || 'Có lỗi xảy ra!'));
+                    
+                    if (res.msg && res.msg.includes('đăng nhập')) {
+                        if (confirm('Chuyển đến trang đăng nhập?')) {
+                            window.location.href = '@Url.Action("Login", "Account")';
+                        }
+                    }
                 }
             },
             error: function() {
-                alert('Lỗi kết nối server!');
+                alert('❌ Lỗi kết nối server!');
             }
         });
     }
 
     // ============================================================
-    // ENABLE DEBUG MODE (UNCOMMENT TO DEBUG)
+    // RATING SYSTEM - INITIALIZE
     // ============================================================
+    function initRatingSystem() {
+        var $starRating = $('#starRating');
+        var $stars = $('.star');
+
+        ratingSystem.isLoggedIn = $starRating.data('logged-in') === true || $starRating.data('logged-in') === 'true';
+        ratingSystem.maTruyen = $starRating.data('ma-truyen');
+
+        console.log('Rating System Config:', {
+            isLoggedIn: ratingSystem.isLoggedIn,
+            maTruyen: ratingSystem.maTruyen
+        });
+
+        updateDebugInfo('Initialized');
+
+        $stars.on('mouseenter', function() {
+            if (ratingSystem.isProcessing) return;
+            var rating = $(this).data('rating');
+            highlightStarsHover(rating);
+        });
+
+        $starRating.on('mouseleave', function() {
+            if (ratingSystem.isProcessing) return;
+            highlightStars(ratingSystem.currentUserRating);
+        });
+
+        $stars.on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (ratingSystem.isProcessing) {
+                console.log('Rating is processing, please wait...');
+                return;
+            }
+
+            var rating = $(this).data('rating');
+            console.log('Star clicked:', rating);
+            handleStarClick(rating);
+        });
+    }
+
+    // ============================================================
+    // RATING SYSTEM - HANDLE CLICK
+    // ============================================================
+    function handleStarClick(rating) {
+        console.log('handleStarClick called with rating:', rating);
+        updateDebugInfo('Star clicked: ' + rating);
+
+        if (!ratingSystem.isLoggedIn) {
+            console.log('User not logged in');
+            updateDebugInfo('Not logged in');
+
+            if (confirm('Bạn cần đăng nhập để đánh giá truyện.\n\nBạn có muốn chuyển đến trang đăng nhập không?')) {
+                window.location.href = '@Url.Action("Login", "Account")';
+            }
+            return;
+        }
+
+        ratingSystem.isProcessing = true;
+        $('.star').css('pointer-events', 'none').css('opacity', '0.6');
+        updateDebugInfo('Sending rating...');
+
+        $.ajax({
+            url: '@Url.Action("RateTruyen", "Truyen")',
+            type: 'POST',
+            data: {
+                maTruyen: ratingSystem.maTruyen,
+                rating: rating
+            },
+            success: function(res) {
+                console.log('Rating response:', res);
+                updateDebugInfo('Response received');
+
+                ratingSystem.isProcessing = false;
+                $('.star').css('pointer-events', 'auto').css('opacity', '1');
+
+                if (res.success) {
+                    ratingSystem.currentUserRating = rating;
+                    highlightStars(rating);
+
+                    $('#avgRating').text(res.avgRating.toFixed(1));
+                    $('#totalRatings').text(res.totalRatings);
+
+                    updateDebugInfo('Rating saved: ' + rating + ' stars');
+                    alert('✨ Cảm ơn bạn đã đánh giá ' + rating + ' sao cho truyện này!');
+                } else {
+                    console.error('Rating failed:', res.msg);
+                    updateDebugInfo('Error: ' + res.msg);
+                    alert('❌ ' + (res.msg || 'Có lỗi xảy ra!'));
+
+                    if (res.msg && res.msg.includes('đăng nhập')) {
+                        if (confirm('Chuyển đến trang đăng nhập?')) {
+                            window.location.href = '@Url.Action("Login", "Account")';
+                        }
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX Error:', {
+                    status: status,
+                    error: error,
+                    response: xhr.responseText
+                });
+
+                ratingSystem.isProcessing = false;
+                $('.star').css('pointer-events', 'auto').css('opacity', '1');
+
+                updateDebugInfo('AJAX Error: ' + error);
+                alert('❌ Lỗi kết nối server!\n\nChi tiết: ' + error);
+            }
+        });
+    }
+
+    // ============================================================
+    // RATING SYSTEM - LOAD FROM SERVER
+    // ============================================================
+    function loadRating() {
+        console.log('Loading rating for:', ratingSystem.maTruyen);
+        updateDebugInfo('Loading rating...');
+
+        $.ajax({
+            url: '@Url.Action("GetRating", "Truyen")',
+            type: 'GET',
+            data: { maTruyen: ratingSystem.maTruyen },
+            success: function(res) {
+                console.log('Load rating response:', res);
+
+                if (res.success) {
+                    $('#avgRating').text(res.avgRating.toFixed(1));
+                    $('#totalRatings').text(res.totalRatings);
+
+                    if (res.userRating > 0) {
+                        ratingSystem.currentUserRating = res.userRating;
+                        highlightStars(res.userRating);
+                        console.log('User has rated:', res.userRating, 'stars');
+                        updateDebugInfo('Loaded - User rated: ' + res.userRating);
+                    } else {
+                        updateDebugInfo('Loaded - No user rating');
+                    }
+                } else {
+                    console.error('Load rating failed:', res.msg);
+                    updateDebugInfo('Load error: ' + res.msg);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Load rating error:', error);
+                updateDebugInfo('Load error: ' + error);
+            }
+        });
+    }
+
+    // ============================================================
+    // RATING SYSTEM - HIGHLIGHT STARS
+    // ============================================================
+    function highlightStars(rating) {
+        $('.star').each(function() {
+            var starRating = $(this).data('rating');
+            if (starRating <= rating) {
+                $(this).addClass('active').removeClass('hover');
+            } else {
+                $(this).removeClass('active hover');
+            }
+        });
+    }
+
+    function highlightStarsHover(rating) {
+        $('.star').each(function() {
+            var starRating = $(this).data('rating');
+            if (starRating <= rating) {
+                $(this).addClass('hover');
+            } else {
+                $(this).removeClass('hover');
+            }
+        });
+    }
+
+    // ============================================================
+    // DEBUG
+    // ============================================================
+    function updateDebugInfo(action) {
+        $('#debugLastAction').text(action + ' (' + new Date().toLocaleTimeString() + ')');
+    }
+
+    // UNCOMMENT TO ENABLE DEBUG MODE
     // $('#debugInfo').show();
     </script>
 }
