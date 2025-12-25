@@ -5,7 +5,6 @@
 }
 
 <style>
-    /* Background đen cho toàn bộ trang */
     body {
         background-color: #0a0a0a !important;
     }
@@ -261,8 +260,6 @@
     }
 
     /* Responsive Design */
-
-    /* Tablet (768px - 1024px) */
     @@media (max-width: 1024px) {
         .settings-container {
             max-width: 800px;
@@ -274,7 +271,6 @@
         }
     }
 
-    /* Tablet nhỏ (600px - 768px) */
     @@media (max-width: 768px) {
         .settings-container {
             padding: 15px 10px;
@@ -320,7 +316,6 @@
         }
     }
 
-    /* Mobile (480px - 600px) */
     @@media (max-width: 600px) {
         .settings-container {
             padding: 10px 8px;
@@ -368,7 +363,6 @@
         }
     }
 
-    /* Mobile nhỏ (< 480px) */
     @@media (max-width: 480px) {
         .settings-container {
             padding: 8px 5px;
@@ -426,7 +420,6 @@
         }
     }
 
-    /* Mobile rất nhỏ (< 360px) */
     @@media (max-width: 360px) {
         .settings-header h2 {
             font-size: 18px;
@@ -558,7 +551,7 @@
             formData.append('file', file);
 
             $.ajax({
-                url: '@Url.Action("UploadAvatar", "Users")',  // ✅ Sửa từ "User" → "Users"
+                url: '@Url.Action("UploadAvatar", "Users")', 
                 type: 'POST',
                 data: formData,
                 processData: false,
@@ -589,7 +582,7 @@
             }
 
             $.ajax({
-                url: '@Url.Action("CapNhatThongTin", "Users")',  // ✅ Sửa từ "User" → "Users"
+                url: '@Url.Action("CapNhatThongTin", "Users")', 
                 type: 'POST',
                 data: {
                     hoTen: hoTen,
@@ -632,7 +625,7 @@
             }
 
             $.ajax({
-                url: '@Url.Action("DoiMatKhau", "Users")',  // ✅ Sửa từ "User" → "Users"
+                url: '@Url.Action("DoiMatKhau", "Users")',  
                 type: 'POST',
                 data: {
                     matKhauCu: matKhauCu,

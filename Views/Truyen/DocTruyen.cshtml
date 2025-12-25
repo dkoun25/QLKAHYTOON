@@ -39,7 +39,6 @@
             height: auto;
             display: block;
             margin: 0;
-            /* ⭐ FIX: Thêm để debug ảnh không load */
             background-color: #333;
             min-height: 500px;
             object-fit: contain;
@@ -214,7 +213,6 @@
             foreach (var anh in danhSachAnh)
             {
                 var cleanPath = anh.Trim();
-                // ⭐ FIX: Đảm bảo đường dẫn đúng format
                 if (!cleanPath.StartsWith("/"))
                 {
                     cleanPath = "/" + cleanPath;

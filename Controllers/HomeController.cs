@@ -250,26 +250,26 @@ namespace QLKAHYTOON.Controllers
             [HttpGet]
             public ActionResult GetSearchSuggestions(string keyword)
             {
-                // 1. Kiểm tra từ khóa
+                // Kiểm tra từ khóa
                 if (string.IsNullOrEmpty(keyword))
                 {
                     return Json(new { data = new object[] { } }, JsonRequestBehavior.AllowGet);
                 }
 
-                // 2. Bỏ dấu từ khóa tìm kiếm
+                //Bỏ dấu từ khóa tìm kiếm
                 var keywordKhongDau = RemoveDiacritics(keyword);
 
-                // 3. Lấy tất cả truyện và filter trong memory (để có thể bỏ dấu)
+                // Lấy tất cả truyện và filter trong memory (để có thể bỏ dấu)
                 var allTruyen = db.thongtintruyens.ToList();
 
-                // 4. Tìm kiếm không dấu
+                // Tìm kiếm không dấu
                 var listTruyen = allTruyen
                     .Where(t => RemoveDiacritics(t.TenTruyen).Contains(keywordKhongDau))
                     .OrderByDescending(t => t.NgayDang)
                     .Take(5)
                     .ToList();
 
-                // 5. Chọn lọc dữ liệu để trả về
+                // Chọn lọc dữ liệu để trả về
                 var ketQua = listTruyen.Select(t => {
                     var latestChapter = t.chuongs
                         .OrderByDescending(c => c.SoChuong)

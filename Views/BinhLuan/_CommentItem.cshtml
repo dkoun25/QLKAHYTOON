@@ -6,10 +6,10 @@
 
     var replies = ViewData["Replies_" + Model.MaBinhLuan] as List<QLKAHYTOON.Models.binhluan>;
 
-    // ⭐ FIX: Kiểm tra xem người bình luận có phải admin không
+    // Kiểm tra xem người bình luận có phải admin không
     bool isCommentByAdmin = Model.MaNguoiDung != null && Model.MaNguoiDung.StartsWith("AD");
 
-    // ⭐ FIX: Lấy thông tin người bình luận (hỗ trợ cả admin)
+    // Lấy thông tin người bình luận (cả admin)
     string commentAvatar = "/Anh/avatar-default.png";
     string commentName = "Người dùng";
 
@@ -62,7 +62,7 @@
             </button>
             <button class="btn-action me-3" onclick="toggleReplyBox('@Model.MaBinhLuan')">Trả lời</button>
 
-            @* ⭐ FIX: User chỉ xóa comment của mình, Admin xóa được mọi comment *@
+            @* ⭐ User chỉ xóa comment của mình, Admin xóa được mọi comment *@
             @if ((user != null && user.MaNguoiDung == Model.MaNguoiDung) ||
                  (isAdmin && admin != null))
             {

@@ -2,8 +2,6 @@
 @{
     ViewBag.Title = "Thể loại: " + ViewBag.TenTheLoai;
     Layout = "~/Views/Shared/_Layout.cshtml";
-
-    // Lấy danh sách các thể loại để hiển thị nút
     var allTheLoai = ViewBag.AllTheLoai as List<QLKAHYTOON.Models.theloai>;
     string activeId = ViewBag.ActiveId as string;
 }
@@ -11,14 +9,14 @@
 @section Styles {
     <link href="@Url.Content("~/Content/theloai.css")" rel="stylesheet" type="text/css" />
     <style>
-        /* CSS bổ sung cho thanh cuộn thể loại */
+      
         .genre-scroll-container {
             overflow-x: auto;
             white-space: nowrap;
             padding: 15px 0;
             margin-bottom: 20px;
             border-bottom: 1px solid #333;
-            -webkit-overflow-scrolling: touch; /* Cho mượt trên mobile */
+            -webkit-overflow-scrolling: touch; 
         }
 
         .genre-btn {
@@ -35,7 +33,7 @@
         }
 
             .genre-btn:hover {
-                background-color: #e50914; /* Màu đỏ chủ đạo */
+                background-color: #e50914; 
                 color: white;
                 border-color: #e50914;
                 text-decoration: none;
@@ -47,8 +45,6 @@
                 border-color: #e50914;
                 font-weight: bold;
             }
-
-        /* Ẩn thanh cuộn nhưng vẫn cuộn được */
         .genre-scroll-container::-webkit-scrollbar {
             height: 6px;
         }
@@ -120,14 +116,11 @@
                             // 1. Kiểm tra null
                             if (!string.IsNullOrEmpty(truyen.MaTheLoai))
                             {
-                                // 2. Tách chuỗi "TL01, TL02" thành mảng ["TL01", "TL02"]
                                 var cacMaTheLoai = truyen.MaTheLoai.Split(',');
                          
                                 foreach (var ma in cacMaTheLoai)
                                 {
-                                    var maClean = ma.Trim(); // Xóa khoảng trắng thừa
-
-                                    // 3. Tra cứu tên thể loại từ danh sách "Từ điển"
+                                    var maClean = ma.Trim(); 
                                     var theLoaiObj = allTheLoai.FirstOrDefault(x => x.MaTheLoai == maClean);
 
                                     if (theLoaiObj != null)
@@ -143,10 +136,8 @@
                         }                       <p class="genres">@truyen.TacGia</p>
                         <div class="chapters">
                             @{
-                                // Logic: Lấy danh sách chương CỦA TRUYỆN NÀY (truyen.chuongs)
-                                // Sắp xếp giảm dần theo số chương hoặc ngày đăng -> lấy 3 cái đầu
                                 var recentChapters = truyen.chuongs
-                                                           .OrderByDescending(c => c.SoChuong) // Hoặc c.NgayDang
+                                                           .OrderByDescending(c => c.SoChuong)
                                                            .Take(3)
                                                            .ToList();
                             }

@@ -118,7 +118,6 @@
     </table>
 </div>
 
-<!-- Pagination - GIỐNG TRANG INDEX -->
 <nav class="mt-4 d-flex justify-content-center">
     <ul class="pagination">
         @* Nút Trước *@
@@ -127,8 +126,6 @@
                 <i class="fa fa-chevron-left"></i> Trước
             </a>
         </li>
-
-        @* Hiển thị tối đa 5 trang *@
         @{
             int startPage = Math.Max(1, currentPage - 2);
             int endPage = Math.Min(totalPages, currentPage + 2);
@@ -167,7 +164,7 @@
             </li>
         }
 
-        @* Trang cuối cùng nếu không nằm trong khoảng *@
+        @* Trang cuối cùng nếu không nằm trong khoảng*@
         @if (endPage < totalPages)
         {
             if (endPage < totalPages - 1)
@@ -235,7 +232,6 @@
         transition: all 0.2s ease;
     }
 
-    /* Pagination Styles */
     .pagination {
         display: inline-flex;
         padding-left: 0;

@@ -2,15 +2,12 @@
 @{
     ViewBag.Title = "Tìm kiếm: " + ViewBag.TuKhoa;
     Layout = "~/Views/Shared/_Layout.cshtml";
-
-    // Lấy danh sách thể loại từ ViewBag (đã thêm ở Controller) để map ID -> Tên
     var allTheLoai = ViewBag.AllTheLoai as List<QLKAHYTOON.Models.theloai>;
 }
 
 @section Styles {
     <link href="@Url.Content("~/Content/theloai.css")" rel="stylesheet" type="text/css" />
     <style>
-        /* Một chút CSS riêng cho trang tìm kiếm nếu cần */
         .search-header {
             margin-top: 20px;
             margin-bottom: 30px;
@@ -19,7 +16,7 @@
         }
 
         .text-highlight {
-            color: #e50914; /* Màu đỏ chủ đạo */
+            color: #e50914; 
             font-weight: bold;
         }
     </style>

@@ -215,9 +215,6 @@
 
 @section scripts {
     <script>
-    // ============================================================
-    // GLOBAL VARIABLES
-    // ============================================================
     var ratingSystem = {
         isLoggedIn: false,
         maTruyen: '',
@@ -229,10 +226,6 @@
         daThich: false,
         isProcessing: false
     };
-
-    // ============================================================
-    // DOCUMENT READY
-    // ============================================================
     $(document).ready(function() {
         console.log('=== PAGE INITIALIZING ===');
 
@@ -245,10 +238,6 @@
 
         console.log('=== PAGE INITIALIZED ===');
     });
-
-    // ============================================================
-    // CHECK ĐÃ THÍCH CHƯA
-    // ============================================================
     function checkDaThich() {
         var maTruyen = $('#hdMaTruyen').val();
 
@@ -270,10 +259,6 @@
             }
         });
     }
-
-    // ============================================================
-    // THÍCH TRUYỆN
-    // ============================================================
     function thichTruyen() {
         if (likeSystem.isProcessing) {
             console.log('Like is processing...');
@@ -331,10 +316,6 @@
             }
         });
     }
-
-    // ============================================================
-    // THEO DÕI TRUYỆN
-    // ============================================================
     function theoDoiTruyen() {
         var maTruyen = $('#hdMaTruyen').val();
 
@@ -368,10 +349,6 @@
             }
         });
     }
-
-    // ============================================================
-    // RATING SYSTEM - INITIALIZE
-    // ============================================================
     function initRatingSystem() {
         var $starRating = $('#starRating');
         var $stars = $('.star');
@@ -411,10 +388,6 @@
             handleStarClick(rating);
         });
     }
-
-    // ============================================================
-    // RATING SYSTEM - HANDLE CLICK
-    // ============================================================
     function handleStarClick(rating) {
         console.log('handleStarClick called with rating:', rating);
         updateDebugInfo('Star clicked: ' + rating);
@@ -483,10 +456,6 @@
             }
         });
     }
-
-    // ============================================================
-    // RATING SYSTEM - LOAD FROM SERVER
-    // ============================================================
     function loadRating() {
         console.log('Loading rating for:', ratingSystem.maTruyen);
         updateDebugInfo('Loading rating...');
@@ -521,10 +490,6 @@
             }
         });
     }
-
-    // ============================================================
-    // RATING SYSTEM - HIGHLIGHT STARS
-    // ============================================================
     function highlightStars(rating) {
         $('.star').each(function() {
             var starRating = $(this).data('rating');
@@ -546,16 +511,9 @@
             }
         });
     }
-
-    // ============================================================
-    // DEBUG
-    // ============================================================
     function updateDebugInfo(action) {
         $('#debugLastAction').text(action + ' (' + new Date().toLocaleTimeString() + ')');
     }
-
-    // UNCOMMENT TO ENABLE DEBUG MODE
-    // $('#debugInfo').show();
     </script>
 }
 

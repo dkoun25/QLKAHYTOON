@@ -14,7 +14,6 @@
 <div class="comment-section mt-5 p-3 bg-light rounded">
     <h4 class="mb-4 text-primary fw-bold"><i class="fa-solid fa-comments"></i> BÌNH LUẬN</h4>
 
-    @* ⭐ FIX: Cho phép cả user và admin bình luận *@
     @if (isLoggedIn)
     {
         string displayName = isAdmin && admin != null ? admin.HoTen : (user != null ? user.HoTen : "");

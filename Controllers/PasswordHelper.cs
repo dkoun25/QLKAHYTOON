@@ -4,9 +4,6 @@ using System.Text;
 
 namespace QLKAHYTOON.Helpers
 {
-    /// <summary>
-    /// Tool test hash password - Chạy để xem mật khẩu sau khi hash
-    /// </summary>
     public class PasswordHelper
     {
         public static void Main(string[] args)

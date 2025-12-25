@@ -4,23 +4,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - Admin Panel</title>
-
-    <!-- Bootstrap CSS -->
     <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
-
-    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-
-    <!-- Custom Admin CSS -->
     <link href="~/Content/AdminLayout.css" rel="stylesheet" />
 </head>
 <body>
-    <!-- Nút toggle sidebar (hiển thị khi sidebar bị ẩn) -->
     <div id="menu-toggle-btn" class="menu-toggle-btn">
         <i class="fas fa-bars"></i>
     </div>
-
-    <!-- Wrapper chính -->
     <div id="wrapper">
         <!-- Sidebar -->
         <div id="sidebar-wrapper">
@@ -77,12 +68,10 @@
         </div>
     </div>
 
-    <!-- Các script cũ của bạn -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.3.2/lazysizes.min.js"></script>
 
-    <!-- Script toggle sidebar -->
     <script>
         $(document).ready(function () {
             $("#menu-toggle-btn").click(function (e) {
@@ -106,7 +95,6 @@
         });
     </script>
 
-    <!-- Script search cũ của bạn -->
     <script>
         $(document).ready(function () {
             var searchTimeout;
@@ -114,7 +102,6 @@
             var $searchDropdown = $('#searchDropdown');
             var $searchResults = $('#searchResults');
             var $searchForm = $('#searchForm');
-            // ... (giữ nguyên toàn bộ script search cũ của bạn ở đây)
         });
     </script>
 

@@ -33,7 +33,7 @@ namespace QLKAHYTOON.Controllers
                 {
                     MaBaoCao = "BC" + Guid.NewGuid().ToString().Substring(0, 8).ToUpper(),
                     MaNguoiDung = maNguoiDung,
-                    MaAdminXuLy = null, // ⭐ Để NULL vì chưa có admin xử lý
+                    MaAdminXuLy = null, // ⭐ Để NULL nếu chưa có admin xử lý
                     MaTruyen = maTruyen,
                     MaChuong = string.IsNullOrEmpty(maChuong) ? null : maChuong,
                     NoiDungBaoCao = noiDung.Trim(),

@@ -2,7 +2,6 @@
     ViewBag.Title = "Dashboard";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 
-    // Lấy dữ liệu từ ViewBag (bạn cần thêm vào Controller)
     var tongSoTruyen = ViewBag.TongSoTruyen ?? 0;
     var tongNguoiDung = ViewBag.TongNguoiDung ?? 0;
     var baoCaoChuaXuLy = ViewBag.BaoCaoChuaXuLy ?? 0;
@@ -134,7 +133,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <script>
-        // Dữ liệu mẫu - Bạn cần thay bằng dữ liệu thật từ Controller
         const weeklyViewsData = @Html.Raw(ViewBag.WeeklyViewsJson ?? "[2400, 3200, 2800, 4100, 3800, 4500, 5200]");
         const lastWeekViews = @Html.Raw(ViewBag.LastWeekViewsJson ?? "18500");
         const thisWeekViews = @Html.Raw(ViewBag.ThisWeekViewsJson ?? "26000");

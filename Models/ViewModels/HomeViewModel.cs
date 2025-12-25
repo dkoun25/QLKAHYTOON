@@ -8,7 +8,6 @@ namespace QLKAHYTOON.Models.ViewModels
 {
     public class HomeViewModel
     {
-        // Đã đổi từ List<thongtintruyen> sang List<TruyenCardViewModel>
         public List<TruyenCardViewModel> TruyenHotSlider { get; set; }
         public List<TruyenCardViewModel> TruyenDeCu { get; set; }
         public List<TruyenCardViewModel> TruyenMoiCapNhat { get; set; }
