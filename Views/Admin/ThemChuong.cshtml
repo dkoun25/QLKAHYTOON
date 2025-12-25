@@ -1,56 +1,528 @@
 ﻿@{
     ViewBag.Title = "Thêm Chương Mới";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml"; // THÊM DÒNG NÀY
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     var truyen = ViewBag.ThongTinTruyen as QLKAHYTOON.Models.thongtintruyen;
+    var soChuongMoi = ViewBag.SoChuongMoi;
+    var danhSachChuong = ViewBag.DanhSachChuong as List<QLKAHYTOON.Models.chuong>;
 }
 
-<h2>Thêm chương mới cho truyện: @truyen.TenTruyen</h2>
-<hr />
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Quản lý chương: @truyen.TenTruyen</h2>
+            <p class="text-muted">Tác giả: @truyen.TacGia</p>
+            <hr />
+        </div>
+    </div>
 
-@if (TempData["UploadSuccess"] != null)
-{
-    <div class="alert alert-success">@TempData["UploadSuccess"]</div>
-}
-@if (TempData["UploadError"] != null)
-{
-    <div class="alert alert-danger">@TempData["UploadError"]</div>
-}
+    @if (TempData["UploadSuccess"] != null)
+    {
+        <div class="alert alert-success alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <i class="fa fa-check-circle"></i> @TempData["UploadSuccess"]
+        </div>
+    }
+    @if (TempData["UploadError"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <i class="fa fa-exclamation-triangle"></i> @TempData["UploadError"]
+        </div>
+    }
 
-@using (Html.BeginForm("ThemChuong", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
-{
-    @Html.AntiForgeryToken()
+    <div class="row">
+        <!-- FORM THÊM CHƯƠNG -->
+        <div class="col-md-12" id="formThemChuong">
+            @using (Html.BeginForm("ThemChuong", "Admin", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.Hidden("maTruyen", truyen.MaTruyen)
 
-    // Dùng input ẩn để gửi MaTruyen về Controller
-    @Html.Hidden("maTruyen", truyen.MaTruyen)
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <i class="fa fa-plus-circle"></i> Thêm chương mới
+                        </h4>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Số chương</label>
+                            <div class="col-md-10">
+                                <input type="number" 
+                                       name="soChuong" 
+                                       class="form-control" 
+                                       value="@soChuongMoi" 
+                                       readonly 
+                                       style="background-color: #f5f5f5; cursor: not-allowed;" />
+                                <p class="help-block">Số chương được tự động tăng dần</p>
+                            </div>
+                        </div>
 
-    <div class="form-horizontal">
-        <div class="form-group">
-            <label class="control-label col-md-2">Số chương</label>
-            <div class="col-md-10">
-                <input type="number" name="soChuong" class="form-control" required />
-            </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Tên chương</label>
+                            <div class="col-md-10">
+                                <input type="text" name="tenChuong" class="form-control" placeholder="Ví dụ: Khởi đầu hành trình" />
+                                <p class="help-block">Tên chương có thể để trống</p>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Chọn ảnh của chương</label>
+                            <div class="col-md-10">
+                                <input type="file" 
+                                       name="files" 
+                                       id="fileUploader" 
+                                       class="form-control" 
+                                       multiple 
+                                       accept="image/*"
+                                       required />
+                                <p class="help-block">
+                                    <i class="fa fa-info-circle"></i> 
+                                    Bạn có thể chọn nhiều ảnh cùng lúc. Các ảnh sẽ được tự động sắp xếp theo thứ tự bạn chọn.
+                                </p>
+                                <div id="preview" class="row" style="margin-top: 15px;"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-offset-2 col-md-10">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa fa-plus"></i> Thêm Chương
+                                </button>
+                                <a href="@Url.Action("QuanLyTruyen", "Admin")" class="btn btn-default">
+                                    <i class="fa fa-arrow-left"></i> Quay lại
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
 
-        <div class="form-group">
-            <label class="control-label col-md-2">Tên chương (nếu có)</label>
-            <div class="col-md-10">
-                <input type="text" name="tenChuong" class="form-control" />
-            </div>
-        </div>
+        <!-- FORM SỬA CHƯƠNG (ẨN MẶC ĐỊNH) -->
+        <div class="col-md-12" id="formSuaChuong" style="display: none;">
+            <div class="panel panel-warning">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <i class="fa fa-edit"></i> Sửa chương <span id="editChapterNumber"></span>
+                        <button type="button" class="btn btn-sm btn-default pull-right" onclick="huySuaChuong()">
+                            <i class="fa fa-times"></i> Hủy
+                        </button>
+                    </h4>
+                </div>
+                <div class="panel-body">
+                    <input type="hidden" id="editMaChuong" />
+                    
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Số chương</label>
+                            <div class="col-md-10">
+                                <input type="number" 
+                                       id="editSoChuong" 
+                                       class="form-control" 
+                                       readonly 
+                                       style="background-color: #f5f5f5; cursor: not-allowed;" />
+                            </div>
+                        </div>
 
-        <div class="form-group">
-            <label class="control-label col-md-2">Chọn ảnh của chương</label>
-            <div class="col-md-10">
-                <input type="file" name="files" id="fileUploader" class="form-control" multiple required />
-                <p class="help-block">Bạn có thể chọn nhiều ảnh cùng lúc. Các ảnh sẽ được tự động sắp xếp theo thứ tự bạn chọn.</p>
-            </div>
-        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Tên chương</label>
+                            <div class="col-md-10">
+                                <input type="text" id="editTenChuong" class="form-control" placeholder="Nhập tên chương" />
+                            </div>
+                        </div>
 
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Thêm Chương" class="btn btn-primary" />
-                <a href="@Url.Action("QuanLyTruyen", "Admin")" class="btn btn-default">Quay lại</a>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Danh sách ảnh</label>
+                            <div class="col-md-10">
+                                <div id="editImageList" class="row"></div>
+                                <p class="help-block">
+                                    <i class="fa fa-info-circle"></i> 
+                                    Kéo thả để sắp xếp lại thứ tự ảnh. Click vào nút X để xóa ảnh.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-offset-2 col-md-10">
+                                <button type="button" class="btn btn-success" onclick="luuSuaChuong()">
+                                    <i class="fa fa-save"></i> Lưu Thay Đổi
+                                </button>
+                                <button type="button" class="btn btn-default" onclick="huySuaChuong()">
+                                    <i class="fa fa-times"></i> Hủy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- DANH SÁCH CHƯƠNG ĐÃ CÓ -->
+    @if (danhSachChuong != null && danhSachChuong.Any())
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <i class="fa fa-list"></i> Danh sách chương (@danhSachChuong.Count chương)
+                        </h4>
+                    </div>
+                    <div class="panel-body" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped" style="margin-bottom: 0;">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 100px;">Số chương</th>
+                                        <th>Tên chương</th>
+                                        <th style="width: 100px;">Số ảnh</th>
+                                        <th style="width: 150px;">Ngày đăng</th>
+                                        <th style="width: 200px;" class="text-center">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var chuong in danhSachChuong)
+                                    {
+                                        var soAnh = !string.IsNullOrEmpty(chuong.AnhChuong) 
+                                            ? chuong.AnhChuong.Split(';').Length 
+                                            : 0;
+                                        
+                                        <tr>
+                                            <td><strong>Chương @chuong.SoChuong</strong></td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(chuong.TenChuong))
+                                                {
+                                                    @chuong.TenChuong
+                                                }
+                                                else
+                                                {
+                                                    <em class="text-muted">Chưa có tên</em>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-info">@soAnh ảnh</span>
+                                            </td>
+                                            <td>@String.Format("{0:dd/MM/yyyy HH:mm}", chuong.NgayDang)</td>
+                                            <td class="text-center">
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-warning"
+                                                        onclick="suaChuong('@chuong.MaChuong')"
+                                                        title="Sửa chương">
+                                                    <i class="fa fa-edit"></i> Sửa
+                                                </button>
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-danger"
+                                                        onclick="xoaChuong('@chuong.MaChuong', @chuong.SoChuong)"
+                                                        title="Xóa chương">
+                                                    <i class="fa fa-trash"></i> Xóa
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <script>
+        var currentImageOrder = [];
+
+        $(document).ready(function() {
+            // Preview ảnh khi chọn file
+            $('#fileUploader').on('change', function(e) {
+                var files = e.target.files;
+                var preview = $('#preview');
+                preview.empty();
+
+                if (files.length > 0) {
+                    preview.append('<div class="col-md-12"><h4>Xem trước (' + files.length + ' ảnh):</h4></div>');
+                    
+                    for (var i = 0; i < files.length; i++) {
+                        var file = files[i];
+                        var reader = new FileReader();
+                        
+                        reader.onload = (function(index) {
+                            return function(e) {
+                                var html = '<div class="col-md-2 col-sm-3 col-xs-6" style="margin-bottom: 10px;">' +
+                                          '<div class="thumbnail">' +
+                                          '<img src="' + e.target.result + '" style="width: 100%; height: 150px; object-fit: cover;" />' +
+                                          '<div class="caption text-center">' +
+                                          '<small>Ảnh ' + (index + 1) + '</small>' +
+                                          '</div>' +
+                                          '</div>' +
+                                          '</div>';
+                                preview.append(html);
+                            };
+                        })(i);
+                        
+                        reader.readAsDataURL(file);
+                    }
+                }
+            });
+
+            // Validation trước khi submit
+            $('form').on('submit', function(e) {
+                var files = $('#fileUploader')[0].files;
+                if (files.length === 0) {
+                    e.preventDefault();
+                    alert('Vui lòng chọn ít nhất một ảnh cho chương!');
+                    return false;
+                }
+            });
+        });
+
+        // Hàm sửa chương
+        function suaChuong(maChuong) {
+            $.ajax({
+                url: '@Url.Action("GetChapterInfo", "Admin")',
+                type: 'GET',
+                data: { maChuong: maChuong },
+                success: function(response) {
+                    if (response.success) {
+                        var data = response.data;
+                        
+                        // Ẩn form thêm, hiện form sửa
+                        $('#formThemChuong').slideUp();
+                        $('#formSuaChuong').slideDown();
+                        
+                        // Scroll to form sửa
+                        $('html, body').animate({
+                            scrollTop: $("#formSuaChuong").offset().top - 100
+                        }, 500);
+                        
+                        // Điền dữ liệu
+                        $('#editMaChuong').val(data.maChuong);
+                        $('#editSoChuong').val(data.soChuong);
+                        $('#editTenChuong').val(data.tenChuong);
+                        $('#editChapterNumber').text(data.soChuong);
+                        
+                        // Hiển thị danh sách ảnh
+                        var imageListHtml = '';
+                        currentImageOrder = data.anhChuongs;
+                        
+                        data.anhChuongs.forEach(function(img, index) {
+                            imageListHtml += '<div class="col-md-2 col-sm-3 col-xs-6 image-item" data-path="' + img + '" style="margin-bottom: 10px;">' +
+                                           '<div class="thumbnail" style="position: relative;">' +
+                                           '<button type="button" class="btn btn-danger btn-xs" style="position: absolute; top: 5px; right: 5px; z-index: 10;" onclick="xoaAnhChuong(\'' + data.maChuong + '\', \'' + img + '\', this)">' +
+                                           '<i class="fa fa-times"></i>' +
+                                           '</button>' +
+                                           '<img src="' + img + '" style="width: 100%; height: 150px; object-fit: cover; cursor: move;" />' +
+                                           '<div class="caption text-center">' +
+                                           '<small>Ảnh ' + (index + 1) + '</small>' +
+                                           '</div>' +
+                                           '</div>' +
+                                           '</div>';
+                        });
+                        
+                        $('#editImageList').html(imageListHtml);
+                        
+                        // Khởi tạo Sortable để kéo thả
+                        new Sortable(document.getElementById('editImageList'), {
+                            animation: 150,
+                            onEnd: function(evt) {
+                                // Cập nhật thứ tự mới
+                                var newOrder = [];
+                                $('#editImageList .image-item').each(function() {
+                                    newOrder.push($(this).attr('data-path'));
+                                });
+                                currentImageOrder = newOrder;
+                                
+                                // Cập nhật số thứ tự hiển thị
+                                $('#editImageList .image-item').each(function(index) {
+                                    $(this).find('.caption small').text('Ảnh ' + (index + 1));
+                                });
+                            }
+                        });
+                    } else {
+                        alert('Lỗi: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Có lỗi xảy ra khi tải thông tin chương!');
+                }
+            });
+        }
+
+        // Hàm hủy sửa chương
+        function huySuaChuong() {
+            $('#formSuaChuong').slideUp();
+            $('#formThemChuong').slideDown();
+            
+            // Scroll to form thêm
+            $('html, body').animate({
+                scrollTop: $("#formThemChuong").offset().top - 100
+            }, 500);
+        }
+
+        // Hàm lưu sửa chương
+        function luuSuaChuong() {
+            var maChuong = $('#editMaChuong').val();
+            var tenChuong = $('#editTenChuong').val();
+            
+            $.ajax({
+                url: '@Url.Action("UpdateChapter", "Admin")',
+                type: 'POST',
+                data: {
+                    maChuong: maChuong,
+                    tenChuong: tenChuong,
+                    anhChuongJson: JSON.stringify(currentImageOrder)
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload();
+                    } else {
+                        alert('Lỗi: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Có lỗi xảy ra khi cập nhật chương!');
+                }
+            });
+        }
+
+        // Hàm xóa ảnh trong chương
+        function xoaAnhChuong(maChuong, imagePath, btn) {
+            if (!confirm('Bạn có chắc muốn xóa ảnh này?')) return;
+            
+            $.ajax({
+                url: '@Url.Action("DeleteChapterImage", "Admin")',
+                type: 'POST',
+                data: {
+                    maChuong: maChuong,
+                    imagePath: imagePath
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $(btn).closest('.image-item').fadeOut(300, function() {
+                            $(this).remove();
+                            
+                            // Cập nhật lại số thứ tự
+                            $('#editImageList .image-item').each(function(index) {
+                                $(this).find('.caption small').text('Ảnh ' + (index + 1));
+                            });
+                            
+                            // Cập nhật currentImageOrder
+                            var index = currentImageOrder.indexOf(imagePath);
+                            if (index > -1) {
+                                currentImageOrder.splice(index, 1);
+                            }
+                        });
+                        
+                        alert(response.message);
+                    } else {
+                        alert('Lỗi: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Có lỗi xảy ra khi xóa ảnh!');
+                }
+            });
+        }
+
+        // Hàm xóa chương
+        function xoaChuong(maChuong, soChuong) {
+            if (!confirm('Bạn có chắc muốn xóa chương ' + soChuong + '? Hành động này không thể hoàn tác!')) return;
+            
+            $.ajax({
+                url: '@Url.Action("DeleteChapter", "Admin")',
+                type: 'POST',
+                data: { maChuong: maChuong },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload();
+                    } else {
+                        alert('Lỗi: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Có lỗi xảy ra khi xóa chương!');
+                }
+            });
+        }
+    </script>
 }
+
+<style>
+    .badge-info {
+        background-color: #5bc0de;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 3px;
+    }
+    
+    .table > thead > tr > th {
+        background-color: #5bc0de;
+        color: white;
+        font-weight: bold;
+        border: none;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: #f5f5f5;
+    }
+    
+    .panel-primary {
+        border-color: #337ab7;
+    }
+    
+    .panel-primary > .panel-heading {
+        background-color: #337ab7;
+        border-color: #337ab7;
+    }
+    
+    .panel-warning {
+        border-color: #f0ad4e;
+    }
+    
+    .panel-warning > .panel-heading {
+        background-color: #f0ad4e;
+        border-color: #f0ad4e;
+        color: white;
+    }
+    
+    .panel-info {
+        border-color: #5bc0de;
+    }
+    
+    .panel-info > .panel-heading {
+        background-color: #5bc0de;
+        border-color: #5bc0de;
+        color: white;
+    }
+    
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 12px;
+        margin: 2px;
+    }
+    
+    .thumbnail {
+        margin-bottom: 0;
+        border: 2px solid #ddd;
+        transition: all 0.3s ease;
+    }
+    
+    .thumbnail:hover {
+        border-color: #337ab7;
+        box-shadow: 0 0 10px rgba(51, 122, 183, 0.3);
+    }
+    
+    .image-item {
+        transition: all 0.3s ease;
+    }
+    
+    .image-item.sortable-ghost {
+        opacity: 0.4;
+    }
+</style>

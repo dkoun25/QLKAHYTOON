@@ -31,12 +31,11 @@ namespace QLKAHYTOON.Controllers
 
                 if (adminUser != null)
                 {
-                    // ⭐ SỬ DỤNG PASSWORDHELPER.VERIFYPASSWORD
                     if (PasswordHelper.VerifyPassword(model.MatKhau, adminUser.MatKhau))
                     {
                         Session["Admin"] = adminUser;
-                        Session["User"] = adminUser; // ⭐ Set cả Session["User"] để admin có thể dùng web
-                        Session["IsAdmin"] = true;   // ⭐ Set IsAdmin flag
+                        Session["User"] = adminUser; 
+                        Session["IsAdmin"] = true;   
                         return RedirectToAction("Index", "Admin");
                     }
                 }
@@ -126,9 +125,6 @@ namespace QLKAHYTOON.Controllers
                 return View();
             }
         }
-
-        // GET: Admin/QuanLyTruyen
-        // Thay thế action QuanLyTruyen trong AdminController.cs
 
         // GET: Admin/QuanLyTruyen
         public ActionResult QuanLyTruyen(int? page)
@@ -335,7 +331,25 @@ namespace QLKAHYTOON.Controllers
             if (string.IsNullOrEmpty(maTruyen)) return new HttpStatusCodeResult(System.Net.HttpStatusCode.BadRequest);
             var truyen = db.thongtintruyens.SingleOrDefault(t => t.MaTruyen == maTruyen);
             if (truyen == null) return HttpNotFound();
+
+            // Tính số chương tiếp theo
+            var maxSoChuong = db.chuongs
+                .Where(c => c.MaTruyen == maTruyen)
+                .OrderByDescending(c => c.SoChuong)
+                .Select(c => c.SoChuong)
+                .FirstOrDefault();
+
+            int soChuongMoi = (maxSoChuong ?? 0) + 1;
+
+            // Lấy danh sách chương đã có
+            var danhSachChuong = db.chuongs
+                .Where(c => c.MaTruyen == maTruyen)
+                .OrderBy(c => c.SoChuong)
+                .ToList();
+
             ViewBag.ThongTinTruyen = truyen;
+            ViewBag.SoChuongMoi = soChuongMoi;
+            ViewBag.DanhSachChuong = danhSachChuong;
             return View();
         }
 
@@ -344,11 +358,17 @@ namespace QLKAHYTOON.Controllers
         public ActionResult ThemChuong(string maTruyen, int soChuong, string tenChuong, IEnumerable<HttpPostedFileBase> files)
         {
             if (!IsAdminLoggedIn()) return RedirectToAction("Login", "Admin");
-            if (files == null || !files.Any() || files.First() == null) { TempData["UploadError"] = "Vui lòng chọn ít nhất một file ảnh."; return RedirectToAction("ThemChuong", new { maTruyen = maTruyen }); }
+            if (files == null || !files.Any() || files.First() == null)
+            {
+                TempData["UploadError"] = "Vui lòng chọn ít nhất một file ảnh.";
+                return RedirectToAction("ThemChuong", new { maTruyen = maTruyen });
+            }
+
             var truyen = db.thongtintruyens.Single(t => t.MaTruyen == maTruyen);
             string truyenSlug = SlugHelper.GenerateSlug(truyen.TenTruyen);
             string chapterPath = Server.MapPath("~/Anh/" + truyenSlug + "/" + soChuong);
             Directory.CreateDirectory(chapterPath);
+
             var imagePaths = new List<string>();
             int imageCounter = 1;
             foreach (var file in files)
@@ -364,11 +384,154 @@ namespace QLKAHYTOON.Controllers
                     imageCounter++;
                 }
             }
-            var newChapter = new chuong { MaChuong = "C" + Guid.NewGuid().ToString().Substring(0, 5).ToUpper(), MaTruyen = maTruyen, SoChuong = soChuong, TenChuong = tenChuong, AnhChuong = string.Join(";", imagePaths), NgayDang = DateTime.Now };
+
+            var newChapter = new chuong
+            {
+                MaChuong = "C" + Guid.NewGuid().ToString().Substring(0, 5).ToUpper(),
+                MaTruyen = maTruyen,
+                SoChuong = soChuong,
+                TenChuong = tenChuong,
+                AnhChuong = string.Join(";", imagePaths),
+                NgayDang = DateTime.Now
+            };
+
             db.chuongs.InsertOnSubmit(newChapter);
             db.SubmitChanges();
+
             TempData["UploadSuccess"] = $"Đã thêm thành công chương {soChuong}!";
             return RedirectToAction("ThemChuong", new { maTruyen = maTruyen });
+        }
+
+        // AJAX: Lấy thông tin chương để sửa
+        [HttpGet]
+        public JsonResult GetChapterInfo(string maChuong)
+        {
+            if (!IsAdminLoggedIn()) return Json(new { success = false, message = "Chưa đăng nhập" }, JsonRequestBehavior.AllowGet);
+
+            try
+            {
+                var chuong = db.chuongs.SingleOrDefault(c => c.MaChuong == maChuong);
+                if (chuong == null) return Json(new { success = false, message = "Không tìm thấy chương" }, JsonRequestBehavior.AllowGet);
+
+                var anhChuongs = !string.IsNullOrEmpty(chuong.AnhChuong)
+                    ? chuong.AnhChuong.Split(';').ToList()
+                    : new List<string>();
+
+                return Json(new
+                {
+                    success = true,
+                    data = new
+                    {
+                        maChuong = chuong.MaChuong,
+                        soChuong = chuong.SoChuong,
+                        tenChuong = chuong.TenChuong,
+                        anhChuongs = anhChuongs
+                    }
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        // AJAX: Cập nhật thông tin chương
+        [HttpPost]
+        public JsonResult UpdateChapter(string maChuong, string tenChuong, string anhChuongJson)
+        {
+            if (!IsAdminLoggedIn()) return Json(new { success = false, message = "Chưa đăng nhập" });
+
+            try
+            {
+                var chuong = db.chuongs.SingleOrDefault(c => c.MaChuong == maChuong);
+                if (chuong == null) return Json(new { success = false, message = "Không tìm thấy chương" });
+
+                chuong.TenChuong = tenChuong;
+
+                // Cập nhật thứ tự ảnh nếu có
+                if (!string.IsNullOrEmpty(anhChuongJson))
+                {
+                    var anhList = JsonConvert.DeserializeObject<List<string>>(anhChuongJson);
+                    chuong.AnhChuong = string.Join(";", anhList);
+                }
+
+                db.SubmitChanges();
+
+                return Json(new { success = true, message = "Cập nhật chương thành công!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi: " + ex.Message });
+            }
+        }
+
+        // AJAX: Xóa ảnh trong chương
+        [HttpPost]
+        public JsonResult DeleteChapterImage(string maChuong, string imagePath)
+        {
+            if (!IsAdminLoggedIn()) return Json(new { success = false, message = "Chưa đăng nhập" });
+
+            try
+            {
+                var chuong = db.chuongs.SingleOrDefault(c => c.MaChuong == maChuong);
+                if (chuong == null) return Json(new { success = false, message = "Không tìm thấy chương" });
+
+                var anhList = chuong.AnhChuong.Split(';').ToList();
+                anhList.Remove(imagePath);
+                chuong.AnhChuong = string.Join(";", anhList);
+
+                // Xóa file vật lý
+                string physicalPath = Server.MapPath("~" + imagePath);
+                if (System.IO.File.Exists(physicalPath))
+                {
+                    System.IO.File.Delete(physicalPath);
+                }
+
+                db.SubmitChanges();
+
+                return Json(new { success = true, message = "Đã xóa ảnh!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi: " + ex.Message });
+            }
+        }
+
+        // AJAX: Xóa chương
+        [HttpPost]
+        public JsonResult DeleteChapter(string maChuong)
+        {
+            if (!IsAdminLoggedIn()) return Json(new { success = false, message = "Chưa đăng nhập" });
+
+            try
+            {
+                var chuong = db.chuongs.SingleOrDefault(c => c.MaChuong == maChuong);
+                if (chuong == null) return Json(new { success = false, message = "Không tìm thấy chương" });
+
+                // Xóa thư mục chứa ảnh
+                var truyen = db.thongtintruyens.Single(t => t.MaTruyen == chuong.MaTruyen);
+                string truyenSlug = SlugHelper.GenerateSlug(truyen.TenTruyen);
+                string chapterPath = Server.MapPath("~/Anh/" + truyenSlug + "/" + chuong.SoChuong);
+
+                if (Directory.Exists(chapterPath))
+                {
+                    Directory.Delete(chapterPath, true);
+                }
+
+                // Xóa bình luận của chương
+                var binhLuans = db.binhluans.Where(bl => bl.MaChuong == maChuong);
+                db.binhluans.DeleteAllOnSubmit(binhLuans);
+
+                // Xóa chương
+                db.chuongs.DeleteOnSubmit(chuong);
+                db.SubmitChanges();
+
+                return Json(new { success = true, message = "Đã xóa chương thành công!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi: " + ex.Message });
+            }
         }
 
         public ActionResult QuanLyNguoiDung(int? page)

@@ -15,7 +15,7 @@ namespace QLKAHYTOON.Controllers
 
         public BaseController()
         {
-            // 1. Lấy chuỗi kết nối chuẩn từ Web.config
+            // Lấy chuỗi kết nối chuẩn từ Web.config
             string connectionString = ConfigurationManager.ConnectionStrings["KAHYToonConnectionString"].ConnectionString;
 
             db = new QLKAHYTOONDataContext(connectionString);

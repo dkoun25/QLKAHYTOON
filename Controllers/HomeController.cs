@@ -57,8 +57,6 @@ namespace QLKAHYTOON.Controllers
                         MaChuongMoiNhat = latestChapter?.MaChuong
                     };
                 }).ToList();
-
-                // --- Lấy Truyện Mới Cập Nhật CÓ PHÂN TRANG ---
                 var allTruyenMoiCapNhat = db.sp_GetTruyenMoiNhat(1000).ToList();
 
                 // Tính tổng số trang

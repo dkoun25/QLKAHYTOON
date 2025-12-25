@@ -60,11 +60,14 @@ namespace QLKAHYTOON.Models
     partial void Insertlichsudoc(lichsudoc instance);
     partial void Updatelichsudoc(lichsudoc instance);
     partial void Deletelichsudoc(lichsudoc instance);
+    partial void Inserttruyen_theloai(truyen_theloai instance);
+    partial void Updatetruyen_theloai(truyen_theloai instance);
+    partial void Deletetruyen_theloai(truyen_theloai instance);
     #endregion
 		
 		public QLKAHYTOONDataContext() : 
-				base("Data Source=.;Initial Catalog=KAHYToon;Integrated Security=True;TrustServerCertif" +
-						"icate=True", mappingSource)
+				base("Data Source=.\\SQLEXPRESS;Initial Catalog=KAHYToon;Integrated Security=True;TrustS" +
+						"erverCertificate=True", mappingSource)
 		{
 			OnCreated();
 		}
@@ -170,6 +173,14 @@ namespace QLKAHYTOON.Models
 			get
 			{
 				return this.GetTable<lichsudoc>();
+			}
+		}
+		
+		public System.Data.Linq.Table<truyen_theloai> truyen_theloais
+		{
+			get
+			{
+				return this.GetTable<truyen_theloai>();
 			}
 		}
 		
@@ -1750,6 +1761,8 @@ namespace QLKAHYTOON.Models
 		
 		private string _TenTheLoai;
 		
+		private EntitySet<truyen_theloai> _truyen_theloais;
+		
     #region Extensibility Method Definitions
     partial void OnLoaded();
     partial void OnValidate(System.Data.Linq.ChangeAction action);
@@ -1762,6 +1775,7 @@ namespace QLKAHYTOON.Models
 		
 		public theloai()
 		{
+			this._truyen_theloais = new EntitySet<truyen_theloai>(new Action<truyen_theloai>(this.attach_truyen_theloais), new Action<truyen_theloai>(this.detach_truyen_theloais));
 			OnCreated();
 		}
 		
@@ -1805,6 +1819,19 @@ namespace QLKAHYTOON.Models
 			}
 		}
 		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="theloai_truyen_theloai", Storage="_truyen_theloais", ThisKey="MaTheLoai", OtherKey="MaTheLoai")]
+		public EntitySet<truyen_theloai> truyen_theloais
+		{
+			get
+			{
+				return this._truyen_theloais;
+			}
+			set
+			{
+				this._truyen_theloais.Assign(value);
+			}
+		}
+		
 		public event PropertyChangingEventHandler PropertyChanging;
 		
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -1823,6 +1850,18 @@ namespace QLKAHYTOON.Models
 			{
 				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
 			}
+		}
+		
+		private void attach_truyen_theloais(truyen_theloai entity)
+		{
+			this.SendPropertyChanging();
+			entity.theloai = this;
+		}
+		
+		private void detach_truyen_theloais(truyen_theloai entity)
+		{
+			this.SendPropertyChanging();
+			entity.theloai = null;
 		}
 	}
 	
@@ -2502,6 +2541,8 @@ namespace QLKAHYTOON.Models
 		
 		private EntitySet<lichsudoc> _lichsudocs;
 		
+		private EntitySet<truyen_theloai> _truyen_theloais;
+		
     #region Extensibility Method Definitions
     partial void OnLoaded();
     partial void OnValidate(System.Data.Linq.ChangeAction action);
@@ -2536,6 +2577,7 @@ namespace QLKAHYTOON.Models
 			this._binhluans = new EntitySet<binhluan>(new Action<binhluan>(this.attach_binhluans), new Action<binhluan>(this.detach_binhluans));
 			this._danhgias = new EntitySet<danhgia>(new Action<danhgia>(this.attach_danhgias), new Action<danhgia>(this.detach_danhgias));
 			this._lichsudocs = new EntitySet<lichsudoc>(new Action<lichsudoc>(this.attach_lichsudocs), new Action<lichsudoc>(this.detach_lichsudocs));
+			this._truyen_theloais = new EntitySet<truyen_theloai>(new Action<truyen_theloai>(this.attach_truyen_theloais), new Action<truyen_theloai>(this.detach_truyen_theloais));
 			OnCreated();
 		}
 		
@@ -2817,6 +2859,19 @@ namespace QLKAHYTOON.Models
 			}
 		}
 		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="thongtintruyen_truyen_theloai", Storage="_truyen_theloais", ThisKey="MaTruyen", OtherKey="MaTruyen")]
+		public EntitySet<truyen_theloai> truyen_theloais
+		{
+			get
+			{
+				return this._truyen_theloais;
+			}
+			set
+			{
+				this._truyen_theloais.Assign(value);
+			}
+		}
+		
 		public event PropertyChangingEventHandler PropertyChanging;
 		
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -2904,6 +2959,18 @@ namespace QLKAHYTOON.Models
 		}
 		
 		private void detach_lichsudocs(lichsudoc entity)
+		{
+			this.SendPropertyChanging();
+			entity.thongtintruyen = null;
+		}
+		
+		private void attach_truyen_theloais(truyen_theloai entity)
+		{
+			this.SendPropertyChanging();
+			entity.thongtintruyen = this;
+		}
+		
+		private void detach_truyen_theloais(truyen_theloai entity)
 		{
 			this.SendPropertyChanging();
 			entity.thongtintruyen = null;
@@ -3375,6 +3442,174 @@ namespace QLKAHYTOON.Models
 					if ((value != null))
 					{
 						value.lichsudocs.Add(this);
+						this._MaTruyen = value.MaTruyen;
+					}
+					else
+					{
+						this._MaTruyen = default(string);
+					}
+					this.SendPropertyChanged("thongtintruyen");
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.truyen_theloai")]
+	public partial class truyen_theloai : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private string _MaTruyen;
+		
+		private string _MaTheLoai;
+		
+		private EntityRef<theloai> _theloai;
+		
+		private EntityRef<thongtintruyen> _thongtintruyen;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnMaTruyenChanging(string value);
+    partial void OnMaTruyenChanged();
+    partial void OnMaTheLoaiChanging(string value);
+    partial void OnMaTheLoaiChanged();
+    #endregion
+		
+		public truyen_theloai()
+		{
+			this._theloai = default(EntityRef<theloai>);
+			this._thongtintruyen = default(EntityRef<thongtintruyen>);
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MaTruyen", DbType="NVarChar(50) NOT NULL", CanBeNull=false, IsPrimaryKey=true)]
+		public string MaTruyen
+		{
+			get
+			{
+				return this._MaTruyen;
+			}
+			set
+			{
+				if ((this._MaTruyen != value))
+				{
+					if (this._thongtintruyen.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnMaTruyenChanging(value);
+					this.SendPropertyChanging();
+					this._MaTruyen = value;
+					this.SendPropertyChanged("MaTruyen");
+					this.OnMaTruyenChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MaTheLoai", DbType="NVarChar(50) NOT NULL", CanBeNull=false, IsPrimaryKey=true)]
+		public string MaTheLoai
+		{
+			get
+			{
+				return this._MaTheLoai;
+			}
+			set
+			{
+				if ((this._MaTheLoai != value))
+				{
+					if (this._theloai.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnMaTheLoaiChanging(value);
+					this.SendPropertyChanging();
+					this._MaTheLoai = value;
+					this.SendPropertyChanged("MaTheLoai");
+					this.OnMaTheLoaiChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="theloai_truyen_theloai", Storage="_theloai", ThisKey="MaTheLoai", OtherKey="MaTheLoai", IsForeignKey=true, DeleteOnNull=true, DeleteRule="CASCADE")]
+		public theloai theloai
+		{
+			get
+			{
+				return this._theloai.Entity;
+			}
+			set
+			{
+				theloai previousValue = this._theloai.Entity;
+				if (((previousValue != value) 
+							|| (this._theloai.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._theloai.Entity = null;
+						previousValue.truyen_theloais.Remove(this);
+					}
+					this._theloai.Entity = value;
+					if ((value != null))
+					{
+						value.truyen_theloais.Add(this);
+						this._MaTheLoai = value.MaTheLoai;
+					}
+					else
+					{
+						this._MaTheLoai = default(string);
+					}
+					this.SendPropertyChanged("theloai");
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="thongtintruyen_truyen_theloai", Storage="_thongtintruyen", ThisKey="MaTruyen", OtherKey="MaTruyen", IsForeignKey=true, DeleteOnNull=true, DeleteRule="CASCADE")]
+		public thongtintruyen thongtintruyen
+		{
+			get
+			{
+				return this._thongtintruyen.Entity;
+			}
+			set
+			{
+				thongtintruyen previousValue = this._thongtintruyen.Entity;
+				if (((previousValue != value) 
+							|| (this._thongtintruyen.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._thongtintruyen.Entity = null;
+						previousValue.truyen_theloais.Remove(this);
+					}
+					this._thongtintruyen.Entity = value;
+					if ((value != null))
+					{
+						value.truyen_theloais.Add(this);
 						this._MaTruyen = value.MaTruyen;
 					}
 					else

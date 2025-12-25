@@ -72,7 +72,6 @@ namespace QLKAHYTOON.Controllers
             return View();
         }
 
-        // POST: Account/Login - FIXED: Admin login được nhận diện đầy đủ
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Login(LoginViewModel model)
@@ -92,7 +91,6 @@ namespace QLKAHYTOON.Controllers
                         return RedirectToAction("Index", "Home");
                     }
                 }
-
                 // Nếu không phải user, kiểm tra admin
                 var admin = db.admins.SingleOrDefault(a => a.TenDangNhap == model.TenDangNhap);
 
@@ -101,18 +99,15 @@ namespace QLKAHYTOON.Controllers
                     // Xác thực mật khẩu admin
                     if (PasswordHelper.VerifyPassword(model.MatKhau, admin.MatKhau))
                     {
-                        // ⭐ FIX: Set Session["User"] = admin để admin được nhận diện
                         Session["User"] = admin;
                         Session["IsAdmin"] = true;
                         return RedirectToAction("Index", "Home");
                     }
                 }
-
                 ModelState.AddModelError("", "Tên đăng nhập hoặc mật khẩu không đúng.");
             }
             return View(model);
         }
-
         // GET: Account/Logout
         public ActionResult Logout()
         {

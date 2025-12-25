@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?><Database Name="KAHYToon" EntityNamespace="QLKAHYTOON.Models" ContextNamespace="QLKAHYTOON.Models" Class="QLKAHYTOONDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
-  <Connection Mode="ConnectionString" ConnectionString="Data Source=.;Initial Catalog=KAHYToon;Integrated Security=True;TrustServerCertificate=True" Provider="System.Data.SqlClient" />
+  <Connection Mode="ConnectionString" ConnectionString="Data Source=.\SQLEXPRESS;Initial Catalog=KAHYToon;Integrated Security=True;TrustServerCertificate=True" Provider="System.Data.SqlClient" />
   <Table Name="dbo.admin" Member="admins">
     <Type Name="admin">
       <Column Name="MaAdmin" Type="System.String" DbType="NVarChar(50) NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
@@ -66,6 +66,7 @@
     <Type Name="theloai">
       <Column Name="MaTheLoai" Type="System.String" DbType="NVarChar(50) NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
       <Column Name="TenTheLoai" Type="System.String" DbType="NVarChar(200)" CanBeNull="true" />
+      <Association Name="theloai_truyen_theloai" Member="truyen_theloais" ThisKey="MaTheLoai" OtherKey="MaTheLoai" Type="truyen_theloai" />
     </Type>
   </Table>
   <Table Name="dbo.truyenyeuthich" Member="truyenyeuthiches">
@@ -113,6 +114,7 @@
       <Association Name="thongtintruyen_binhluan" Member="binhluans" ThisKey="MaTruyen" OtherKey="MaTruyen" Type="binhluan" />
       <Association Name="thongtintruyen_danhgia" Member="danhgias" ThisKey="MaTruyen" OtherKey="MaTruyen" Type="danhgia" />
       <Association Name="thongtintruyen_lichsudoc" Member="lichsudocs" ThisKey="MaTruyen" OtherKey="MaTruyen" Type="lichsudoc" />
+      <Association Name="thongtintruyen_truyen_theloai" Member="truyen_theloais" ThisKey="MaTruyen" OtherKey="MaTruyen" Type="truyen_theloai" />
     </Type>
   </Table>
   <Table Name="dbo.danhgia" Member="danhgias">
@@ -135,6 +137,14 @@
       <Association Name="chuong_lichsudoc" Member="chuong" ThisKey="MaChuong" OtherKey="MaChuong" Type="chuong" IsForeignKey="true" DeleteRule="CASCADE" />
       <Association Name="nguoidung_lichsudoc" Member="nguoidung" ThisKey="MaNguoiDung" OtherKey="MaNguoiDung" Type="nguoidung" IsForeignKey="true" />
       <Association Name="thongtintruyen_lichsudoc" Member="thongtintruyen" ThisKey="MaTruyen" OtherKey="MaTruyen" Type="thongtintruyen" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.truyen_theloai" Member="truyen_theloais">
+    <Type Name="truyen_theloai">
+      <Column Name="MaTruyen" Type="System.String" DbType="NVarChar(50) NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="MaTheLoai" Type="System.String" DbType="NVarChar(50) NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Association Name="theloai_truyen_theloai" Member="theloai" ThisKey="MaTheLoai" OtherKey="MaTheLoai" Type="theloai" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+      <Association Name="thongtintruyen_truyen_theloai" Member="thongtintruyen" ThisKey="MaTruyen" OtherKey="MaTruyen" Type="thongtintruyen" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
     </Type>
   </Table>
   <Function Name="dbo.sp_GetTopTruyenByView" Method="sp_GetTopTruyenByView">
